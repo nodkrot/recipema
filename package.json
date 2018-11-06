@@ -1,8 +1,9 @@
 {
   "name": "recipema.com",
-  "version": "0.0.0",
-  "description": "Quick app starter for static websites hosted in AWS S3",
+  "version": "1.0.0",
+  "description": "Recipe admin dashboard.",
   "license": "MIT",
+  "repository": "https://github.com/nodkrot/recipema",
   "scripts": {
     "start": "NODE_ENV=development parcel app/index.html",
     "deploy": "NODE_ENV=production parcel build app/index.html && aws s3 sync dist/ s3://recipema.com/",

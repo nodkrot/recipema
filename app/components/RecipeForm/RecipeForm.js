@@ -6,6 +6,7 @@ import Input from 'antd/lib/input'
 import Button from 'antd/lib/button'
 import Select from 'antd/lib/select'
 import get from 'lodash/get'
+import omit from 'lodash/omit'
 import './styles.css'
 
 const FormItem = Form.Item
@@ -49,19 +50,14 @@ class RecipeForm extends Component {
     setFieldsValue({ [field]: keys.concat(keys.length) })
   }
 
-  handleSubmit(e) {
+  handleSubmit() {
     const { form: { validateFields, resetFields } } = this.props
 
     validateFields((err, data) => {
       if (err) return
-      // Clean up
-      delete data.ingredientsKeys
-      delete data.directionsKeys
-
-      this.props.onSubmit(data, resetFields)
+      // With clean up
+      this.props.onSubmit(omit(data, ['ingredientsKeys', 'directionsKeys']), resetFields)
     })
-
-    e.preventDefault()
   }
 
   render() {
@@ -133,8 +129,8 @@ class RecipeForm extends Component {
         </FormItem>
         <FormItem>
           {getFieldDecorator('description', {
-            initialValue: get(recipe, 'description'),
-            rules: [{ required: true, message: 'Please input body' }],
+            initialValue: get(recipe, 'description', ''),
+            rules: [{ required: false, message: 'Please input body' }],
           })(<TextArea size="large" rows={4} placeholder="Описание" />)}
         </FormItem>
         <h3>Ингредиенты</h3>
@@ -152,9 +148,7 @@ class RecipeForm extends Component {
           </Button>
         </FormItem>
         <FormItem>
-          <Button block size="large" type="primary" htmlType="submit">
-            Сохранить
-          </Button>
+          <Button block size="large" type="primary" onClick={this.handleSubmit}>Сохранить</Button>
         </FormItem>
       </Form>
     )

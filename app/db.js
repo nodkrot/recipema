@@ -21,7 +21,7 @@ export function getRecipes() {
     .then((querySnapshot) => {
       const recipes = []
 
-      querySnapshot.forEach(function(doc) {
+      querySnapshot.forEach((doc) => {
         recipes.push(Object.assign(doc.data(), { id: doc.id }))
       })
 
