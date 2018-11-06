@@ -66,19 +66,12 @@ class RecipeForm extends Component {
 
   render() {
     const { recipe, form: { getFieldDecorator, getFieldValue } } = this.props
-    let ingredients, directions
 
-    if (recipe) {
-      getFieldDecorator('ingredientsKeys', { initialValue: recipe.ingredients })
-      getFieldDecorator('directionsKeys', { initialValue: recipe.directions })
-      ingredients = getFieldValue('ingredientsKeys')
-      directions = getFieldValue('directionsKeys')
-    } else {
-      getFieldDecorator('ingredientsKeys', { initialValue: [0] })
-      getFieldDecorator('directionsKeys', { initialValue: [0] })
-      ingredients = getFieldValue('ingredientsKeys')
-      directions = getFieldValue('directionsKeys')
-    }
+    getFieldDecorator('ingredientsKeys', { initialValue: get(recipe, 'ingredients', [0]) })
+    getFieldDecorator('directionsKeys', { initialValue: get(recipe, 'directions', [0]) })
+
+    const ingredients = getFieldValue('ingredientsKeys')
+    const directions = getFieldValue('directionsKeys')
 
     const ingredientFields = ingredients.map((val, i) => (
       <div key={i} style={{ display: 'flex' }}>
