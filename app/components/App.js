@@ -4,10 +4,13 @@ import Col from 'antd/lib/col'
 import Icon from 'antd/lib/icon'
 import Layout from 'antd/lib/layout'
 import Button from 'antd/lib/button'
+import Divider from 'antd/lib/divider'
 import RecipeForm from './RecipeForm/RecipeForm.js'
 import RecipeList from './RecipeList/RecipeList.js'
 import { getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../db.js'
+import Messages from '../messages.json'
 
+const messages = Messages['ru_RU']
 const { Header, Content, Footer } = Layout
 
 export default class App extends Component {
@@ -82,15 +85,18 @@ export default class App extends Component {
           <Row type="flex" justify="center" gutter={16}>
             <Col span={14}>
               <h1 className="app__title">
-                {this.state.currentRecipe ? this.state.currentRecipe.name : 'New Recipe'}
-                <Button type="primary" onClick={this.handleNew}><Icon type="plus" /></Button>
+                {this.state.currentRecipe ? this.state.currentRecipe.name : messages.app_form_title}
               </h1>
               <RecipeForm
                 recipe={this.state.currentRecipe}
                 onSubmit={this.handleSubmit} />
             </Col>
             <Col span={10}>
-              <h1>Recipes</h1>
+              <h1>{messages.app_list_title  }</h1>
+              <Button block type="primary" onClick={this.handleNew}>
+                <Icon type="plus" /> {messages.app_add_recipe}
+              </Button>
+              <Divider />
               <RecipeList
                 recipes={this.state.recipes}
                 onEdit={this.handleEdit}

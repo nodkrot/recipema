@@ -13,9 +13,3 @@
   padding: 44px 16px;
   background: white;
 }
-
-.app__title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}

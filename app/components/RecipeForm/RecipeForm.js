@@ -7,15 +7,17 @@ import Button from 'antd/lib/button'
 import Select from 'antd/lib/select'
 import get from 'lodash/get'
 import omit from 'lodash/omit'
+import Messages from '../../messages.json'
 import './styles.css'
 
+const messages = Messages['ru_RU']
 const FormItem = Form.Item
 const { TextArea } = Input
 const Option = Select.Option
 const units = ['piece', 'gallon', 'quart', 'pint', 'cup', 'ounce', 'kilogram', 'gram', 'milligram', 'tablespoon', 'teaspoon']
 
 const unitSelect = (
-  <Select size="large" placeholder="Units">
+  <Select size="large" placeholder={messages.recipe_form_ingredient_unit}>
     {units.map((u, i) => <Option key={i} value={u}>{u}</Option>)}
   </Select>
 )
@@ -31,7 +33,7 @@ class RecipeForm extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (get(prevProps, 'recipe.id') !== get(this.props, 'recipe.id')) {
+    if (prevProps.recipe !== this.props.recipe) {
       this.props.form.resetFields()
     }
   }
@@ -74,20 +76,20 @@ class RecipeForm extends Component {
         <FormItem style={{ minWidth: 88, marginRight: 8 }}>
           {getFieldDecorator(`ingredients[${i}].amount.value`, {
             initialValue: get(val, 'amount.value'),
-            rules: [{ required: true, message: 'Please input quantity' }],
-          })(<Input size="large" type="number" placeholder="Qty" />)}
+            rules: [{ required: true, message: messages.recipe_form_ingredient_qty_error }],
+          })(<Input size="large" type="number" placeholder={messages.recipe_form_ingredient_qty} />)}
         </FormItem>
         <FormItem style={{ minWidth: 140, marginRight: 8 }}>
           {getFieldDecorator(`ingredients[${i}].amount.unit`, {
             initialValue: get(val, 'amount.unit'),
-            rules: [{ required: true, message: 'Please input unit' }]
+            rules: [{ required: true, message: messages.recipe_form_ingredient_unit_error }]
           })(unitSelect)}
         </FormItem>
         <FormItem style={{ width: '100%' }}>
           {getFieldDecorator(`ingredients[${i}].name`, {
             initialValue: get(val, 'name'),
-            rules: [{ required: true, message: 'Please input ingredient' }],
-          })(<Input size="large" placeholder="Ингредиент" />)}
+            rules: [{ required: true, message: messages.recipe_form_ingredient_name_error }],
+          })(<Input size="large" placeholder={messages.recipe_form_ingredient_name} />)}
         </FormItem>
         {i > 0 && <Icon
           className="dynamic-delete-button"
@@ -99,17 +101,11 @@ class RecipeForm extends Component {
 
     const directionFields = directions.map((val, i) => (
       <div key={i} style={{ display: 'flex' }}>
-        <FormItem style={{ display: 'none' }}>
-          {getFieldDecorator(`directions[${i}].sequence`, {
-            initialValue: i + 1,
-            rules: [{ required: true }],
-          })(<Input size="large" type="number" />)}
-        </FormItem>
         <FormItem style={{ width: '100%' }}>
           {getFieldDecorator(`directions[${i}].text`, {
             initialValue: get(val, 'text'),
-            rules: [{ required: true, message: 'Please input instruction' }],
-          })(<Input size="large" placeholder="Инструкция" />)}
+            rules: [{ required: true, message: messages.recipe_form_direction_text_error }],
+          })(<Input size="large" placeholder={messages.recipe_form_direction_text} />)}
         </FormItem>
         {i > 0 && <Icon
           className="dynamic-delete-button"
@@ -124,31 +120,33 @@ class RecipeForm extends Component {
         <FormItem>
           {getFieldDecorator('name', {
             initialValue: get(recipe, 'name'),
-            rules: [{ required: true, message: 'Please input recipe name' }],
-          })(<Input size="large" placeholder="Имя рецепта" />)}
+            rules: [{ required: true, message: messages.recipe_form_name_error }],
+          })(<Input size="large" placeholder={messages.recipe_form_name} />)}
         </FormItem>
         <FormItem>
           {getFieldDecorator('description', {
             initialValue: get(recipe, 'description', ''),
-            rules: [{ required: false, message: 'Please input body' }],
-          })(<TextArea size="large" rows={4} placeholder="Описание" />)}
+            rules: [{ required: false, message: messages.recipe_form_description_error }],
+          })(<TextArea size="large" rows={4} placeholder={messages.recipe_form_description} />)}
         </FormItem>
-        <h3>Ингредиенты</h3>
+        <h3>{messages.recipe_form_title_ingredient}</h3>
         {ingredientFields}
         <FormItem>
           <Button block size="large" type="dashed" onClick={() => this.handleAdd('ingredientsKeys')}>
-            <Icon type="plus" /> Добавить ингридиент
+            <Icon type="plus" /> {messages.recipe_form_add_ingredient}
           </Button>
         </FormItem>
-        <h3>Инструкция приготовления</h3>
+        <h3>{messages.recipe_form_title_direction}</h3>
         {directionFields}
         <FormItem>
           <Button block size="large" type="dashed" onClick={() => this.handleAdd('directionsKeys')}>
-            <Icon type="plus" />  Добавить шаг
+            <Icon type="plus" /> {messages.recipe_form_add_direction}
           </Button>
         </FormItem>
         <FormItem>
-          <Button block size="large" type="primary" onClick={this.handleSubmit}>Сохранить</Button>
+          <Button block size="large" type="primary" onClick={this.handleSubmit}>
+            {messages.recipe_form_submit}
+          </Button>
         </FormItem>
       </Form>
     )
@@ -175,7 +173,6 @@ RecipeForm.propTypes = {
       })
     })),
     directions: PropTypes.arrayOf(PropTypes.shape({
-      sequence: PropTypes.number,
       text: PropTypes.string
     })),
     tags: PropTypes.array,
