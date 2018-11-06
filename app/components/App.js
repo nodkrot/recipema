@@ -40,13 +40,9 @@ export default class App extends Component {
   // hence we need to perform cleaning and grab the id from `this.state`
   // We also need to `resetFields` because after submit the form caches the fields
   handleSubmit(recipe, resetFields) {
-    let promise
-
-    if (this.state.currentRecipe) {
-      promise = updateRecipe(this.state.currentRecipe.id, recipe)
-    } else {
-      promise = createRecipe(recipe)
-    }
+    const promise = this.state.currentRecipe
+      ? updateRecipe(this.state.currentRecipe.id, recipe)
+      : createRecipe(recipe)
 
     promise
       .then(() => {

@@ -17,15 +17,16 @@ const db = !firebase.apps.length
 db.settings({ timestampsInSnapshots: true })
 
 export function getRecipes() {
-  return db.collection('recipes').get().then((querySnapshot) => {
-    const recipes = []
+  return db.collection('recipes').orderBy('createdAt', 'desc').get()
+    .then((querySnapshot) => {
+      const recipes = []
 
-    querySnapshot.forEach(function(doc) {
-      recipes.push(Object.assign(doc.data(), { id: doc.id }))
+      querySnapshot.forEach(function(doc) {
+        recipes.push(Object.assign(doc.data(), { id: doc.id }))
+      })
+
+      return recipes
     })
-
-    return recipes
-  })
 }
 
 export function createRecipe(recipe) {
