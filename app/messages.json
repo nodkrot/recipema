@@ -23,6 +23,15 @@
     "recipe_form_direction_text": "Инструкция",
     "recipe_form_direction_text_error": "Пожалуйста введите инструкцию",
     "recipe_form_submit": "Сохранить",
+    "unit_piece": "шт.",
+    "unit_tablespoon": "ст. ложка",
+    "unit_teaspoon": "ч. ложка",
+    "unit_cup": "чашка",
+    "unit_kilogram": "килограм",
+    "unit_gram": "грамм",
+    "unit_milligram": "миллиграмм",
+    "unit_liter": "литр",
+    "unit_milliliter": "миллилитр"
   },
   "en_US": {}
 }

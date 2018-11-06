@@ -14,11 +14,11 @@ const messages = Messages['ru_RU']
 const FormItem = Form.Item
 const { TextArea } = Input
 const Option = Select.Option
-const units = ['piece', 'gallon', 'quart', 'pint', 'cup', 'ounce', 'kilogram', 'gram', 'milligram', 'tablespoon', 'teaspoon']
+const units = ['piece', 'tablespoon', 'teaspoon', 'cup', 'kilogram', 'gram', 'milligram', 'liter', 'milliliter']
 
 const unitSelect = (
   <Select size="large" placeholder={messages.recipe_form_ingredient_unit}>
-    {units.map((u, i) => <Option key={i} value={u}>{u}</Option>)}
+    {units.map((u, i) => <Option key={i} value={u}>{messages[`unit_${u}`]}</Option>)}
   </Select>
 )
 

@@ -9,6 +9,7 @@ import RecipeForm from './RecipeForm/RecipeForm.js'
 import RecipeList from './RecipeList/RecipeList.js'
 import { getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../db.js'
 import Messages from '../messages.json'
+import './styles.css'
 
 const messages = Messages['ru_RU']
 const { Header, Content, Footer } = Layout

@@ -1,15 +1,1 @@
 /* Global styles */
-.app__logo {
-  font-family: 'Rochester', cursive;
-  font-size: 36px;
-}
-
-.app__header, .app__footer {
-  background: white;
-  text-align: center;
-}
-
-.app__content {
-  padding: 44px 16px;
-  background: white;
-}

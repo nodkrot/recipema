@@ -24,7 +24,7 @@ export default class RecipeList extends Component {
   handleRemove(item) {
     confirm({
       title: messages.modal_remove_title.replace('$a', item.name),
-      onOk() {
+      onOk: () => {
         this.props.onRemove(item)
       },
       onCancel() {},
