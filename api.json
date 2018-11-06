@@ -1,0 +1,95 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "RecipeMa",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "servers": [{
+    "url": "https://api.test.com/openapitest/v1"
+  }],
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Recipe": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ingredient"
+            }
+          },
+          "directions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Direction"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "date-time"
+          }
+        },
+        "required": ["name", "ingredients", "directions"]
+      },
+      "Ingredient": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Amount"
+          }
+        },
+        "required": ["name", "amount"]
+      },
+      "Direction": {
+        "type": "object",
+        "properties": {
+          "sequence": {
+            "type": "integer"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": ["sequence", "text"]
+      },
+      "Amount": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "decimal"
+          },
+          "unit": {
+            "$ref": "#/components/schemas/Unit"
+          }
+        },
+        "required": ["value", "unit"]
+      },
+      "Unit": {
+        "type": "string",
+        "enum": ["piece", "gallon", "quart", "pint", "cup", "ounce", "kilogram", "gram", "milligram", "teaspoon", "tablespoon"]
+      }
+    },
+    "links": {},
+    "callbacks": {}
+  },
+  "security": []
+}

@@ -1,0 +1,22 @@
+{
+  "name": "recipema.com",
+  "version": "0.0.0",
+  "description": "Quick app starter for static websites hosted in AWS S3",
+  "license": "MIT",
+  "scripts": {
+    "start": "NODE_ENV=development parcel app/index.html",
+    "deploy": "NODE_ENV=production parcel build app/index.html && aws s3 sync dist/ s3://recipema.com/",
+    "setup": "./setup.sh"
+  },
+  "dependencies": {
+    "antd": "^3.8.0",
+    "firebase": "^5.5.7",
+    "parcel-bundler": "^1.9.6",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.2.0",
+    "eslint-plugin-react": "^7.10.0"
+  }
+}
