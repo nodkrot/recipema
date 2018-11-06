@@ -93,7 +93,7 @@ export default class App extends Component {
                 onSubmit={this.handleSubmit} />
             </Col>
             <Col span={10}>
-              <h1>{messages.app_list_title  }</h1>
+              <h1>{messages.app_list_title}</h1>
               <Button block type="primary" onClick={this.handleNew}>
                 <Icon type="plus" /> {messages.app_add_recipe}
               </Button>
