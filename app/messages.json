@@ -1,0 +1,28 @@
+{
+  "ru_RU": {
+    "modal_remove_title": "Вы уверены вы хотите удалить $a?",
+    "recipe_list_edit": "изменить",
+    "recipe_list_remove": "удалить",
+    "app_form_title": "Новый Рецепт",
+    "app_list_title": "Рецепты",
+    "app_add_recipe": "Добавить рецепт",
+    "recipe_form_name": "Имя рецепта",
+    "recipe_form_name_error": "Пожалуйста введите имя рецепта",
+    "recipe_form_description": "Описание",
+    "recipe_form_description_error": "Пожалуйста введите описание",
+    "recipe_form_add_ingredient": "Добавить ингредиент",
+    "recipe_form_title_ingredient": "Ингредиенты",
+    "recipe_form_ingredient_qty": "Кол-во",
+    "recipe_form_ingredient_qty_error": "Пожалуйста введите кол-во",
+    "recipe_form_ingredient_unit": "Единица",
+    "recipe_form_ingredient_unit_error": "Пожалуйста выберите единицу измерения",
+    "recipe_form_ingredient_name": "Ингредиент",
+    "recipe_form_ingredient_name_error": "Пожалуйста введите ингредиент",
+    "recipe_form_add_direction": "Добавить инструкцию",
+    "recipe_form_title_direction": "Инструкция приготовления",
+    "recipe_form_direction_text": "Инструкция",
+    "recipe_form_direction_text_error": "Пожалуйста введите инструкцию",
+    "recipe_form_submit": "Сохранить",
+  },
+  "en_US": {}
+}
