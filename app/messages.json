@@ -1,8 +1,6 @@
 {
   "ru_RU": {
     "modal_remove_title": "Вы уверены вы хотите удалить $a?",
-    "recipe_list_edit": "изменить",
-    "recipe_list_remove": "удалить",
     "app_form_title": "Новый рецепт",
     "app_list_title": "Рецепты",
     "app_add_recipe": "Добавить рецепт",

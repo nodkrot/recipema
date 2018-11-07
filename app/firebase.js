@@ -31,7 +31,10 @@ export function getRecipes() {
 }
 
 export function createRecipe(recipe) {
-  return db.collection('recipes').add(Object.assign(recipe, { createdAt: new Date().toISOString() }))
+  return db.collection('recipes').add(Object.assign(recipe, {
+    createdAt: new Date().toISOString(),
+    authorId: firebase.auth().currentUser.uid
+  }))
 }
 
 export function updateRecipe(id, recipe) {

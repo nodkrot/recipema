@@ -3,13 +3,19 @@
   font-size: 36px;
 }
 
-.app .app__header,
+.app .app__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  text-align: center;
+}
 .app .app__footer {
   background: white;
   text-align: center;
 }
 
 .app  .app__content {
-  padding: 44px 16px;
+  padding: 28px 50px;
   background: white;
 }

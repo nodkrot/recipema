@@ -7,7 +7,7 @@ import Button from 'antd/lib/button'
 import Divider from 'antd/lib/divider'
 import RecipeForm from '../RecipeForm/RecipeForm.js'
 import RecipeList from '../RecipeList/RecipeList.js'
-import { getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../firebase.js'
+import firebase, { getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../firebase.js'
 import Messages from '../../messages.json'
 import './styles.css'
 
@@ -57,6 +57,10 @@ export default class Dashboard extends Component {
       .catch((err) => console.log(err))
   }
 
+  handleSignOut() {
+    firebase.auth().signOut().catch((err) => console.log(err))
+  }
+
   handleRemove(recipe) {
     deleteRecipe(recipe.id)
       .then(() => {
@@ -80,7 +84,9 @@ export default class Dashboard extends Component {
     return (
       <Layout className="app">
         <Header className="app__header">
+          <span className="app__header-space" />
           <a href="/" className="app__logo">RecipeMa</a>
+          <Button type="primary" shape="circle" icon="logout" size="large" onClick={this.handleSignOut} />
         </Header>
         <Content className="app__content">
           <Row type="flex" justify="center" gutter={16}>
@@ -106,7 +112,7 @@ export default class Dashboard extends Component {
           </Row>
         </Content>
         <Footer className="app__footer">
-          Made with <Icon type="heart" />
+          Made with <Icon type="heart" /> {new Date().getFullYear()}
         </Footer>
       </Layout>
     )

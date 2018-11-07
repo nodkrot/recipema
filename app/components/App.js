@@ -4,7 +4,7 @@ import Dashboard from './Dashboard/Dashboard.js'
 import Login from './Login/Login.js'
 import firebase from '../firebase.js'
 
-class App extends Component {
+export default class App extends Component {
 
   constructor(props) {
     super(props)
@@ -36,5 +36,3 @@ class App extends Component {
     )
   }
 }
-
-export default App

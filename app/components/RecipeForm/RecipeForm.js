@@ -105,7 +105,7 @@ class RecipeForm extends Component {
           {getFieldDecorator(`directions[${i}].text`, {
             initialValue: get(val, 'text'),
             rules: [{ required: true, message: messages.recipe_form_direction_text_error }],
-          })(<Input size="large" placeholder={messages.recipe_form_direction_text} />)}
+          })(<Input size="large" addonBefore={i + 1} placeholder={messages.recipe_form_direction_text} />)}
         </FormItem>
         {i > 0 && <Icon
           className="dynamic-delete-button"
