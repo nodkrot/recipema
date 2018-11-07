@@ -23,5 +23,6 @@ aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy \
         }
     ]
 }'
-aws s3 website s3://$BUCKET_NAME/ --index-document index.html --error-document error.html
+# `--error-document index.html` is not set to error.html because react-router handles error pages
+aws s3 website s3://$BUCKET_NAME/ --index-document index.html --error-document index.html
 sed -i '' 's/react-static/'$BUCKET_NAME'/g' package.json
