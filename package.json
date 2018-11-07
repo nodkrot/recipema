@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": "https://github.com/nodkrot/recipema",
   "scripts": {
-    "start": "NODE_ENV=development parcel app/index.html",
+    "start": "parcel app/index.html",
     "deploy": "parcel build app/index.html && aws s3 sync dist/ s3://recipema.com/",
     "setup": "./setup.sh"
   },

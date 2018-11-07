@@ -24,14 +24,13 @@ class App extends Component {
 
   render() {
     if (this.state.isSignedIn === null) return null
-    // <Redirect from="*" to="login" />
-    // console.log(this.state)
+
     return (
       <BrowserRouter>
         <Switch>
           <Route path="/login" component={Login} />
           {this.state.isSignedIn && <Route path="/dashboard" component={Dashboard} />}
-
+          <Redirect from="/" to="login" />
         </Switch>
       </BrowserRouter>
     )
