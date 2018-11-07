@@ -3,7 +3,6 @@
     "modal_remove_title": "Вы уверены вы хотите удалить $a?",
     "app_form_title": "Новый рецепт",
     "app_list_title": "Рецепты",
-    "app_add_recipe": "Добавить рецепт",
     "recipe_form_name": "Имя рецепта",
     "recipe_form_name_error": "Пожалуйста введите имя рецепта",
     "recipe_form_description": "Описание",

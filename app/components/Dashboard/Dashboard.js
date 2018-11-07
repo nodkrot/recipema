@@ -4,7 +4,6 @@ import Col from 'antd/lib/col'
 import Icon from 'antd/lib/icon'
 import Layout from 'antd/lib/layout'
 import Button from 'antd/lib/button'
-import Divider from 'antd/lib/divider'
 import RecipeForm from '../RecipeForm/RecipeForm.js'
 import RecipeList from '../RecipeList/RecipeList.js'
 import firebase, { getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../firebase.js'
@@ -91,7 +90,7 @@ export default class Dashboard extends Component {
         <Content className="dashboard__content">
           <Row type="flex" justify="center" gutter={16}>
             <Col span={14}>
-              <h1 className="dashboard__title">
+              <h1>
                 {this.state.currentRecipe ? this.state.currentRecipe.name : messages.app_form_title}
               </h1>
               <RecipeForm
@@ -99,11 +98,10 @@ export default class Dashboard extends Component {
                 onSubmit={this.handleSubmit} />
             </Col>
             <Col span={10}>
-              <h1>{messages.app_list_title}</h1>
-              <Button block type="primary" onClick={this.handleNew}>
-                <Icon type="plus" /> {messages.app_add_recipe}
-              </Button>
-              <Divider />
+              <h1 className="dashboard__title">
+                {messages.app_list_title}
+                <Button type="primary" shape="circle" icon="form" size="large" onClick={this.handleNew} />
+              </h1>
               <RecipeList
                 recipes={this.state.recipes}
                 onEdit={this.handleEdit}

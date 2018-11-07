@@ -24,3 +24,8 @@
   padding: 28px 50px;
   background: white;
 }
+
+.dashboard__title {
+  display: flex;
+  justify-content: space-between;
+}

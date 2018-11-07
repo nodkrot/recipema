@@ -9,7 +9,7 @@ export default class Login extends Component {
     super(props)
 
     this.uiConfig = {
-      signInFlow: 'popup',
+      signInFlow: 'redirect',
       signInOptions: [
         firebase.auth.GoogleAuthProvider.PROVIDER_ID
       ],
