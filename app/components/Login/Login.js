@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
-import { withRouter } from 'react-router-dom'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
 import firebase from '../../firebase.js'
 import './styles.css'
 
-class Login extends Component {
+export default class Login extends Component {
 
   constructor(props) {
     super(props)
@@ -15,9 +14,7 @@ class Login extends Component {
         firebase.auth.GoogleAuthProvider.PROVIDER_ID
       ],
       callbacks: {
-        signInSuccessWithAuthResult: () => {
-          props.history.push('/dashboard')
-        }
+        signInSuccessWithAuthResult: () => false
       }
     }
   }
@@ -26,10 +23,10 @@ class Login extends Component {
     return (
       <div className="login">
         <a href="/" className="login__logo">RecipeMa</a>
-        <StyledFirebaseAuth uiConfig={this.uiConfig} firebaseAuth={firebase.auth()}/>
+        <div className="login__wrapper">
+          <StyledFirebaseAuth uiConfig={this.uiConfig} firebaseAuth={firebase.auth()}/>
+        </div>
       </div>
     )
   }
 }
-
-export default withRouter(Login)

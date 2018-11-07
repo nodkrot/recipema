@@ -82,16 +82,16 @@ export default class Dashboard extends Component {
 
   render() {
     return (
-      <Layout className="app">
-        <Header className="app__header">
-          <span className="app__header-space" />
-          <a href="/" className="app__logo">RecipeMa</a>
+      <Layout className="dashboard">
+        <Header className="dashboard__header">
+          <span className="dashboard__header-space" />
+          <a href="/" className="dashboard__logo">RecipeMa</a>
           <Button type="primary" shape="circle" icon="logout" size="large" onClick={this.handleSignOut} />
         </Header>
-        <Content className="app__content">
+        <Content className="dashboard__content">
           <Row type="flex" justify="center" gutter={16}>
             <Col span={14}>
-              <h1 className="app__title">
+              <h1 className="dashboard__title">
                 {this.state.currentRecipe ? this.state.currentRecipe.name : messages.app_form_title}
               </h1>
               <RecipeForm
@@ -111,7 +111,7 @@ export default class Dashboard extends Component {
             </Col>
           </Row>
         </Content>
-        <Footer className="app__footer">
+        <Footer className="dashboard__footer">
           Made with <Icon type="heart" /> {new Date().getFullYear()}
         </Footer>
       </Layout>

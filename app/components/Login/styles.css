@@ -1,8 +1,13 @@
 .login {
   text-align: center;
+  padding: 120px 0;
 }
 
 .login__logo {
   font-family: 'Rochester', cursive;
   font-size: 36px;
+}
+
+.login__wrapper {
+  padding: 20px 0;
 }
