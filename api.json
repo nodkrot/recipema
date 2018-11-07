@@ -43,6 +43,9 @@
           },
           "createdAt": {
             "type": "date-time"
+          },
+          "authorId": {
+            "type": "string"
           }
         },
         "required": ["name", "ingredients", "directions"]
