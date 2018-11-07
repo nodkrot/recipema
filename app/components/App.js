@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom'
+import { Router, Route, Redirect, Switch } from 'react-router-dom'
 import Dashboard from './Dashboard/Dashboard.js'
 import Login from './Login/Login.js'
 import firebase from '../firebase.js'
+import history from '../history.js'
 
 export default class App extends Component {
 
@@ -14,7 +15,9 @@ export default class App extends Component {
 
   componentDidMount() {
     this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => {
-      this.setState({ isSignedIn: Boolean(user) })
+      this.setState({ isSignedIn: Boolean(user) }, () => {
+        if (user) history.push('/dashboard')
+      })
     })
   }
 
@@ -26,13 +29,13 @@ export default class App extends Component {
     if (this.state.isSignedIn === null) return null
 
     return (
-      <BrowserRouter>
+      <Router history={history}>
         <Switch>
           <Route path="/login" component={Login} />
           {this.state.isSignedIn && <Route path="/dashboard" component={Dashboard} />}
-          <Redirect from="/" to="login" />
+          <Redirect from="*" to="/login" />
         </Switch>
-      </BrowserRouter>
+      </Router>
     )
   }
 }
