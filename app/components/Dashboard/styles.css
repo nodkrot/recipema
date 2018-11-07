@@ -1,0 +1,15 @@
+.app .app__logo {
+  font-family: 'Rochester', cursive;
+  font-size: 36px;
+}
+
+.app .app__header,
+.app .app__footer {
+  background: white;
+  text-align: center;
+}
+
+.app  .app__content {
+  padding: 44px 16px;
+  background: white;
+}

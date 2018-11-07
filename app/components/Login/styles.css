@@ -1,0 +1,8 @@
+.login {
+  text-align: center;
+}
+
+.login__logo {
+  font-family: 'Rochester', cursive;
+  font-size: 36px;
+}

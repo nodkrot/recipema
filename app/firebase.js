@@ -41,5 +41,5 @@ export function updateRecipe(id, recipe) {
 export function deleteRecipe(id) {
   return db.collection('recipes').doc(id).delete()
 }
-
-export default db
+// firebase.auth().signOut()
+export default firebase
