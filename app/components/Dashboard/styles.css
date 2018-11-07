@@ -10,6 +10,11 @@
   background: white;
   text-align: center;
 }
+
+.app__header-space {
+  width: 40px;
+}
+
 .app .app__footer {
   background: white;
   text-align: center;
