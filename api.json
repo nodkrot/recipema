@@ -46,6 +46,18 @@
           },
           "authorId": {
             "type": "string"
+          },
+          "servings": {
+            "type": "number"
+          },
+          "prepTime": {
+            "type": "string"
+          },
+          "cookTime": {
+            "type": "string"
+          },
+          "cuisine": {
+            "type": "string"
           }
         },
         "required": ["name", "ingredients", "directions"]
