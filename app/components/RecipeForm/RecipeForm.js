@@ -57,13 +57,15 @@ class RecipeForm extends Component {
 
     validateFields((err, data) => {
       if (err) return
-      // With clean up
-      this.props.onSubmit(omit(data, ['ingredientsKeys', 'directionsKeys']), resetFields)
+      // Cleanup form data
+      let recipeForm = omit(data, ['ingredientsKeys', 'directionsKeys'])
+
+      this.props.onSubmit(recipeForm, resetFields)
     })
   }
 
   render() {
-    const { recipe, form: { getFieldDecorator, getFieldValue } } = this.props
+    const { recipe, form: { getFieldDecorator, getFieldValue }, isLoading } = this.props
 
     getFieldDecorator('ingredientsKeys', { initialValue: get(recipe, 'ingredients', [0]) })
     getFieldDecorator('directionsKeys', { initialValue: get(recipe, 'directions', [0]) })
@@ -92,7 +94,7 @@ class RecipeForm extends Component {
           })(<Input size="large" placeholder={messages.recipe_form_ingredient_name} />)}
         </FormItem>
         {i > 0 && <Icon
-          className="dynamic-delete-button"
+          className="recipe-form__remove-button"
           type="minus-circle-o"
           onClick={() => this.handleRemove('ingredientsKeys', i)}
         />}
@@ -101,14 +103,15 @@ class RecipeForm extends Component {
 
     const directionFields = directions.map((val, i) => (
       <div key={i} style={{ display: 'flex' }}>
+        <div className="recipe-list__step-count">{i + 1}.</div>
         <FormItem style={{ width: '100%' }}>
           {getFieldDecorator(`directions[${i}].text`, {
             initialValue: get(val, 'text'),
             rules: [{ required: true, message: messages.recipe_form_direction_text_error }],
-          })(<Input size="large" addonBefore={i + 1} placeholder={messages.recipe_form_direction_text} />)}
+          })(<TextArea autosize={{ minRows: 2, maxRows: 4 }} placeholder={messages.recipe_form_direction_text} />)}
         </FormItem>
         {i > 0 && <Icon
-          className="dynamic-delete-button"
+          className="recipe-form__remove-button"
           type="minus-circle-o"
           onClick={() => this.handleRemove('directionsKeys', i)}
         />}
@@ -127,7 +130,7 @@ class RecipeForm extends Component {
           {getFieldDecorator('description', {
             initialValue: get(recipe, 'description', ''),
             rules: [{ required: false, message: messages.recipe_form_description_error }],
-          })(<TextArea size="large" rows={4} placeholder={messages.recipe_form_description} />)}
+          })(<TextArea autosize={{ minRows: 2, maxRows: 6 }} placeholder={messages.recipe_form_description} />)}
         </FormItem>
         <h3>{messages.recipe_form_title_ingredient}</h3>
         {ingredientFields}
@@ -144,7 +147,7 @@ class RecipeForm extends Component {
           </Button>
         </FormItem>
         <FormItem>
-          <Button block size="large" type="primary" onClick={this.handleSubmit}>
+          <Button block size="large" type="primary" loading={isLoading} onClick={this.handleSubmit}>
             {messages.recipe_form_submit}
           </Button>
         </FormItem>
@@ -154,7 +157,9 @@ class RecipeForm extends Component {
 }
 
 RecipeForm.propTypes = {
+  isLoading: PropTypes.bool,
   onSubmit: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   form: PropTypes.shape({
     resetFields: PropTypes.func,
     validateFields: PropTypes.func,
@@ -180,4 +185,10 @@ RecipeForm.propTypes = {
   })
 }
 
-export default Form.create()(RecipeForm)
+export default Form.create({
+  onValuesChange: (props, changedValues, allValues) => {
+    if (props.onChange) {
+      props.onChange(allValues)
+    }
+  }
+})(RecipeForm)

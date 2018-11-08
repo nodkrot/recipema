@@ -1,6 +1,11 @@
-.dynamic-delete-button {
+.recipe-form__remove-button {
   cursor: pointer;
   font-size: 24px;
   margin-top: 8px;
   margin-left: 4px;
+}
+
+.recipe-list__step-count {
+  font-size: 16px;
+  padding: 4px 8px 0 0;
 }

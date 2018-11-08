@@ -1,5 +1,6 @@
 {
   "ru_RU": {
+    "modal_new_recipe_title": "Убедитесь, что все данные сохранены. Продолжить?",
     "modal_remove_title": "Вы уверены вы хотите удалить $a?",
     "app_form_title": "Новый рецепт",
     "app_list_title": "Рецепты",

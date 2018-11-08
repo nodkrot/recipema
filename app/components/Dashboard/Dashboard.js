@@ -4,6 +4,7 @@ import Col from 'antd/lib/col'
 import Icon from 'antd/lib/icon'
 import Layout from 'antd/lib/layout'
 import Button from 'antd/lib/button'
+import { confirm } from 'antd/lib/modal'
 import RecipeForm from '../RecipeForm/RecipeForm.js'
 import RecipeList from '../RecipeList/RecipeList.js'
 import firebase, { getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../firebase.js'
@@ -20,7 +21,8 @@ export default class Dashboard extends Component {
 
     this.state = {
       currentRecipe: null,
-      recipes: []
+      recipes: [],
+      isLoading: false
     }
 
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -43,6 +45,8 @@ export default class Dashboard extends Component {
   // hence we need to perform cleaning and grab the id from `this.state`
   // We also need to `resetFields` because after submit the form caches the fields
   handleSubmit(recipe, resetFields) {
+    this.setState({ isLoading: true })
+
     const promise = this.state.currentRecipe
       ? updateRecipe(this.state.currentRecipe.id, recipe)
       : createRecipe(recipe)
@@ -51,7 +55,7 @@ export default class Dashboard extends Component {
       .then(() => {
         resetFields()
         this.fetchRecipes()
-        this.setState({ currentRecipe: null })
+        this.setState({ isLoading: false, currentRecipe: null })
       })
       .catch((err) => console.log(err))
   }
@@ -76,7 +80,10 @@ export default class Dashboard extends Component {
   }
 
   handleNew() {
-    this.setState({ currentRecipe: null })
+    confirm({
+      title: messages.modal_new_recipe_title,
+      onOk: () => this.setState({ currentRecipe: null })
+    })
   }
 
   render() {
@@ -85,7 +92,7 @@ export default class Dashboard extends Component {
         <Header className="dashboard__header">
           <span className="dashboard__header-space" />
           <a href="/" className="dashboard__logo">RecipeMa</a>
-          <Button type="primary" shape="circle" icon="logout" size="large" onClick={this.handleSignOut} />
+          <Button shape="circle" icon="logout" size="large" onClick={this.handleSignOut} />
         </Header>
         <Content className="dashboard__content">
           <Row type="flex" justify="center" gutter={16}>
@@ -95,7 +102,8 @@ export default class Dashboard extends Component {
               </h1>
               <RecipeForm
                 recipe={this.state.currentRecipe}
-                onSubmit={this.handleSubmit} />
+                onSubmit={this.handleSubmit}
+                isLoading={this.state.isLoading} />
             </Col>
             <Col span={10}>
               <h1 className="dashboard__title">
