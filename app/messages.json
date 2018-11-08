@@ -29,7 +29,8 @@
     "unit_gram": "грамм",
     "unit_milligram": "миллиграмм",
     "unit_liter": "литр",
-    "unit_milliliter": "миллилитр"
+    "unit_milliliter": "миллилитр",
+    "unit_taste": "по вкусу"
   },
   "en_US": {}
 }
