@@ -16,9 +16,21 @@ const { TextArea } = Input
 const Option = Select.Option
 const units = ['piece', 'tablespoon', 'teaspoon', 'cup', 'kilogram', 'gram', 'milligram', 'liter', 'milliliter', 'taste']
 
-const unitSelect = (
+const unitSelect = (units) => (
   <Select size="large" placeholder={messages.recipe_form_ingredient_unit}>
     {units.map((u, i) => <Option key={i} value={u}>{messages[`unit_${u}`]}</Option>)}
+  </Select>
+)
+
+const pairingsSelect = (recipes) => (
+  <Select
+    size="large"
+    mode="multiple"
+    placeholder={messages.recipe_form_pairings}
+    filterOption={(input, option) => (
+      option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+    )}>
+    {recipes.map((recipe, i) => <Option key={i} value={recipe.id}>{recipe.name}</Option>)}
   </Select>
 )
 
@@ -65,7 +77,7 @@ class RecipeForm extends Component {
   }
 
   render() {
-    const { recipe, form: { getFieldDecorator, getFieldValue }, isLoading } = this.props
+    const { recipe, recipes, form: { getFieldDecorator, getFieldValue }, isLoading } = this.props
 
     getFieldDecorator('ingredientsKeys', { initialValue: get(recipe, 'ingredients', [0]) })
     getFieldDecorator('directionsKeys', { initialValue: get(recipe, 'directions', [0]) })
@@ -85,7 +97,7 @@ class RecipeForm extends Component {
           {getFieldDecorator(`ingredients[${i}].amount.unit`, {
             initialValue: get(val, 'amount.unit'),
             rules: [{ required: true, message: messages.recipe_form_ingredient_unit_error }]
-          })(unitSelect)}
+          })(unitSelect(units))}
         </FormItem>
         <FormItem style={{ width: '100%' }}>
           {getFieldDecorator(`ingredients[${i}].name`, {
@@ -132,6 +144,12 @@ class RecipeForm extends Component {
             rules: [{ required: false, message: messages.recipe_form_description_error }],
           })(<TextArea autosize={{ minRows: 2, maxRows: 6 }} placeholder={messages.recipe_form_description} />)}
         </FormItem>
+        <FormItem>
+          {getFieldDecorator('pairings', {
+            initialValue: get(recipe, 'pairings', []),
+            rules: [{ required: false, message: messages.recipe_form_description_error }],
+          })(pairingsSelect(recipes))}
+        </FormItem>
         <h3>{messages.recipe_form_title_ingredient}</h3>
         {ingredientFields}
         <FormItem>
@@ -166,6 +184,7 @@ RecipeForm.propTypes = {
     getFieldValue: PropTypes.func,
     getFieldDecorator: PropTypes.func
   }),
+  recipes: PropTypes.array,
   recipe: PropTypes.shape({
     id: PropTypes.string,
     name: PropTypes.string,

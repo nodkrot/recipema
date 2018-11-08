@@ -102,6 +102,7 @@ export default class Dashboard extends Component {
               </h1>
               <RecipeForm
                 recipe={this.state.currentRecipe}
+                recipes={this.state.recipes}
                 onSubmit={this.handleSubmit}
                 isLoading={this.state.isLoading} />
             </Col>
