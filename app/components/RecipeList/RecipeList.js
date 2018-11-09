@@ -26,6 +26,7 @@ export default class RecipeList extends Component {
       <List
         className="recipe-list"
         bordered
+        loading={this.props.isLoading}
         itemLayout="horizontal"
         dataSource={this.props.recipes}
         renderItem={item => (
@@ -45,7 +46,8 @@ export default class RecipeList extends Component {
 }
 
 RecipeList.propTypes = {
-  recipes: PropTypes.array,
-  onEdit: PropTypes.func,
-  onRemove: PropTypes.func
+  recipes: PropTypes.array.isRequired,
+  isLoading: PropTypes.bool,
+  onEdit: PropTypes.func.isRequired,
+  onRemove: PropTypes.func.isRequired
 }

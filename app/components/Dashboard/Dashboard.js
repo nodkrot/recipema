@@ -22,7 +22,8 @@ export default class Dashboard extends Component {
     this.state = {
       currentRecipe: null,
       recipes: [],
-      isLoading: false
+      isSaving: false,
+      isFetching: false
     }
 
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -32,8 +33,10 @@ export default class Dashboard extends Component {
   }
 
   fetchRecipes() {
+    this.setState({ isFetching: true })
+
     getRecipes()
-      .then((recipes) => this.setState({ recipes }))
+      .then((recipes) => this.setState({ recipes, isFetching: false }))
       .catch((err) => console.log(err))
   }
 
@@ -45,7 +48,7 @@ export default class Dashboard extends Component {
   // hence we need to perform cleaning and grab the id from `this.state`
   // We also need to `resetFields` because after submit the form caches the fields
   handleSubmit(recipe, resetFields) {
-    this.setState({ isLoading: true })
+    this.setState({ isSaving: true })
 
     const promise = this.state.currentRecipe
       ? updateRecipe(this.state.currentRecipe.id, recipe)
@@ -55,7 +58,8 @@ export default class Dashboard extends Component {
       .then(() => {
         resetFields()
         this.fetchRecipes()
-        this.setState({ isLoading: false, currentRecipe: null })
+        this.setState({ isSaving: false, currentRecipe: null })
+        window.scrollTo(0, 0)
       })
       .catch((err) => console.log(err))
   }
@@ -104,7 +108,7 @@ export default class Dashboard extends Component {
                 recipe={this.state.currentRecipe}
                 recipes={this.state.recipes}
                 onSubmit={this.handleSubmit}
-                isLoading={this.state.isLoading} />
+                isLoading={this.state.isSaving} />
             </Col>
             <Col span={10}>
               <h1 className="dashboard__title">
@@ -113,6 +117,7 @@ export default class Dashboard extends Component {
               </h1>
               <RecipeList
                 recipes={this.state.recipes}
+                isLoading={this.state.isFetching}
                 onEdit={this.handleEdit}
                 onRemove={this.handleRemove} />
             </Col>
