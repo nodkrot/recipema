@@ -20,7 +20,7 @@
   text-align: center;
 }
 
-.dashboard  .dashboard__content {
+.dashboard .dashboard__content {
   padding: 28px 50px;
   background: white;
 }
@@ -28,4 +28,13 @@
 .dashboard__title {
   display: flex;
   justify-content: space-between;
+}
+
+
+@media only screen and (max-width : 768px) {
+  .dashboard .dashboard__header,
+  .dashboard .dashboard__content {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 }

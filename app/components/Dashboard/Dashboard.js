@@ -100,7 +100,7 @@ export default class Dashboard extends Component {
         </Header>
         <Content className="dashboard__content">
           <Row type="flex" justify="center" gutter={16}>
-            <Col span={14}>
+            <Col xs={24} sm={14}>
               <h1>
                 {this.state.currentRecipe ? this.state.currentRecipe.name : messages.app_form_title}
               </h1>
@@ -110,7 +110,7 @@ export default class Dashboard extends Component {
                 onSubmit={this.handleSubmit}
                 isLoading={this.state.isSaving} />
             </Col>
-            <Col span={10}>
+            <Col xs={24} sm={10}>
               <h1 className="dashboard__title">
                 {messages.app_list_title}
                 <Button type="primary" shape="circle" icon="form" size="large" onClick={this.handleNew} />
