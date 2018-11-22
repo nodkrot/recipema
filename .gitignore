@@ -3,3 +3,8 @@ node_modules
 dist
 .env*
 .DS_Store
+
+# random
+ingredients.json
+parser.js
+train.json

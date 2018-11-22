@@ -56,9 +56,8 @@ export default class Dashboard extends Component {
 
     promise
       .then(() => {
-        resetFields()
+        this.setState({ isSaving: false })
         this.fetchRecipes()
-        this.setState({ isSaving: false, currentRecipe: null })
         window.scrollTo(0, 0)
       })
       .catch((err) => console.log(err))

@@ -7,6 +7,7 @@ import Button from 'antd/lib/button'
 import Select from 'antd/lib/select'
 import get from 'lodash/get'
 import omit from 'lodash/omit'
+import Uploader from '../Uploader/Uploader.js'
 import Messages from '../../messages.json'
 import './styles.css'
 
@@ -38,6 +39,8 @@ class RecipeForm extends Component {
 
   constructor(props) {
     super(props)
+
+    this.state = { isMedia: false }
 
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleAdd = this.handleAdd.bind(this)
@@ -87,51 +90,56 @@ class RecipeForm extends Component {
 
     const ingredientFields = ingredients.map((val, i) => (
       <div key={i} style={{ display: 'flex' }}>
-        <FormItem style={{ minWidth: 88, marginRight: 8 }}>
+        <FormItem style={{ width: 88, marginRight: 8 }}>
           {getFieldDecorator(`ingredients[${i}].amount.value`, {
             initialValue: get(val, 'amount.value'),
             rules: [{ required: true, message: messages.recipe_form_ingredient_qty_error }],
           })(<Input size="large" type="number" placeholder={messages.recipe_form_ingredient_qty} />)}
         </FormItem>
-        <FormItem style={{ minWidth: 140, marginRight: 8 }}>
+        <FormItem style={{ width: 140, marginRight: 8 }}>
           {getFieldDecorator(`ingredients[${i}].amount.unit`, {
             initialValue: get(val, 'amount.unit'),
             rules: [{ required: true, message: messages.recipe_form_ingredient_unit_error }]
           })(unitSelect(units))}
         </FormItem>
-        <FormItem style={{ width: '100%' }}>
+        <FormItem style={{ flex: 'auto' }}>
           {getFieldDecorator(`ingredients[${i}].name`, {
             initialValue: get(val, 'name'),
             rules: [{ required: true, message: messages.recipe_form_ingredient_name_error }],
           })(<Input size="large" placeholder={messages.recipe_form_ingredient_name} />)}
         </FormItem>
-        {i > 0 && <Icon
-          className="recipe-form__remove-button"
-          type="minus-circle-o"
-          onClick={() => this.handleRemove('ingredientsKeys', i)}
-        />}
+        {i > 0 && <Button
+          shape="circle"
+          icon="close"
+          className="recipe-form__action"
+          onClick={() => this.handleRemove('ingredientsKeys', i)} />}
       </div>
     ))
 
     const directionFields = directions.map((val, i) => (
       <div key={i} style={{ display: 'flex' }}>
-        <div className="recipe-list__step-count">{i + 1}.</div>
-        <FormItem style={{ width: '100%' }}>
+        <div className="recipe-form__step-count">{i + 1}.</div>
+        <FormItem style={{ flex: 'auto' }}>
           {getFieldDecorator(`directions[${i}].text`, {
             initialValue: get(val, 'text'),
             rules: [{ required: true, message: messages.recipe_form_direction_text_error }],
           })(<TextArea autosize={{ minRows: 2, maxRows: 4 }} placeholder={messages.recipe_form_direction_text} />)}
         </FormItem>
-        {i > 0 && <Icon
-          className="recipe-form__remove-button"
-          type="minus-circle-o"
-          onClick={() => this.handleRemove('directionsKeys', i)}
-        />}
+        {this.state.isMedia && <Button
+          shape="circle"
+          icon="upload"
+          className="recipe-form__action"
+          onClick={() => false} />}
+        {i > 0 && <Button
+          shape="circle"
+          icon="close"
+          className="recipe-form__action"
+          onClick={() => this.handleRemove('directionsKeys', i)} />}
       </div>
     ))
 
     return (
-      <Form onSubmit={this.handleSubmit}>
+      <Form onSubmit={this.handleSubmit} className="recipe-form">
         <FormItem>
           {getFieldDecorator('name', {
             initialValue: get(recipe, 'name'),
@@ -150,6 +158,9 @@ class RecipeForm extends Component {
             rules: [{ required: false, message: messages.recipe_form_description_error }],
           })(pairingsSelect(recipes))}
         </FormItem>
+        {this.state.isMedia && <FormItem>
+          <Uploader maxImages={1} />
+        </FormItem>}
         <h3>{messages.recipe_form_title_ingredient}</h3>
         {ingredientFields}
         <FormItem>
