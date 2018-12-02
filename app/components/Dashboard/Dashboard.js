@@ -5,6 +5,7 @@ import Icon from 'antd/lib/icon'
 import Layout from 'antd/lib/layout'
 import Button from 'antd/lib/button'
 import { confirm } from 'antd/lib/modal'
+import uniqueId from 'lodash/uniqueId'
 import RecipeForm from '../RecipeForm/RecipeForm.js'
 import RecipeList from '../RecipeList/RecipeList.js'
 import firebase, { getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../firebase.js'
@@ -90,6 +91,8 @@ export default class Dashboard extends Component {
   }
 
   render() {
+    const { currentRecipe, recipes, isFetching, isSaving } = this.state
+
     return (
       <Layout className="dashboard">
         <Header className="dashboard__header">
@@ -101,13 +104,14 @@ export default class Dashboard extends Component {
           <Row type="flex" justify="center" gutter={16}>
             <Col xs={24} sm={14}>
               <h1>
-                {this.state.currentRecipe ? this.state.currentRecipe.name : messages.app_form_title}
+                {currentRecipe ? currentRecipe.name : messages.app_form_title}
               </h1>
               <RecipeForm
-                recipe={this.state.currentRecipe}
-                recipes={this.state.recipes}
+                key={currentRecipe ? currentRecipe.id : uniqueId()}
+                recipe={currentRecipe}
+                recipes={recipes}
                 onSubmit={this.handleSubmit}
-                isLoading={this.state.isSaving} />
+                isLoading={isSaving} />
             </Col>
             <Col xs={24} sm={10}>
               <h1 className="dashboard__title">
@@ -115,8 +119,8 @@ export default class Dashboard extends Component {
                 <Button type="primary" shape="circle" icon="form" size="large" onClick={this.handleNew} />
               </h1>
               <RecipeList
-                recipes={this.state.recipes}
-                isLoading={this.state.isFetching}
+                recipes={recipes}
+                isLoading={isFetching}
                 onEdit={this.handleEdit}
                 onRemove={this.handleRemove} />
             </Col>
