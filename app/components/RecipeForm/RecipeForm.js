@@ -47,12 +47,6 @@ class RecipeForm extends Component {
     this.handleRemove = this.handleRemove.bind(this)
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.recipe !== this.props.recipe) {
-      this.props.form.resetFields()
-    }
-  }
-
   handleRemove(field, k) {
     const { form: { getFieldValue, setFieldsValue } } = this.props
     const keys = getFieldValue(field)

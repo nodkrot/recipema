@@ -31,7 +31,11 @@
     "unit_milligram": "миллиграмм",
     "unit_liter": "литр",
     "unit_milliliter": "миллилитр",
-    "unit_taste": "по вкусу"
+    "unit_taste": "по вкусу",
+    "notification_successfully_created": "Рецепт успешно сохранен!",
+    "notification_successfully_updated": "Рецепт успешно обнавлен!",
+    "notification_successfully_deleted": "Рецепт успешно удален!",
+    "notification_failure": "Произошла ошибка!"
   },
   "en_US": {}
 }

@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
+import uniqueId from 'lodash/uniqueId'
 import Row from 'antd/lib/row'
 import Col from 'antd/lib/col'
 import Icon from 'antd/lib/icon'
 import Layout from 'antd/lib/layout'
 import Button from 'antd/lib/button'
-import { confirm } from 'antd/lib/modal'
+import Modal from 'antd/lib/modal'
+import notification from 'antd/lib/notification'
 import RecipeForm from '../RecipeForm/RecipeForm.js'
 import RecipeList from '../RecipeList/RecipeList.js'
 import firebase, { getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../firebase.js'
@@ -12,7 +14,16 @@ import Messages from '../../messages.json'
 import './styles.css'
 
 const messages = Messages['ru_RU']
+const { confirm } = Modal
 const { Header, Content, Footer } = Layout
+
+const openNotification = (title, message = '', exp = 3) => {
+  notification.open({
+    message: title,
+    description: message,
+    duration: exp
+  })
+}
 
 export default class Dashboard extends Component {
 
@@ -37,7 +48,7 @@ export default class Dashboard extends Component {
 
     getRecipes()
       .then((recipes) => this.setState({ recipes, isFetching: false }))
-      .catch((err) => console.log(err))
+      .catch(() => openNotification(messages.notification_failure))
   }
 
   componentDidMount() {
@@ -46,21 +57,28 @@ export default class Dashboard extends Component {
 
   // `recipe` thats returned on update is not original `recipe` object
   // hence we need to perform cleaning and grab the id from `this.state`
-  // We also need to `resetFields` because after submit the form caches the fields
-  handleSubmit(recipe, resetFields) {
+  handleSubmit(recipe) {
     this.setState({ isSaving: true })
 
-    const promise = this.state.currentRecipe
-      ? updateRecipe(this.state.currentRecipe.id, recipe)
-      : createRecipe(recipe)
-
-    promise
-      .then(() => {
-        this.setState({ isSaving: false })
-        this.fetchRecipes()
-        window.scrollTo(0, 0)
-      })
-      .catch((err) => console.log(err))
+    if (this.state.currentRecipe) {
+      updateRecipe(this.state.currentRecipe.id, recipe)
+        .then(() => {
+          this.setState({ isSaving: false })
+          this.fetchRecipes()
+          window.scrollTo(0, 0)
+          openNotification(messages.notification_successfully_updated)
+        })
+        .catch(() => openNotification(messages.notification_failure))
+    } else {
+      createRecipe(recipe)
+        .then(() => {
+          this.setState({ isSaving: false })
+          this.fetchRecipes()
+          window.scrollTo(0, 0)
+          openNotification(messages.notification_successfully_created)
+        })
+        .catch(() => openNotification(messages.notification_failure))
+    }
   }
 
   handleSignOut() {
@@ -74,8 +92,9 @@ export default class Dashboard extends Component {
         // Unset `currentRecipe` in case it was deleted
         // while edited, the id will no longer be valid
         this.setState({ currentRecipe: null })
+        openNotification(messages.notification_successfully_deleted)
       })
-      .catch((err) => console.log(err))
+      .catch(() => openNotification(messages.notification_failure))
   }
 
   handleEdit(recipe) {
@@ -90,6 +109,7 @@ export default class Dashboard extends Component {
   }
 
   render() {
+    const { currentRecipe, recipes, isSaving, isFetching } = this.state
     return (
       <Layout className="dashboard">
         <Header className="dashboard__header">
@@ -101,13 +121,14 @@ export default class Dashboard extends Component {
           <Row type="flex" justify="center" gutter={16}>
             <Col xs={24} sm={14}>
               <h1>
-                {this.state.currentRecipe ? this.state.currentRecipe.name : messages.app_form_title}
+                {currentRecipe ? currentRecipe.name : messages.app_form_title}
               </h1>
               <RecipeForm
-                recipe={this.state.currentRecipe}
-                recipes={this.state.recipes}
+                key={currentRecipe ? currentRecipe.id : uniqueId()}
+                recipe={currentRecipe}
+                recipes={recipes}
                 onSubmit={this.handleSubmit}
-                isLoading={this.state.isSaving} />
+                isLoading={isSaving} />
             </Col>
             <Col xs={24} sm={10}>
               <h1 className="dashboard__title">
@@ -115,8 +136,8 @@ export default class Dashboard extends Component {
                 <Button type="primary" shape="circle" icon="form" size="large" onClick={this.handleNew} />
               </h1>
               <RecipeList
-                recipes={this.state.recipes}
-                isLoading={this.state.isFetching}
+                recipes={recipes}
+                isLoading={isFetching}
                 onEdit={this.handleEdit}
                 onRemove={this.handleRemove} />
             </Col>
