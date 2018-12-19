@@ -17,11 +17,22 @@ const messages = Messages['ru_RU']
 const { confirm } = Modal
 const { Header, Content, Footer } = Layout
 
-const openNotification = (title, message = '', exp = 3) => {
+const openNotification = (title, status = 'success', message = '', exp = 3) => {
+  let icon = <Icon type="check-circle" />
+
+  if (status == 'failure') {
+    icon = <Icon type="close-circle" />
+  } else if (status === 'warning') {
+    icon = <Icon type="exclamation-circle" />
+  } else if (status === 'info') {
+    icon = <Icon type="info-circle" />
+  }
+
   notification.open({
     message: title,
     description: message,
-    duration: exp
+    duration: exp,
+    icon
   })
 }
 
@@ -48,7 +59,7 @@ export default class Dashboard extends Component {
 
     getRecipes()
       .then((recipes) => this.setState({ recipes, isFetching: false }))
-      .catch(() => openNotification(messages.notification_failure))
+      .catch(() => openNotification(messages.notification_failure, 'failure'))
   }
 
   componentDidMount() {
@@ -65,19 +76,17 @@ export default class Dashboard extends Component {
         .then(() => {
           this.setState({ isSaving: false })
           this.fetchRecipes()
-          window.scrollTo(0, 0)
-          openNotification(messages.notification_successfully_updated)
+          openNotification(messages.notification_successfully_updated, 'success')
         })
-        .catch(() => openNotification(messages.notification_failure))
+        .catch(() => openNotification(messages.notification_failure, 'failure'))
     } else {
       createRecipe(recipe)
         .then(() => {
           this.setState({ isSaving: false })
           this.fetchRecipes()
-          window.scrollTo(0, 0)
-          openNotification(messages.notification_successfully_created)
+          openNotification(messages.notification_successfully_created, 'success')
         })
-        .catch(() => openNotification(messages.notification_failure))
+        .catch(() => openNotification(messages.notification_failure, 'failure'))
     }
   }
 
@@ -92,9 +101,9 @@ export default class Dashboard extends Component {
         // Unset `currentRecipe` in case it was deleted
         // while edited, the id will no longer be valid
         this.setState({ currentRecipe: null })
-        openNotification(messages.notification_successfully_deleted)
+        openNotification(messages.notification_successfully_deleted, 'success')
       })
-      .catch(() => openNotification(messages.notification_failure))
+      .catch(() => openNotification(messages.notification_failure, 'failure'))
   }
 
   handleEdit(recipe) {
