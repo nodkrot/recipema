@@ -37,31 +37,53 @@ const pairingsSelect = (recipes) => (
 
 class RecipeForm extends Component {
 
-  constructor(props) {
-    super(props)
-
-    this.state = { isMedia: false }
-
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.handleAdd = this.handleAdd.bind(this)
-    this.handleRemove = this.handleRemove.bind(this)
+  static propTypes = {
+    isLoading: PropTypes.bool,
+    onSubmit: PropTypes.func.isRequired,
+    onChange: PropTypes.func,
+    form: PropTypes.shape({
+      resetFields: PropTypes.func,
+      validateFields: PropTypes.func,
+      getFieldValue: PropTypes.func,
+      getFieldDecorator: PropTypes.func
+    }),
+    recipes: PropTypes.array,
+    recipe: PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      description: PropTypes.string,
+      ingredients: PropTypes.arrayOf(PropTypes.shape({
+        name: PropTypes.string,
+        amount: PropTypes.shape({
+          value: PropTypes.string,
+          unit: PropTypes.string
+        })
+      })),
+      directions: PropTypes.arrayOf(PropTypes.shape({
+        text: PropTypes.string
+      })),
+      tags: PropTypes.array,
+      createdAt: PropTypes.string
+    })
   }
 
-  handleRemove(field, k) {
+  state = { isMedia: false }
+
+  handleRemove = (field, k) => {
     const { form: { getFieldValue, setFieldsValue } } = this.props
     const keys = getFieldValue(field)
 
     setFieldsValue({ [field]: keys.filter((_, i) => i !== k) })
   }
 
-  handleAdd(field) {
+  handleAdd = (field) => {
     const { form: { getFieldValue, setFieldsValue } } = this.props
     const keys = getFieldValue(field)
 
     setFieldsValue({ [field]: keys.concat(keys.length) })
   }
 
-  handleSubmit() {
+  handleSubmit = () => {
     const { form: { validateFields, resetFields } } = this.props
 
     validateFields((err, data) => {
@@ -177,36 +199,6 @@ class RecipeForm extends Component {
       </Form>
     )
   }
-}
-
-RecipeForm.propTypes = {
-  isLoading: PropTypes.bool,
-  onSubmit: PropTypes.func.isRequired,
-  onChange: PropTypes.func,
-  form: PropTypes.shape({
-    resetFields: PropTypes.func,
-    validateFields: PropTypes.func,
-    getFieldValue: PropTypes.func,
-    getFieldDecorator: PropTypes.func
-  }),
-  recipes: PropTypes.array,
-  recipe: PropTypes.shape({
-    id: PropTypes.string,
-    name: PropTypes.string,
-    description: PropTypes.string,
-    ingredients: PropTypes.arrayOf(PropTypes.shape({
-      name: PropTypes.string,
-      amount: PropTypes.shape({
-        value: PropTypes.string,
-        unit: PropTypes.string
-      })
-    })),
-    directions: PropTypes.arrayOf(PropTypes.shape({
-      text: PropTypes.string
-    })),
-    tags: PropTypes.array,
-    createdAt: PropTypes.string
-  })
 }
 
 export default Form.create({

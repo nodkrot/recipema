@@ -7,11 +7,7 @@ import history from '../history.js'
 
 export default class App extends Component {
 
-  constructor(props) {
-    super(props)
-
-    this.state = { isSignedIn: null }
-  }
+  state = { isSignedIn: null }
 
   componentDidMount() {
     // This will automatically handle redirect whenever user is signed in

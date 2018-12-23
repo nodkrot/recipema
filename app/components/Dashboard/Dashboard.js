@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import uniqueId from 'lodash/uniqueId'
+import debounce from 'lodash/debounce'
 import Row from 'antd/lib/row'
 import Col from 'antd/lib/col'
 import Icon from 'antd/lib/icon'
@@ -14,7 +15,6 @@ import Messages from '../../messages.json'
 import './styles.css'
 
 const messages = Messages['ru_RU']
-const { confirm } = Modal
 const { Header, Content, Footer } = Layout
 
 const openNotification = (title, status = 'success', message = '', exp = 3) => {
@@ -38,20 +38,11 @@ const openNotification = (title, status = 'success', message = '', exp = 3) => {
 
 export default class Dashboard extends Component {
 
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      currentRecipe: null,
-      recipes: [],
-      isSaving: false,
-      isFetching: false
-    }
-
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.handleEdit = this.handleEdit.bind(this)
-    this.handleRemove = this.handleRemove.bind(this)
-    this.handleNew = this.handleNew.bind(this)
+  state = {
+    currentRecipe: null,
+    recipes: [],
+    isSaving: false,
+    isFetching: false
   }
 
   fetchRecipes() {
@@ -68,7 +59,7 @@ export default class Dashboard extends Component {
 
   // `recipe` thats returned on update is not original `recipe` object
   // hence we need to perform cleaning and grab the id from `this.state`
-  handleSubmit(recipe) {
+  handleSubmit = (recipe) => {
     this.setState({ isSaving: true })
 
     if (this.state.currentRecipe) {
@@ -90,11 +81,15 @@ export default class Dashboard extends Component {
     }
   }
 
-  handleSignOut() {
+  handleFormChange = debounce((props, changedValues, allValues) => {
+    console.log(props, changedValues, allValues)
+  }, 500)
+
+  handleSignOut = () => {
     firebase.auth().signOut().catch((err) => console.log(err))
   }
 
-  handleRemove(recipe) {
+  handleRemove = (recipe) => {
     deleteRecipe(recipe.id)
       .then(() => {
         this.fetchRecipes()
@@ -106,12 +101,12 @@ export default class Dashboard extends Component {
       .catch(() => openNotification(messages.notification_failure, 'failure'))
   }
 
-  handleEdit(recipe) {
+  handleEdit = (recipe) => {
     this.setState({ currentRecipe: recipe })
   }
 
-  handleNew() {
-    confirm({
+  handleNew = () => {
+    Modal.confirm({
       title: messages.modal_new_recipe_title,
       onOk: () => this.setState({ currentRecipe: null })
     })
@@ -136,6 +131,7 @@ export default class Dashboard extends Component {
                 key={currentRecipe ? currentRecipe.id : uniqueId()}
                 recipe={currentRecipe}
                 recipes={recipes}
+                onChange={this.handleFormChange}
                 onSubmit={this.handleSubmit}
                 isLoading={isSaving} />
             </Col>

@@ -6,13 +6,13 @@ import Icon from 'antd/lib/icon'
 
 export default class Uploader extends Component {
 
-  constructor(props) {
-    super(props)
+  static defaultProps = {
+    maxImages: 100
+  }
 
-    this.state = {
-      previewVisible: false,
-      fileList: []
-    }
+  state = {
+    previewVisible: false,
+    fileList: []
   }
 
   // {
@@ -58,8 +58,4 @@ export default class Uploader extends Component {
       </div>
     )
   }
-}
-
-Uploader.defaultProps = {
-  maxImages: 100
 }

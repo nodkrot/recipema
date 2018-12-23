@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import List from 'antd/lib/list'
 import Button from 'antd/lib/button'
-import { confirm } from 'antd/lib/modal'
+import Modal from 'antd/lib/modal'
 import Messages from '../../messages.json'
 import './styles.css'
 
@@ -14,40 +14,43 @@ function trimString(str, length = 60) {
 
 export default class RecipeList extends Component {
 
+  static propTypes = {
+    recipes: PropTypes.array.isRequired,
+    isLoading: PropTypes.bool,
+    onEdit: PropTypes.func.isRequired,
+    onRemove: PropTypes.func.isRequired
+  }
+
   handleRemove(item) {
-    confirm({
+    Modal.confirm({
       title: messages.modal_remove_title.replace('$a', item.name),
       onOk: () => this.props.onRemove(item)
     })
   }
 
   render() {
+    const { isLoading, recipes } = this.props
     return (
-      <List
-        className="recipe-list"
-        bordered
-        loading={this.props.isLoading}
-        itemLayout="horizontal"
-        dataSource={this.props.recipes}
-        renderItem={item => (
-          <List.Item actions={[
-            <Button key="1" shape="circle" icon="edit" size="large" onClick={() => this.props.onEdit(item)} />,
-            <Button key="2" shape="circle" icon="delete" size="large" onClick={() => this.handleRemove(item)} />
-          ]}>
-            <List.Item.Meta
-              title={item.name}
-              description={trimString(item.description)}
-            />
-          </List.Item>
-        )}
-      />
+      <div className="recipe-list">
+        <List
+          bordered
+          loading={isLoading}
+          itemLayout="horizontal"
+          dataSource={recipes}
+          renderItem={item => (
+            <List.Item actions={[
+              <Button key="1" shape="circle" icon="edit" size="large" onClick={() => this.props.onEdit(item)} />,
+              <Button key="2" shape="circle" icon="delete" size="large" onClick={() => this.handleRemove(item)} />
+            ]}>
+              <List.Item.Meta
+                title={item.name}
+                description={trimString(item.description)}
+              />
+            </List.Item>
+          )}
+        />
+        <small>Total items: {recipes.length}</small>
+      </div>
     )
   }
-}
-
-RecipeList.propTypes = {
-  recipes: PropTypes.array.isRequired,
-  isLoading: PropTypes.bool,
-  onEdit: PropTypes.func.isRequired,
-  onRemove: PropTypes.func.isRequired
 }
