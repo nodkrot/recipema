@@ -204,7 +204,7 @@ class RecipeForm extends Component {
 export default Form.create({
   onValuesChange: (props, changedValues, allValues) => {
     if (props.onChange) {
-      props.onChange(allValues)
+      props.onChange(omit(allValues, ['ingredientsKeys', 'directionsKeys']))
     }
   }
 })(RecipeForm)

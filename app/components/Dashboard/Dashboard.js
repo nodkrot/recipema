@@ -81,9 +81,15 @@ export default class Dashboard extends Component {
     }
   }
 
-  handleFormChange = debounce((props, changedValues, allValues) => {
-    console.log(props, changedValues, allValues)
-  }, 500)
+  // handleFormChange = debounce((recipe) => {
+  //   if (this.state.currentRecipe) {
+  //     this.setState({ isSaving: true })
+
+  //     updateRecipe(this.state.currentRecipe.id, recipe)
+  //       .then(() => this.setState({ isSaving: false }))
+  //       .catch(() => openNotification(messages.notification_failure, 'failure'))
+  //   }
+  // }, 1000)
 
   handleSignOut = () => {
     firebase.auth().signOut().catch((err) => console.log(err))
