@@ -16,8 +16,6 @@ const db = !firebase.apps.length
   ? firebase.initializeApp(config).firestore()
   : firebase.app().firestore()
 
-db.settings({ timestampsInSnapshots: true })
-
 export function getRecipes() {
   return db.collection('recipes').orderBy('createdAt', 'desc').get()
     .then((querySnapshot) => {
