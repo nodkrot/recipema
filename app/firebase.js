@@ -12,9 +12,7 @@ const config = {
   messagingSenderId: process.env.FB_MESSAGEING_SENDER_ID
 }
 
-const db = !firebase.apps.length
-  ? firebase.initializeApp(config).firestore()
-  : firebase.app().firestore()
+firebase.apps.length ? firebase.app() : firebase.initializeApp(config)
 
 export function getRecipes() {
   return db.collection('recipes').orderBy('createdAt', 'desc').get()
@@ -44,4 +42,22 @@ export function deleteRecipe(id) {
   return db.collection('recipes').doc(id).delete()
 }
 
-export default firebase
+export function createImage(file) {
+  const fileName = `${file.uid}.${file.name.split('.').pop()}`
+
+  return store.ref(`images/${fileName}`).put(file).then((snapshot) => {
+    return snapshot.ref.getDownloadURL().then((downloadURL) => ({
+      uid: file.uid,
+      name: snapshot.metadata.name,
+      url: downloadURL
+    }))
+  })
+}
+
+export function deleteImage(imageName) {
+  return store.ref(`images/${imageName}`).delete()
+}
+
+export const auth = firebase.auth()
+export const db = firebase.firestore()
+export const store = firebase.storage()

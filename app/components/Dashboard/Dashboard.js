@@ -1,40 +1,22 @@
 import React, { Component } from 'react'
+import get from 'lodash/get'
 import uniqueId from 'lodash/uniqueId'
-import debounce from 'lodash/debounce'
+import differenceWith from 'lodash/differenceWith'
 import Row from 'antd/lib/row'
 import Col from 'antd/lib/col'
 import Icon from 'antd/lib/icon'
 import Layout from 'antd/lib/layout'
 import Button from 'antd/lib/button'
 import Modal from 'antd/lib/modal'
-import notification from 'antd/lib/notification'
+import message from 'antd/lib/message'
 import RecipeForm from '../RecipeForm/RecipeForm.js'
 import RecipeList from '../RecipeList/RecipeList.js'
-import firebase, { getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../firebase.js'
+import { auth, createImage, deleteImage, getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../firebase.js'
 import Messages from '../../messages.json'
 import './styles.css'
 
 const messages = Messages['ru_RU']
 const { Header, Content, Footer } = Layout
-
-const openNotification = (title, status = 'success', message = '', exp = 3) => {
-  let icon = <Icon type="check-circle" />
-
-  if (status == 'failure') {
-    icon = <Icon type="close-circle" />
-  } else if (status === 'warning') {
-    icon = <Icon type="exclamation-circle" />
-  } else if (status === 'info') {
-    icon = <Icon type="info-circle" />
-  }
-
-  notification.open({
-    message: title,
-    description: message,
-    duration: exp,
-    icon
-  })
-}
 
 export default class Dashboard extends Component {
 
@@ -50,49 +32,50 @@ export default class Dashboard extends Component {
 
     getRecipes()
       .then((recipes) => this.setState({ recipes, isFetching: false }))
-      .catch(() => openNotification(messages.notification_failure, 'failure'))
+      .catch(() => message.error(messages.notification_failure))
   }
 
   componentDidMount() {
     this.fetchRecipes()
   }
 
-  // `recipe` thats returned on update is not original `recipe` object
-  // hence we need to perform cleaning and grab the id from `this.state`
   handleSubmit = (recipe) => {
     this.setState({ isSaving: true })
 
-    if (this.state.currentRecipe) {
-      updateRecipe(this.state.currentRecipe.id, recipe)
-        .then(() => {
+    const originalImages = get(this.state, 'currentRecipe.gallery', [])
+    const newImages = recipe.gallery.filter((image) => !!image.originFileObj)
+    const oldImages = recipe.gallery.filter((image) => !image.originFileObj)
+    const deletedImages = differenceWith(originalImages, oldImages, (a, b) => a.uid === b.uid)
+    // console.log(newImages, oldImages, deletedImages)
+
+    Promise.all([
+      ...oldImages,
+      ...newImages.map((image) => createImage(image.originFileObj)),
+      ...deletedImages.map((image) => deleteImage(image.name)),
+    ]).then((finalGallery) => {
+      // Cleanup deleted images `undefined`
+      recipe.gallery = finalGallery.filter(Boolean)
+
+      // `recipe` thats returned on update is not original `recipe` object
+      // hence we need to perform cleaning and grab the id from `this.state`
+      if (this.state.currentRecipe) {
+        return updateRecipe(this.state.currentRecipe.id, recipe).then(() => {
           this.setState({ isSaving: false })
           this.fetchRecipes()
-          openNotification(messages.notification_successfully_updated, 'success')
+          message.success(messages.notification_successfully_updated)
         })
-        .catch(() => openNotification(messages.notification_failure, 'failure'))
-    } else {
-      createRecipe(recipe)
-        .then(() => {
+      } else {
+        return createRecipe(recipe).then(() => {
           this.setState({ isSaving: false })
           this.fetchRecipes()
-          openNotification(messages.notification_successfully_created, 'success')
+          message.success(messages.notification_successfully_created)
         })
-        .catch(() => openNotification(messages.notification_failure, 'failure'))
-    }
+      }
+    }).catch(() => message.error(messages.notification_failure))
   }
 
-  // handleFormChange = debounce((recipe) => {
-  //   if (this.state.currentRecipe) {
-  //     this.setState({ isSaving: true })
-
-  //     updateRecipe(this.state.currentRecipe.id, recipe)
-  //       .then(() => this.setState({ isSaving: false }))
-  //       .catch(() => openNotification(messages.notification_failure, 'failure'))
-  //   }
-  // }, 1000)
-
   handleSignOut = () => {
-    firebase.auth().signOut().catch((err) => console.log(err))
+    auth.signOut().catch(() => message.error('Oops something went wrong'))
   }
 
   handleRemove = (recipe) => {
@@ -102,9 +85,9 @@ export default class Dashboard extends Component {
         // Unset `currentRecipe` in case it was deleted
         // while edited, the id will no longer be valid
         this.setState({ currentRecipe: null })
-        openNotification(messages.notification_successfully_deleted, 'success')
+        message.success(messages.notification_successfully_deleted)
       })
-      .catch(() => openNotification(messages.notification_failure, 'failure'))
+      .catch(() => message.error(messages.notification_failure))
   }
 
   handleEdit = (recipe) => {

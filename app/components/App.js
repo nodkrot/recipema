@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Router, Route, Redirect, Switch } from 'react-router-dom'
 import Dashboard from './Dashboard/Dashboard.js'
 import Login from './Login/Login.js'
-import firebase from '../firebase.js'
+import { auth } from '../firebase.js'
 import history from '../history.js'
 
 export default class App extends Component {
@@ -11,7 +11,7 @@ export default class App extends Component {
 
   componentDidMount() {
     // This will automatically handle redirect whenever user is signed in
-    this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => {
+    this.unregisterAuthObserver = auth.onAuthStateChanged((user) => {
       this.setState({ isSignedIn: Boolean(user) }, () => {
         if (user) history.push('/dashboard')
       })

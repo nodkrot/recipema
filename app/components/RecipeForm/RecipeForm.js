@@ -62,12 +62,23 @@ class RecipeForm extends Component {
       directions: PropTypes.arrayOf(PropTypes.shape({
         text: PropTypes.string
       })),
+      gallery: PropTypes.arrayOf(PropTypes.shape({
+        uid: PropTypes.string,
+        name: PropTypes.string,
+        url: PropTypes.string
+      })),
       tags: PropTypes.array,
       createdAt: PropTypes.string
     })
   }
 
-  state = { isMedia: false }
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      gallery: get(props, 'recipe.gallery', [])
+    }
+  }
 
   handleRemove = (field, k) => {
     const { form: { getFieldValue, setFieldsValue } } = this.props
@@ -83,13 +94,20 @@ class RecipeForm extends Component {
     setFieldsValue({ [field]: keys.concat(keys.length) })
   }
 
+  handleUpload = (gallery) => {
+    this.setState({ gallery })
+  }
+
   handleSubmit = () => {
     const { form: { validateFields, resetFields } } = this.props
 
     validateFields((err, data) => {
       if (err) return
-      // Cleanup form data
-      let recipeForm = omit(data, ['ingredientsKeys', 'directionsKeys'])
+      // Cleanup and construct recipeForm
+      let recipeForm = Object.assign(
+        omit(data, ['ingredientsKeys', 'directionsKeys']),
+        { gallery: this.state.gallery }
+      )
 
       this.props.onSubmit(recipeForm, resetFields)
     })
@@ -141,11 +159,6 @@ class RecipeForm extends Component {
             rules: [{ required: true, message: messages.recipe_form_direction_text_error }],
           })(<TextArea autosize={{ minRows: 2, maxRows: 4 }} placeholder={messages.recipe_form_direction_text} />)}
         </FormItem>
-        {this.state.isMedia && <Button
-          shape="circle"
-          icon="upload"
-          className="recipe-form__action"
-          onClick={() => false} />}
         {i > 0 && <Button
           shape="circle"
           icon="close"
@@ -174,9 +187,9 @@ class RecipeForm extends Component {
             rules: [{ required: false, message: messages.recipe_form_description_error }],
           })(pairingsSelect(recipes))}
         </FormItem>
-        {this.state.isMedia && <FormItem>
-          <Uploader maxImages={1} />
-        </FormItem>}
+        <FormItem>
+          <Uploader onUpload={this.handleUpload} images={this.state.gallery} maxImages={5} />
+        </FormItem>
         <h3>{messages.recipe_form_title_ingredient}</h3>
         {ingredientFields}
         <FormItem>

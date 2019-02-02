@@ -1,26 +1,64 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import Upload from 'antd/lib/upload'
 import Modal from 'antd/lib/modal'
-// import Button from 'antd/lib/button'
 import Icon from 'antd/lib/icon'
+import message from 'antd/lib/message'
+
+function validateFile(file) {
+  // Already uploaded image
+  if (!(file instanceof File)) return true
+
+  const isJPG = file.type === 'image/jpeg'
+  const isLt2M = file.size / 1024 / 1024 < 2
+
+  if (!isJPG) {
+    message.error('You can only upload JPG file!')
+  }
+
+  if (!isLt2M) {
+    message.error('Image must smaller than 2MB!')
+  }
+
+  return isJPG && isLt2M
+}
 
 export default class Uploader extends Component {
 
+  static propTypes = {
+    onUpload: PropTypes.func.isRequired,
+    images: PropTypes.array,
+    maxImages: PropTypes.number
+  }
+
   static defaultProps = {
-    maxImages: 100
+    images: [],
+    maxImages: 3
   }
 
-  state = {
-    previewVisible: false,
-    fileList: []
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      previewImage: null,
+      previewVisible: false,
+      fileList: props.images
+    }
   }
 
-  // {
-  //   uid: '-2',
-  //   name: 'yyy.png',
-  //   status: 'done',
-  //   url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
-  // }
+  handleChange = ({ file, fileList }) => {
+    if (validateFile(file)) {
+      this.setState({ fileList })
+      this.props.onUpload(fileList)
+    }
+  }
+
+  handlePreview = (file) => {
+    this.setState({
+      previewImage: file.url || file.thumbUrl,
+      previewVisible: true,
+    })
+  }
 
   render() {
     const { maxImages } = this.props
@@ -37,20 +75,15 @@ export default class Uploader extends Component {
         <Upload
           listType="picture-card"
           fileList={fileList}
-          onChange={({ fileList }) => this.setState({ fileList })}
-          onPreview={(file) => this.setState({
-            previewImage: file.url || file.thumbUrl,
-            previewVisible: true,
-          })}
-          beforeUpload={() => {
-            console.log('here')
-            return false
-          }}>
+          onPreview={this.handlePreview}
+          onChange={this.handleChange}
+          beforeUpload={() => false}>
           {this.state.fileList.length >= maxImages ? null : UploadButton}
         </Upload>
         <Modal
+          width="82%"
+          footer={null}
           visible={previewVisible}
-          width="82%" footer={null}
           bodyStyle={{ textAlign: 'center' }}
           onCancel={() => this.setState({ previewVisible: false })}>
           <img alt="example" style={{ maxWidth: '100%' }} src={previewImage} />

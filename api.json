@@ -23,6 +23,10 @@
           "description": {
             "type": "string"
           },
+          "gallery": {
+            "type": "array",
+            "items": "#/components/schemas/Image"
+          },
           "ingredients": {
             "type": "array",
             "items": {
@@ -104,6 +108,21 @@
       "Unit": {
         "type": "string",
         "enum": ["piece", "gallon", "quart", "pint", "cup", "ounce", "kilogram", "gram", "milligram", "teaspoon", "tablespoon"]
+      },
+      "Image": {
+        "type": "object",
+        "properties": {
+          "uid": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": ["uid", "name", "url"]
       }
     },
     "links": {},
