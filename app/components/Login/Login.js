@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
-import { auth } from '../../firebase.js'
+import firebase, { auth } from '../../firebase.js'
 import './styles.css'
 
 export default class Login extends Component {
@@ -11,7 +11,7 @@ export default class Login extends Component {
     this.uiConfig = {
       signInFlow: 'redirect',
       signInOptions: [
-        auth.GoogleAuthProvider.PROVIDER_ID
+        firebase.auth.GoogleAuthProvider.PROVIDER_ID
       ],
       callbacks: {
         signInSuccessWithAuthResult: () => false
@@ -24,7 +24,7 @@ export default class Login extends Component {
       <div className="login">
         <a href="/" className="login__logo">RecipeMa</a>
         <div className="login__wrapper">
-          <StyledFirebaseAuth uiConfig={this.uiConfig} firebaseAuth={auth()}/>
+          <StyledFirebaseAuth uiConfig={this.uiConfig} firebaseAuth={auth}/>
         </div>
       </div>
     )

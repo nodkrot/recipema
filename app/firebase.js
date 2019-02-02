@@ -61,3 +61,5 @@ export function deleteImage(imageName) {
 export const auth = firebase.auth()
 export const db = firebase.firestore()
 export const store = firebase.storage()
+
+export default firebase
