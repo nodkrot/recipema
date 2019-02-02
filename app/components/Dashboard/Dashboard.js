@@ -51,7 +51,7 @@ export default class Dashboard extends Component {
     Promise.all([
       ...oldImages,
       ...newImages.map((image) => createImage(image.originFileObj)),
-      ...deletedImages.map((image) => deleteImage(image.name)),
+      ...deletedImages.map((image) => deleteImage(image.name))
     ]).then((finalGallery) => {
       // Cleanup deleted images `undefined`
       recipe.gallery = finalGallery.filter(Boolean)
@@ -75,17 +75,19 @@ export default class Dashboard extends Component {
   }
 
   handleSignOut = () => {
-    auth.signOut().catch(() => message.error('Oops something went wrong'))
+    auth.signOut().catch(() => message.error(message.notification_failure))
   }
 
   handleRemove = (recipe) => {
-    deleteRecipe(recipe.id)
+    Promise.all((recipe.gallery || []).map((image) => deleteImage(image.name)))
       .then(() => {
-        this.fetchRecipes()
-        // Unset `currentRecipe` in case it was deleted
-        // while edited, the id will no longer be valid
-        this.setState({ currentRecipe: null })
-        message.success(messages.notification_successfully_deleted)
+        return deleteRecipe(recipe.id).then(() => {
+          this.fetchRecipes()
+          // Unset `currentRecipe` in case it was deleted
+          // while edited, the id will no longer be valid
+          this.setState({ currentRecipe: null })
+          message.success(messages.notification_successfully_deleted)
+        })
       })
       .catch(() => message.error(messages.notification_failure))
   }
