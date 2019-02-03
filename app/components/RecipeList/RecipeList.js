@@ -49,7 +49,7 @@ export default class RecipeList extends Component {
             </List.Item>
           )}
         />
-        <small>Total items: {recipes.length}</small>
+        <small style={{ float: 'right' }}>Total items: {recipes.length}</small>
       </div>
     )
   }

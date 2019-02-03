@@ -58,7 +58,7 @@ export default class Dashboard extends Component {
     const newImages = recipe.gallery.filter((image) => !!image.originFileObj)
     const oldImages = recipe.gallery.filter((image) => !image.originFileObj)
     const deletedImages = differenceWith(originalImages, oldImages, (a, b) => a.uid === b.uid)
-    // console.log(newImages, oldImages, deletedImages)
+    // console.log(oldImages, newImages, deletedImages)
 
     Promise.all([
       ...oldImages,
