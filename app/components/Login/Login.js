@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
-import firebase, { auth } from '../../firebase.js'
+import firebase, { auth, setUser } from '../../firebase.js'
 import './styles.css'
 
 export default class Login extends Component {
@@ -14,7 +14,15 @@ export default class Login extends Component {
         firebase.auth.GoogleAuthProvider.PROVIDER_ID
       ],
       callbacks: {
-        signInSuccessWithAuthResult: () => false
+        signInSuccessWithAuthResult: (authResult) => {
+          setUser({
+            uid: authResult.user.uid,
+            name: authResult.user.displayName,
+            email: authResult.user.email,
+            loggedInAt: Date.now()
+          })
+          return false
+        }
       }
     }
   }

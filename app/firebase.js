@@ -14,6 +14,10 @@ const config = {
 
 firebase.apps.length ? firebase.app() : firebase.initializeApp(config)
 
+export function setUser(user) {
+  return db.collection('users').doc(user.uid).set(user, { merge: true })
+}
+
 export function getRecipes() {
   return db.collection('recipes').orderBy('createdAt', 'desc').get()
     .then((querySnapshot) => {
