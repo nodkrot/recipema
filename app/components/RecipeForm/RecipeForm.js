@@ -5,6 +5,7 @@ import Form from 'antd/lib/form'
 import Input from 'antd/lib/input'
 import Button from 'antd/lib/button'
 import Select from 'antd/lib/select'
+import AutoComplete from 'antd/lib/auto-complete'
 import get from 'lodash/get'
 import omit from 'lodash/omit'
 import Uploader from '../Uploader/Uploader.js'
@@ -17,6 +18,8 @@ const { TextArea } = Input
 const Option = Select.Option
 const units = ['piece', 'tablespoon', 'teaspoon', 'cup', 'pinch', 'clove', 'kilogram', 'gram', 'milligram', 'liter', 'milliliter', 'taste']
 
+const filterInput = (input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+
 const unitSelect = (units) => (
   <Select size="large" placeholder={messages.recipe_form_ingredient_unit}>
     {units.map((u, i) => <Option key={i} value={u}>{messages[`unit_${u}`]}</Option>)}
@@ -28,9 +31,7 @@ const pairingsSelect = (recipes) => (
     size="large"
     mode="multiple"
     placeholder={messages.recipe_form_pairings}
-    filterOption={(input, option) => (
-      option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-    )}>
+    filterOption={filterInput}>
     {recipes.map((recipe, i) => <Option key={i} value={recipe.id}>{recipe.name}</Option>)}
   </Select>
 )
@@ -48,6 +49,7 @@ class RecipeForm extends Component {
       getFieldDecorator: PropTypes.func
     }),
     recipes: PropTypes.array,
+    ingredients: PropTypes.arrayOf(PropTypes.string),
     recipe: PropTypes.shape({
       id: PropTypes.string,
       name: PropTypes.string,
@@ -94,7 +96,7 @@ class RecipeForm extends Component {
     setFieldsValue({ [field]: keys.concat(keys.length) })
   }
 
-  handleUpload = (gallery) => this.setState({ gallery })
+  handleFileChange = (gallery) => this.setState({ gallery })
 
   handleSubmit = () => {
     const { form: { validateFields, resetFields } } = this.props
@@ -112,15 +114,15 @@ class RecipeForm extends Component {
   }
 
   render() {
-    const { recipe, recipes, form: { getFieldDecorator, getFieldValue }, isLoading } = this.props
+    const { recipe, recipes, ingredients, form: { getFieldDecorator, getFieldValue }, isLoading } = this.props
 
     getFieldDecorator('ingredientsKeys', { initialValue: get(recipe, 'ingredients', [0]) })
     getFieldDecorator('directionsKeys', { initialValue: get(recipe, 'directions', [0]) })
 
-    const ingredients = getFieldValue('ingredientsKeys')
-    const directions = getFieldValue('directionsKeys')
+    const ingredientsKeys = getFieldValue('ingredientsKeys')
+    const directionsKeys = getFieldValue('directionsKeys')
 
-    const ingredientFields = ingredients.map((val, i) => (
+    const ingredientFields = ingredientsKeys.map((val, i) => (
       <div key={i} style={{ display: 'flex' }}>
         <FormItem style={{ width: 88, marginRight: 8 }}>
           {getFieldDecorator(`ingredients[${i}].amount.value`, {
@@ -138,7 +140,12 @@ class RecipeForm extends Component {
           {getFieldDecorator(`ingredients[${i}].name`, {
             initialValue: get(val, 'name'),
             rules: [{ required: true, message: messages.recipe_form_ingredient_name_error }],
-          })(<Input size="large" placeholder={messages.recipe_form_ingredient_name} />)}
+          })(<AutoComplete
+            size="large"
+            placeholder={messages.recipe_form_ingredient_name}
+            filterOption={filterInput}
+            dataSource={ingredients}
+          />)}
         </FormItem>
         {i > 0 && <Button
           shape="circle"
@@ -148,7 +155,7 @@ class RecipeForm extends Component {
       </div>
     ))
 
-    const directionFields = directions.map((val, i) => (
+    const directionFields = directionsKeys.map((val, i) => (
       <div key={i} style={{ display: 'flex' }}>
         <div className="recipe-form__step-count">{i + 1}.</div>
         <FormItem style={{ flex: 'auto' }}>
@@ -167,6 +174,10 @@ class RecipeForm extends Component {
 
     return (
       <Form onSubmit={this.handleSubmit} className="recipe-form">
+        <h1 className="recipe-form__title">
+          {recipe ? recipe.name : messages.app_form_title}
+          {recipe && <Button type="primary" shape="circle" icon="save" size="large" loading={isLoading} onClick={this.handleSubmit} />}
+        </h1>
         <FormItem>
           {getFieldDecorator('name', {
             initialValue: get(recipe, 'name'),
@@ -185,8 +196,9 @@ class RecipeForm extends Component {
             rules: [{ required: false, message: messages.recipe_form_description_error }],
           })(pairingsSelect(recipes))}
         </FormItem>
+        <h3>{messages.recipe_form_title_gallery}</h3>
         <FormItem>
-          <Uploader onUpload={this.handleUpload} images={this.state.gallery} maxImages={5} />
+          <Uploader onChange={this.handleFileChange} images={this.state.gallery} maxImages={5} />
         </FormItem>
         <h3>{messages.recipe_form_title_ingredient}</h3>
         {ingredientFields}

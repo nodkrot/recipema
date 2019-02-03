@@ -9,6 +9,7 @@
     "recipe_form_description": "Описание",
     "recipe_form_description_error": "Пожалуйста введите описание",
     "recipe_form_pairings": "Сочитается с",
+    "recipe_form_title_gallery": "Фото галерея",
     "recipe_form_add_ingredient": "Добавить ингредиент",
     "recipe_form_title_ingredient": "Ингредиенты",
     "recipe_form_ingredient_qty": "Кол-во",

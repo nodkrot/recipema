@@ -9,24 +9,26 @@ function validateFile(file) {
   // Already uploaded image
   if (!(file instanceof File)) return true
 
-  const isJPG = file.type === 'image/jpeg'
-  const isSizeOk = file.size / 1024 / 1024 < 5
+  const MAX_SIZE = 5
+  const IMG_TYPES = ['image/jpeg']
+  const isTypeOk = IMG_TYPES.includes(file.type)
+  const isSizeOk = file.size / 1024 / 1024 < MAX_SIZE
 
-  if (!isJPG) {
-    message.error('You can only upload JPG file!')
+  if (!isTypeOk) {
+    message.error(`You can only upload ${IMG_TYPES.join(', ')}!`)
   }
 
   if (!isSizeOk) {
-    message.error('Image must smaller than 5Mb!')
+    message.error(`Image must smaller than ${MAX_SIZE}Mb!`)
   }
 
-  return isJPG && isSizeOk
+  return isTypeOk && isSizeOk
 }
 
 export default class Uploader extends Component {
 
   static propTypes = {
-    onUpload: PropTypes.func.isRequired,
+    onChange: PropTypes.func.isRequired,
     images: PropTypes.array,
     maxImages: PropTypes.number
   }
@@ -49,7 +51,7 @@ export default class Uploader extends Component {
   handleChange = ({ file, fileList }) => {
     if (validateFile(file)) {
       this.setState({ fileList })
-      this.props.onUpload(fileList)
+      this.props.onChange(fileList)
     }
   }
 

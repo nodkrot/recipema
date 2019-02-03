@@ -18,11 +18,19 @@ import './styles.css'
 const messages = Messages['ru_RU']
 const { Header, Content, Footer } = Layout
 
+function extractRawIngredients(recipes) {
+  const set = new Set()
+  recipes.forEach((recipe) => recipe.ingredients.forEach((a) => set.add(a.name)))
+  return [...set]
+}
+
 export default class Dashboard extends Component {
 
   state = {
+    uniqueId: uniqueId(),
     currentRecipe: null,
     recipes: [],
+    rawIngredients: [],
     isSaving: false,
     isFetching: false
   }
@@ -30,9 +38,13 @@ export default class Dashboard extends Component {
   fetchRecipes() {
     this.setState({ isFetching: true })
 
-    getRecipes()
-      .then((recipes) => this.setState({ recipes, isFetching: false }))
-      .catch(() => message.error(messages.notification_failure))
+    getRecipes().then((recipes) => {
+      this.setState({
+        recipes,
+        rawIngredients: extractRawIngredients(recipes),
+        isFetching: false
+      })
+    }).catch(() => message.error(messages.notification_failure))
   }
 
   componentDidMount() {
@@ -53,25 +65,28 @@ export default class Dashboard extends Component {
       ...newImages.map((image) => createImage(image.originFileObj)),
       ...deletedImages.map((image) => deleteImage(image.name))
     ]).then((finalGallery) => {
-      // Cleanup deleted images `undefined`
+      // Cleanup deleted images that come as `undefined`
       recipe.gallery = finalGallery.filter(Boolean)
 
       // `recipe` thats returned on update is not original `recipe` object
       // hence we need to perform cleaning and grab the id from `this.state`
       if (this.state.currentRecipe) {
         return updateRecipe(this.state.currentRecipe.id, recipe).then(() => {
-          this.setState({ isSaving: false })
-          this.fetchRecipes()
           message.success(messages.notification_successfully_updated)
         })
       } else {
         return createRecipe(recipe).then(() => {
-          this.setState({ isSaving: false })
-          this.fetchRecipes()
           message.success(messages.notification_successfully_created)
         })
       }
-    }).catch(() => message.error(messages.notification_failure))
+    }).then(() => {
+      // Regenerate `uniqueId` to reset RecipeForm
+      this.setState({ isSaving: false, uniqueId: uniqueId() })
+      this.fetchRecipes()
+    }).catch(() => {
+      this.setState({ isSaving: false })
+      message.error(messages.notification_failure)
+    })
   }
 
   handleSignOut = () => {
@@ -82,10 +97,8 @@ export default class Dashboard extends Component {
     Promise.all((recipe.gallery || []).map((image) => deleteImage(image.name)))
       .then(() => {
         return deleteRecipe(recipe.id).then(() => {
-          this.fetchRecipes()
-          // Unset `currentRecipe` in case it was deleted
-          // while edited, the id will no longer be valid
           this.setState({ currentRecipe: null })
+          this.fetchRecipes()
           message.success(messages.notification_successfully_deleted)
         })
       })
@@ -94,6 +107,10 @@ export default class Dashboard extends Component {
 
   handleEdit = (recipe) => {
     this.setState({ currentRecipe: recipe })
+    // If on mobile then scroll to the top of the screen
+    if (window.innerWidth < 415) {
+      window.scrollTo(0, 0)
+    }
   }
 
   handleNew = () => {
@@ -104,7 +121,8 @@ export default class Dashboard extends Component {
   }
 
   render() {
-    const { currentRecipe, recipes, isSaving, isFetching } = this.state
+    const { uniqueId, currentRecipe, recipes, rawIngredients, isSaving, isFetching } = this.state
+
     return (
       <Layout className="dashboard">
         <Header className="dashboard__header">
@@ -115,13 +133,11 @@ export default class Dashboard extends Component {
         <Content className="dashboard__content">
           <Row type="flex" justify="center" gutter={16}>
             <Col xs={24} sm={14}>
-              <h1>
-                {currentRecipe ? currentRecipe.name : messages.app_form_title}
-              </h1>
               <RecipeForm
-                key={currentRecipe ? currentRecipe.id : uniqueId()}
+                key={currentRecipe ? currentRecipe.id : uniqueId}
                 recipe={currentRecipe}
                 recipes={recipes}
+                ingredients={rawIngredients}
                 onChange={this.handleFormChange}
                 onSubmit={this.handleSubmit}
                 isLoading={isSaving} />
@@ -129,7 +145,7 @@ export default class Dashboard extends Component {
             <Col xs={24} sm={10}>
               <h1 className="dashboard__title">
                 {messages.app_list_title}
-                <Button type="primary" shape="circle" icon="form" size="large" onClick={this.handleNew} />
+                <Button type="primary" shape="circle" icon="plus" size="large" onClick={this.handleNew} />
               </h1>
               <RecipeList
                 recipes={recipes}

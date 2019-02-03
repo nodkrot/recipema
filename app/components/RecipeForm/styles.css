@@ -1,3 +1,8 @@
+.recipe-form .recipe-form__title {
+  display: flex;
+  justify-content: space-between;
+}
+
 .recipe-form .recipe-form__step-count {
   font-size: 16px;
   padding: 4px 8px 0 0;
@@ -5,4 +10,9 @@
 
 .recipe-form .recipe-form__action {
   margin-left: 8px;
+  flex: 0 0 32px;
+}
+
+.recipe-form .ant-select-auto-complete.ant-select .ant-select-selection--single {
+  height: 40px;
 }
