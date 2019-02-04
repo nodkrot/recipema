@@ -18,17 +18,15 @@ export function setUser(user) {
   return db.collection('users').doc(user.uid).set(user, { merge: true })
 }
 
-export function getRecipes() {
-  return db.collection('recipes').orderBy('createdAt', 'desc').get()
-    .then((querySnapshot) => {
-      const recipes = []
+export async function getRecipes() {
+  const querySnapshot = await db.collection('recipes').orderBy('createdAt', 'desc').get()
+  const recipes = []
 
-      querySnapshot.forEach((doc) => {
-        recipes.push(Object.assign(doc.data(), { id: doc.id }))
-      })
+  querySnapshot.forEach((doc) => {
+    recipes.push(Object.assign(doc.data(), { id: doc.id }))
+  })
 
-      return recipes
-    })
+  return recipes
 }
 
 export function createRecipe(recipe) {
@@ -46,20 +44,20 @@ export function deleteRecipe(id) {
   return db.collection('recipes').doc(id).delete()
 }
 
-export function createImage(file) {
-  const fileName = `${file.uid}.${file.name.split('.').pop()}`
+export async function createImage(image) {
+  const fileName = `${image.uid}.${image.name.split('.').pop()}`
+  const snapshot = await store.ref(`images/${fileName}`).put(image.originFileObj)
+  const downloadURL = await snapshot.ref.getDownloadURL()
 
-  return store.ref(`images/${fileName}`).put(file).then((snapshot) => {
-    return snapshot.ref.getDownloadURL().then((downloadURL) => ({
-      uid: file.uid,
-      name: snapshot.metadata.name,
-      url: downloadURL
-    }))
-  })
+  return {
+    uid: image.uid,
+    name: snapshot.metadata.name,
+    url: downloadURL
+  }
 }
 
-export function deleteImage(imageName) {
-  return store.ref(`images/${imageName}`).delete()
+export function deleteImage(image) {
+  return store.ref(`images/${image.name}`).delete()
 }
 
 export const auth = firebase.auth()

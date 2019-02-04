@@ -9,6 +9,7 @@ import Layout from 'antd/lib/layout'
 import Button from 'antd/lib/button'
 import Modal from 'antd/lib/modal'
 import message from 'antd/lib/message'
+import imageCompression from 'browser-image-compression'
 import RecipeForm from '../RecipeForm/RecipeForm.js'
 import RecipeList from '../RecipeList/RecipeList.js'
 import { auth, createImage, deleteImage, getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../firebase.js'
@@ -22,6 +23,14 @@ function extractRawIngredients(recipes) {
   const set = new Set()
   recipes.forEach((recipe) => recipe.ingredients.forEach((a) => set.add(a.name)))
   return [...set]
+}
+
+async function compressImage(image) {
+  const imageFile = image.originFileObj
+  const maxSizeMB = 1
+  const maxWidthOrHeight = 1920
+  const compressedFile = await imageCompression(imageFile, maxSizeMB, maxWidthOrHeight)
+  return { ...image, originFileObj: compressedFile }
 }
 
 export default class Dashboard extends Component {
@@ -51,7 +60,7 @@ export default class Dashboard extends Component {
     this.fetchRecipes()
   }
 
-  handleSubmit = (recipe) => {
+  handleSubmit = async (recipe) => {
     this.setState({ isSaving: true })
 
     const originalImages = get(this.state, 'currentRecipe.gallery', [])
@@ -60,53 +69,57 @@ export default class Dashboard extends Component {
     const deletedImages = differenceWith(originalImages, oldImages, (a, b) => a.uid === b.uid)
     // console.log(oldImages, newImages, deletedImages)
 
-    Promise.all([
-      ...oldImages,
-      ...newImages.map((image) => createImage(image.originFileObj)),
-      ...deletedImages.map((image) => deleteImage(image.name))
-    ]).then((finalGallery) => {
+    try {
+      const compressedNewImages = await Promise.all(newImages.map(compressImage))
+      const finalGallery = await Promise.all([
+        ...oldImages,
+        ...compressedNewImages.map((image) => createImage(image)),
+        ...deletedImages.map((image) => deleteImage(image.name))
+      ])
+
       // Cleanup deleted images that come as `undefined`
       recipe.gallery = finalGallery.filter(Boolean)
 
       // `recipe` thats returned on update is not original `recipe` object
       // hence we need to perform cleaning and grab the id from `this.state`
       if (this.state.currentRecipe) {
-        return updateRecipe(this.state.currentRecipe.id, recipe).then(() => {
+        updateRecipe(this.state.currentRecipe.id, recipe).then(() => {
           message.success(messages.notification_successfully_updated)
         })
       } else {
-        return createRecipe(recipe).then(() => {
+        createRecipe(recipe).then(() => {
           message.success(messages.notification_successfully_created)
         })
       }
-    }).then(() => {
+
       // Regenerate `uniqueId` to reset RecipeForm
       this.setState({ isSaving: false, uniqueId: uniqueId() })
       this.fetchRecipes()
-    }).catch(() => {
+    } catch(err) {
       this.setState({ isSaving: false })
       message.error(messages.notification_failure)
-    })
+    }
   }
 
   handleSignOut = () => {
     auth.signOut().catch(() => message.error(message.notification_failure))
   }
 
-  handleRemove = (recipe) => {
-    Promise.all((recipe.gallery || []).map((image) => deleteImage(image.name)))
-      .then(() => {
-        return deleteRecipe(recipe.id).then(() => {
-          this.setState({ currentRecipe: null })
-          this.fetchRecipes()
-          message.success(messages.notification_successfully_deleted)
-        })
-      })
-      .catch(() => message.error(messages.notification_failure))
+  handleRemove = async (recipe) => {
+    try {
+      await Promise.all((recipe.gallery || []).map(deleteImage).concat(deleteRecipe(recipe.id)))
+
+      this.setState({ currentRecipe: null })
+      this.fetchRecipes()
+      message.success(messages.notification_successfully_deleted)
+    } catch(err) {
+      message.error(message.notification_failure)
+    }
   }
 
   handleEdit = (recipe) => {
     this.setState({ currentRecipe: recipe })
+
     // If on mobile then scroll to the top of the screen
     if (window.innerWidth < 415) {
       window.scrollTo(0, 0)
