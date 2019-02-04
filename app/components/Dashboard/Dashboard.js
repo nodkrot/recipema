@@ -73,8 +73,8 @@ export default class Dashboard extends Component {
       const compressedNewImages = await Promise.all(newImages.map(compressImage))
       const finalGallery = await Promise.all([
         ...oldImages,
-        ...compressedNewImages.map((image) => createImage(image)),
-        ...deletedImages.map((image) => deleteImage(image.name))
+        ...compressedNewImages.map(createImage),
+        ...deletedImages.map(deleteImage)
       ])
 
       // Cleanup deleted images that come as `undefined`
