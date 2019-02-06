@@ -1,10 +1,9 @@
-node_modules
 .cache
-dist
 .env*
 .DS_Store
+node_modules
+dist
 
 # random
 ingredients.json
-parser.js
-train.json
+firebase-export.json
