@@ -1,38 +1,35 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Router, Route, Redirect, Switch } from 'react-router-dom'
 import Dashboard from './Dashboard/Dashboard.js'
 import Login from './Login/Login.js'
 import { auth } from '../firebase.js'
 import history from '../history.js'
 
-export default class App extends Component {
+export default function App() {
+  const [isSignedIn, setIsSignedIn] = useState(null)
 
-  state = { isSignedIn: null }
+  useEffect(() => {
+    if (isSignedIn) history.push('/dashboard')
+  }, [isSignedIn])
 
-  componentDidMount() {
+  useEffect(() => {
     // This will automatically handle redirect whenever user is signed in
-    this.unregisterAuthObserver = auth.onAuthStateChanged((user) => {
-      this.setState({ isSignedIn: Boolean(user) }, () => {
-        if (user) history.push('/dashboard')
-      })
+    const unregisterAuthObserver = auth.onAuthStateChanged((user) => {
+      setIsSignedIn(Boolean(user))
     })
-  }
 
-  componentWillUnmount() {
-    this.unregisterAuthObserver()
-  }
+    return () => unregisterAuthObserver()
+  }, [])
 
-  render() {
-    if (this.state.isSignedIn === null) return null
+  if (isSignedIn === null) return null
 
-    return (
-      <Router history={history}>
-        <Switch>
-          <Route path="/login" component={Login} />
-          {this.state.isSignedIn && <Route path="/dashboard" component={Dashboard} />}
-          <Redirect from="*" to="/login" />
-        </Switch>
-      </Router>
-    )
-  }
+  return (
+    <Router history={history}>
+      <Switch>
+        <Route path="/login" component={Login} />
+        {isSignedIn && <Route path="/dashboard" component={Dashboard} />}
+        <Redirect from="*" to="/login" />
+      </Switch>
+    </Router>
+  )
 }
