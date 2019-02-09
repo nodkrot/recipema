@@ -23,21 +23,26 @@ export async function getRecipes() {
   const recipes = []
 
   querySnapshot.forEach((doc) => {
-    recipes.push(Object.assign(doc.data(), { id: doc.id }))
+    recipes.push(Object.assign({ id: doc.id }, doc.data()))
   })
 
   return recipes
 }
 
-export function createRecipe(recipe) {
-  return db.collection('recipes').add(Object.assign(recipe, {
+export async function createRecipe(recipe) {
+  const newRecipe = Object.assign({}, recipe, {
     createdAt: new Date().toISOString(),
     authorId: firebase.auth().currentUser.uid
-  }))
+  })
+  const recipeRef = await db.collection('recipes').add(newRecipe)
+
+  return Object.assign({ id: recipeRef.id }, newRecipe)
 }
 
-export function updateRecipe(id, recipe) {
-  return db.collection('recipes').doc(id).set(recipe, { merge: true })
+export async function updateRecipe(id, recipe) {
+  await db.collection('recipes').doc(id).set(recipe, { merge: true })
+
+  return Object.assign({ id }, recipe)
 }
 
 export function deleteRecipe(id) {

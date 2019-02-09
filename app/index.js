@@ -1,6 +1,5 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-// import App from './components/Dashboard/Dashboard.js'
 import App from './components/App.js'
 import 'antd/dist/antd.css'
 import './styles.css'

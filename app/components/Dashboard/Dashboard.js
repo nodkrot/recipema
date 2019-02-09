@@ -40,17 +40,22 @@ export default function Dashboard() {
   const [isSaving, setIsSaving] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
 
-  function fetchRecipes() {
+  async function fetchRecipes() {
     setIsFetching(true)
 
-    getRecipes().then((recipes) => {
+    try {
+      const recipes = await getRecipes()
+
       setRecipes(recipes)
       setRawIngredients(extractRawIngredients(recipes))
+    } catch(err) {
+      message.error(messages.notification_failure)
+    } finally {
       setIsFetching(false)
-    }).catch(() => message.error(messages.notification_failure))
+    }
   }
 
-  useEffect(() => fetchRecipes(), [])
+  useEffect(() => { fetchRecipes() }, [])
 
   async function handleSubmit(recipe) {
     setIsSaving(true)
@@ -69,27 +74,27 @@ export default function Dashboard() {
       ])
 
       // Cleanup deleted images that come as `undefined`
-      recipe.gallery = finalGallery.filter(Boolean)
+      const finalRecipe = Object.assign({}, recipe, { gallery: finalGallery.filter(Boolean) })
 
       // `recipe` thats returned on update is not original `recipe` object
       // hence we need to perform cleaning and grab the id from `currentRecipe` state
       if (currentRecipe) {
-        updateRecipe(currentRecipe.id, recipe).then(() => {
+        updateRecipe(currentRecipe.id, finalRecipe).then((updatedCurrentRecipe) => {
+          setCurrentRecipe(updatedCurrentRecipe)
           message.success(messages.notification_successfully_updated)
         })
       } else {
-        createRecipe(recipe).then(() => {
+        createRecipe(finalRecipe).then((createdCurrentRecipe) => {
+          setCurrentRecipe(createdCurrentRecipe)
           message.success(messages.notification_successfully_created)
         })
       }
 
-      // Regenerate `uniqueId` to reset `RecipeForm`
-      setIsSaving(false)
-      setNewRecipeId(uniqueId())
       fetchRecipes()
     } catch(err) {
-      setIsSaving(false)
       message.error(messages.notification_failure)
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -121,7 +126,10 @@ export default function Dashboard() {
   function handleNew() {
     Modal.confirm({
       title: messages.modal_new_recipe_title,
-      onOk: () => setCurrentRecipe(null)
+      onOk: () =>  {
+        setCurrentRecipe(null)
+        setNewRecipeId(uniqueId())
+      }
     })
   }
 
