@@ -20,9 +20,9 @@ Setup AWS credentials on your machine first, then run the following commands:
 ```
 npm run setup -- example.com    # This will create website S3 bucket in AWS
 npm install                     # This will install npm dependencies
-
 npm start                       # This will start the app on port 1234
-npm run deploy                  # This will deploy the app to S3 bucket
+
+npm run build                   # This will build production bundle
+npm run deploy                  # This will build and deploy the app to S3 bucket
 npm run analyze                 # This will generate bundle size report
 ```
-
