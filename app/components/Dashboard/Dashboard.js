@@ -57,39 +57,40 @@ export default function Dashboard() {
 
   useEffect(() => { fetchRecipes() }, [])
 
-  async function handleSubmit(recipe) {
+  async function handleSubmit(recipeForm, updateGallery) {
     setIsSaving(true)
 
     const originalImages = currentRecipe ? currentRecipe.gallery : []
-    const newImages = recipe.gallery.filter((image) => !!image.originFileObj)
-    const oldImages = recipe.gallery.filter((image) => !image.originFileObj)
+    const newImages = recipeForm.gallery.filter((image) => !!image.originFileObj)
+    const oldImages = recipeForm.gallery.filter((image) => !image.originFileObj)
     const deletedImages = differenceWith(originalImages, oldImages, (a, b) => a.uid === b.uid)
 
     try {
       const compressedNewImages = await Promise.all(newImages.map(compressImage))
-      const finalGallery = await Promise.all([
+      const savedGallery = await Promise.all([
         ...oldImages,
         ...compressedNewImages.map(createImage),
         ...deletedImages.map(deleteImage)
       ])
 
       // Cleanup deleted images that come as `undefined`
-      const finalRecipe = Object.assign({}, recipe, { gallery: finalGallery.filter(Boolean) })
+      const finalGallery = savedGallery.filter(Boolean)
+      // Update `recipeForm` with new gallery since it was uploaded
+      const finalRecipeForm = Object.assign({}, recipeForm, { gallery: finalGallery })
+      // Update gallery inside `RecipeForm` since it was uploaded
+      updateGallery(finalGallery)
 
-      // `recipe` thats returned on update is not original `recipe` object
-      // hence we need to perform cleaning and grab the id from `currentRecipe` state
+      let recipe = null
+
       if (currentRecipe) {
-        updateRecipe(currentRecipe.id, finalRecipe).then((updatedCurrentRecipe) => {
-          setCurrentRecipe(updatedCurrentRecipe)
-          message.success(messages.notification_successfully_updated)
-        })
+        recipe = await updateRecipe(currentRecipe.id, finalRecipeForm)
+        message.success(messages.notification_successfully_updated)
       } else {
-        createRecipe(finalRecipe).then((createdCurrentRecipe) => {
-          setCurrentRecipe(createdCurrentRecipe)
-          message.success(messages.notification_successfully_created)
-        })
+        recipe = await createRecipe(finalRecipeForm)
+        message.success(messages.notification_successfully_created)
       }
 
+      setCurrentRecipe(recipe)
       fetchRecipes()
     } catch(err) {
       message.error(messages.notification_failure)

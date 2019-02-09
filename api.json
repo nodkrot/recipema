@@ -11,6 +11,70 @@
   "paths": {},
   "components": {
     "schemas": {
+      "RecipeForm": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "gallery": {
+            "type": "array",
+            "items": "#/components/schemas/Image"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ingredient"
+            }
+          },
+          "directions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Direction"
+            }
+          },
+          "pairings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "date-time",
+            "description": "Required on recipe creation"
+          },
+          "updatedAt": {
+            "type": "date-time",
+            "description": "Required on recipe update"
+          },
+          "authorId": {
+            "type": "string",
+            "description": "Required on recipe creation"
+          },
+          "servings": {
+            "type": "number"
+          },
+          "prepTime": {
+            "type": "string"
+          },
+          "cookTime": {
+            "type": "string"
+          },
+          "cuisine": {
+            "type": "string"
+          }
+        },
+        "required": ["name", "ingredients", "directions"]
+      },
       "Recipe": {
         "type": "object",
         "properties": {
@@ -52,6 +116,9 @@
             }
           },
           "createdAt": {
+            "type": "date-time"
+          },
+          "updatedAt": {
             "type": "date-time"
           },
           "authorId": {
@@ -107,7 +174,7 @@
       },
       "Unit": {
         "type": "string",
-        "enum": ["piece", "gallon", "quart", "pint", "cup", "ounce", "kilogram", "gram", "milligram", "teaspoon", "tablespoon"]
+        "enum": ["piece", "tablespoon", "teaspoon", "cup", "pinch", "clove", "kilogram", "gram", "milligram", "liter", "milliliter", "taste"]
       },
       "Image": {
         "type": "object",

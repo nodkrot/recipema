@@ -40,7 +40,9 @@ export async function createRecipe(recipe) {
 }
 
 export async function updateRecipe(id, recipe) {
-  await db.collection('recipes').doc(id).set(recipe, { merge: true })
+  await db.collection('recipes').doc(id).set(Object.assign({}, recipe, {
+    updatedAt: new Date().toISOString()
+  }), { merge: true })
 
   return Object.assign({ id }, recipe)
 }

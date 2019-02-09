@@ -45,7 +45,6 @@ function RecipeForm({
   form: {
     getFieldValue,
     setFieldsValue,
-    resetFields,
     validateFields,
     getFieldDecorator
   }
@@ -72,12 +71,9 @@ function RecipeForm({
     validateFields((err, data) => {
       if (err) return
       // Cleanup and construct recipeForm
-      let recipeForm = Object.assign(
-        { gallery },
-        omit(data, ['ingredientsKeys', 'directionsKeys'])
-      )
-
-      onSubmit(recipeForm, resetFields)
+      let recipeForm = Object.assign({ gallery }, omit(data, ['ingredientsKeys', 'directionsKeys']))
+      // Pass callback to updated `gallery` because it will be uploaded
+      onSubmit(recipeForm, (savedGallery) => setGallery(savedGallery))
     })
   }
 
@@ -193,7 +189,6 @@ RecipeForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onChange: PropTypes.func,
   form: PropTypes.shape({
-    resetFields: PropTypes.func,
     validateFields: PropTypes.func,
     getFieldValue: PropTypes.func,
     getFieldDecorator: PropTypes.func,
