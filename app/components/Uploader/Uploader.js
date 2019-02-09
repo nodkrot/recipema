@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import Upload from 'antd/lib/upload'
 import Modal from 'antd/lib/modal'
@@ -25,72 +25,65 @@ function validateFile(file) {
   return isTypeOk && isSizeOk
 }
 
-export default class Uploader extends Component {
+export default function Uploader({ images, maxImages, onChange }) {
+  const [previewImage, setPreviewImage] = useState(null)
+  const [previewVisible, setPreviewVisible] = useState(false)
+  const [fileList, setFileList] = useState(images)
 
-  static propTypes = {
-    onChange: PropTypes.func.isRequired,
-    images: PropTypes.array,
-    maxImages: PropTypes.number
-  }
-
-  static defaultProps = {
-    images: [],
-    maxImages: 3
-  }
-
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      previewImage: null,
-      previewVisible: false,
-      fileList: props.images
-    }
-  }
-
-  handleChange = ({ file, fileList }) => {
+  function handleChange({ file, fileList }) {
     if (validateFile(file)) {
-      this.setState({ fileList })
-      this.props.onChange(fileList)
+      setFileList(fileList)
+      onChange(fileList)
     }
   }
 
-  handlePreview = (file) => {
-    this.setState({
-      previewImage: file.url || file.thumbUrl,
-      previewVisible: true,
-    })
+  function handlePreview(file) {
+    setPreviewImage(file.url || file.thumbUrl)
+    setPreviewVisible(true)
   }
 
-  render() {
-    const { maxImages } = this.props
-    const { previewVisible, previewImage, fileList } = this.state
-    const UploadButton = (
-      <div>
-        <Icon type="plus" />
-        <div className="ant-upload-text">Upload</div>
-      </div>
-    )
-
-    return (
-      <div>
-        <Upload
-          listType="picture-card"
-          fileList={fileList}
-          onPreview={this.handlePreview}
-          onChange={this.handleChange}
-          beforeUpload={() => false}>
-          {this.state.fileList.length >= maxImages ? null : UploadButton}
-        </Upload>
-        <Modal
-          width="82%"
-          footer={null}
-          visible={previewVisible}
-          bodyStyle={{ textAlign: 'center' }}
-          onCancel={() => this.setState({ previewVisible: false })}>
-          <img alt="example" style={{ maxWidth: '100%' }} src={previewImage} />
-        </Modal>
-      </div>
-    )
+  function handleCancel() {
+    setPreviewVisible(false)
   }
+
+  const UploadButton = (
+    <div>
+      <Icon type="plus" />
+      <div className="ant-upload-text">Upload</div>
+    </div>
+  )
+
+  return (
+    <div>
+      <Upload
+        listType="picture-card"
+        fileList={fileList}
+        onPreview={handlePreview}
+        onChange={handleChange}
+        beforeUpload={() => false}
+      >
+        {fileList.length >= maxImages ? null : UploadButton}
+      </Upload>
+      <Modal
+        width="82%"
+        footer={null}
+        visible={previewVisible}
+        bodyStyle={{ textAlign: 'center' }}
+        onCancel={handleCancel}
+      >
+        <img alt="example" style={{ maxWidth: '100%' }} src={previewImage} />
+      </Modal>
+    </div>
+  )
+}
+
+Uploader.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  images: PropTypes.array,
+  maxImages: PropTypes.number
+}
+
+Uploader.defaultProps = {
+  images: [],
+  maxImages: 3
 }
