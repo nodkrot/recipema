@@ -22,8 +22,8 @@ export async function getRecipes() {
   const querySnapshot = await db.collection('recipes').orderBy('createdAt', 'desc').get()
   const recipes = []
 
-  querySnapshot.forEach((doc) => {
-    recipes.push(Object.assign({ id: doc.id }, doc.data()))
+  querySnapshot.forEach((recipeDoc) => {
+    recipes.push(Object.assign({ id: recipeDoc.id }, recipeDoc.data()))
   })
 
   return recipes
