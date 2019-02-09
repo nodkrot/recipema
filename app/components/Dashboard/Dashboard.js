@@ -21,14 +21,14 @@ const { Header, Content, Footer } = Layout
 function extractRawIngredients(recipes) {
   const set = new Set()
   recipes.forEach((recipe) => recipe.ingredients.forEach((a) => set.add(a.name)))
+
   return [...set]
 }
 
 async function compressImage(image) {
   const imageFile = image.originFileObj
-  const maxSizeMB = 1
-  const maxWidthOrHeight = 1920
-  const compressedFile = await imageCompression(imageFile, maxSizeMB, maxWidthOrHeight)
+  const compressedFile = await imageCompression(imageFile, { maxSizeMB: 1, maxWidthOrHeight: 1920 })
+
   return { ...image, originFileObj: compressedFile }
 }
 
