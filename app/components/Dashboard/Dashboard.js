@@ -57,7 +57,7 @@ export default function Dashboard() {
 
   useEffect(() => { fetchRecipes() }, [])
 
-  async function handleSubmit(recipeForm, updateGallery) {
+  async function handleSubmit(recipeForm) {
     setIsSaving(true)
 
     const originalImages = currentRecipe ? currentRecipe.gallery : []
@@ -77,8 +77,6 @@ export default function Dashboard() {
       const finalGallery = savedGallery.filter(Boolean)
       // Update `recipeForm` with new gallery since it was uploaded
       const finalRecipeForm = Object.assign({}, recipeForm, { gallery: finalGallery })
-      // Update gallery inside `RecipeForm` since it was uploaded
-      updateGallery(finalGallery)
 
       let recipe = null
 
