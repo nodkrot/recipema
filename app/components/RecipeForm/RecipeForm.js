@@ -58,43 +58,45 @@ function Ingredients({ ingredients, ingredientList, form: { setFieldsValue, getF
     setFieldsValue({ ingredientsKeys: keys.filter((_, i) => i !== k) })
   }
 
-  return ingredients.map((val, i) => (
-    <div key={i} style={{ display: 'flex' }}>
-      <FormItem style={{ width: 88, marginRight: 8 }}>
-        {getFieldDecorator(`ingredients[${i}].amount.value`, {
-          initialValue: get(val, 'amount.value'),
-          rules: [{ required: true, message: messages.recipe_form_ingredient_qty_error }]
-        })(<Input size="large" type="number" placeholder={messages.recipe_form_ingredient_qty} />)}
-      </FormItem>
-      <FormItem style={{ width: 140, marginRight: 8 }}>
-        {getFieldDecorator(`ingredients[${i}].amount.unit`, {
-          initialValue: get(val, 'amount.unit'),
-          rules: [{ required: true, message: messages.recipe_form_ingredient_unit_error }]
-        })(
-          <Select size="large" placeholder={messages.recipe_form_ingredient_unit}>
-            {units.map((u, i) => <Option key={i} value={u}>{messages[`unit_${u}`]}</Option>)}
-          </Select>
-        )}
-      </FormItem>
-      <FormItem style={{ flex: 'auto' }}>
-        {getFieldDecorator(`ingredients[${i}].name`, {
-          initialValue: get(val, 'name'),
-          rules: [{ required: true, message: messages.recipe_form_ingredient_name_error }]
-        })(
-          <AutoComplete
-            size="large"
-            placeholder={messages.recipe_form_ingredient_name}
-            filterOption={filterInput}
-            dataSource={ingredientList} />
-        )}
-      </FormItem>
-      {i > 0 && <Button
-        shape="circle"
-        icon="close"
-        className="recipe-form__action"
-        onClick={() => handleRemove(i)} />}
-    </div>
-  ))
+  return <>
+    {ingredients.map((val, i) => (
+      <div key={i} style={{ display: 'flex' }}>
+        <FormItem style={{ width: 88, marginRight: 8 }}>
+          {getFieldDecorator(`ingredients[${i}].amount.value`, {
+            initialValue: get(val, 'amount.value'),
+            rules: [{ required: true, message: messages.recipe_form_ingredient_qty_error }]
+          })(<Input size="large" type="number" placeholder={messages.recipe_form_ingredient_qty} />)}
+        </FormItem>
+        <FormItem style={{ width: 140, marginRight: 8 }}>
+          {getFieldDecorator(`ingredients[${i}].amount.unit`, {
+            initialValue: get(val, 'amount.unit'),
+            rules: [{ required: true, message: messages.recipe_form_ingredient_unit_error }]
+          })(
+            <Select size="large" placeholder={messages.recipe_form_ingredient_unit}>
+              {units.map((u, i) => <Option key={i} value={u}>{messages[`unit_${u}`]}</Option>)}
+            </Select>
+          )}
+        </FormItem>
+        <FormItem style={{ flex: 'auto' }}>
+          {getFieldDecorator(`ingredients[${i}].name`, {
+            initialValue: get(val, 'name'),
+            rules: [{ required: true, message: messages.recipe_form_ingredient_name_error }]
+          })(
+            <AutoComplete
+              size="large"
+              placeholder={messages.recipe_form_ingredient_name}
+              filterOption={filterInput}
+              dataSource={ingredientList} />
+          )}
+        </FormItem>
+        {i > 0 && <Button
+          shape="circle"
+          icon="close"
+          className="recipe-form__action"
+          onClick={() => handleRemove(i)} />}
+      </div>
+    ))}
+  </>
 }
 
 Directions.propTypes = {
@@ -113,22 +115,24 @@ function Directions({ directions, form: { setFieldsValue, getFieldValue, getFiel
     setFieldsValue({ directionsKeys: keys.filter((_, i) => i !== k) })
   }
 
-  return directions.map((val, i) => (
-    <div key={i} style={{ display: 'flex' }}>
-      <div className="recipe-form__step-count">{i + 1}.</div>
-      <FormItem style={{ flex: 'auto' }}>
-        {getFieldDecorator(`directions[${i}].text`, {
-          initialValue: get(val, 'text'),
-          rules: [{ required: true, message: messages.recipe_form_direction_text_error }]
-        })(<TextArea autosize={{ minRows: 2, maxRows: 4 }} placeholder={messages.recipe_form_direction_text} />)}
-      </FormItem>
-      {i > 0 && <Button
-        shape="circle"
-        icon="close"
-        className="recipe-form__action"
-        onClick={() => handleRemove(i)} />}
-    </div>
-  ))
+  return <>
+    {directions.map((val, i) => (
+      <div key={i} style={{ display: 'flex' }}>
+        <div className="recipe-form__step-count">{i + 1}.</div>
+        <FormItem style={{ flex: 'auto' }}>
+          {getFieldDecorator(`directions[${i}].text`, {
+            initialValue: get(val, 'text'),
+            rules: [{ required: true, message: messages.recipe_form_direction_text_error }]
+          })(<TextArea autosize={{ minRows: 2, maxRows: 4 }} placeholder={messages.recipe_form_direction_text} />)}
+        </FormItem>
+        {i > 0 && <Button
+          shape="circle"
+          icon="close"
+          className="recipe-form__action"
+          onClick={() => handleRemove(i)} />}
+      </div>
+    ))}
+  </>
 }
 
 Uploader.propTypes = {
