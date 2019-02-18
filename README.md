@@ -4,7 +4,13 @@ Family recipes hub.
 
 ## Setup
 
-Create `.env.local` and/or `.env.production` with the following variables:
+[Setup AWS credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) on your machine first then run below command to create website S3 bucket in AWS:
+
+```
+npm run setup -- example.com
+```
+
+Create `.env.local` and/or `.env.production` with the following variables (this project uses Firebase):
 
 ```
 FB_API_KEY=
@@ -15,10 +21,11 @@ FB_STORAGE_BUCKET=
 FB_MESSAGEING_SENDER_ID=
 ```
 
-Setup AWS credentials on your machine first, then run the following commands:
+## Development
+
+Use these commands for development:
 
 ```
-npm run setup -- example.com    # This will create website S3 bucket in AWS
 npm install                     # This will install npm dependencies
 npm start                       # This will start the app on port 1234
 
