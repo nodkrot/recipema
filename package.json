@@ -8,7 +8,7 @@
     "start": "parcel app/index.html",
     "build": "rm -rf dist && parcel build app/index.html",
     "deploy": "npm run build && aws s3 sync dist/ s3://recipema.com/",
-    "analyzer": "parcel build app/index.html && open dist/report.html",
+    "analyze": "parcel build app/index.html && open dist/report.html",
     "setup": "./setup.sh"
   },
   "dependencies": {
