@@ -146,7 +146,7 @@ export default function Dashboard() {
               key={currentRecipe ? currentRecipe.id : newRecipeId}
               recipe={currentRecipe}
               recipes={recipes}
-              ingredients={rawIngredients}
+              ingredientList={rawIngredients}
               onSubmit={handleSubmit}
               isLoading={isSaving} />
           </Col>
