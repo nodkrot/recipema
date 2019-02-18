@@ -132,13 +132,13 @@ function Directions({ directions, form: { setFieldsValue, getFieldValue, getFiel
 }
 
 Uploader.propTypes = {
-  recipe: PropTypes.object,
+  gallery: PropTypes.array.isRequired,
   form: PropTypes.shape({
     getFieldDecorator: PropTypes.func.isRequired
   })
 }
 
-function Uploader({ recipe, form: { getFieldDecorator }}) {
+function Uploader({ gallery, form: { getFieldDecorator }}) {
   const [previewImage, setPreviewImage] = useState(null)
   const [previewVisible, setPreviewVisible] = useState(false)
 
@@ -155,7 +155,7 @@ function Uploader({ recipe, form: { getFieldDecorator }}) {
     <FormItem>
       {getFieldDecorator('gallery', {
         valuePropName: 'fileList',
-        initialValue: get(recipe, 'gallery', []),
+        initialValue: gallery,
         getValueFromEvent: (e) => validateFile(e.file) ? e.fileList : e.fileList.slice(0, -1)
       })(
         <Upload
@@ -246,7 +246,7 @@ function RecipeForm({
         )}
       </FormItem>
       <h3>{messages.recipe_form_title_gallery}</h3>
-      <Uploader recipe={recipe} form={{ getFieldDecorator }} />
+      <Uploader gallery={get(recipe, 'gallery', [])} form={{ getFieldDecorator }} />
       <h3>{messages.recipe_form_title_ingredient}</h3>
       <Ingredients
         ingredients={ingredientsKeys}

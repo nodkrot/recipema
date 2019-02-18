@@ -1,6 +1,6 @@
 # RecipeMa
 
-Quick app starter for static websites hosted in AWS S3
+Family recipes hub.
 
 ## Setup
 
