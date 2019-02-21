@@ -38,7 +38,8 @@
     "notification_successfully_created": "Рецепт успешно сохранен!",
     "notification_successfully_updated": "Рецепт успешно обнавлен!",
     "notification_successfully_deleted": "Рецепт успешно удален!",
-    "notification_failure": "Произошла ошибка!"
+    "notification_failure": "Произошла ошибка!",
+    "upload_button": "Загрузить"
   },
   "en_US": {}
 }
