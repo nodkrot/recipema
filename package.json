@@ -6,8 +6,9 @@
   "repository": "https://github.com/nodkrot/recipema",
   "scripts": {
     "start": "parcel app/index.html",
-    "build": "rm -rf dist/; parcel build app/index.html",
+    "build": "rm -rf dist/; NODE_ENV=production parcel build app/index.html",
     "deploy": "npm run build; aws s3 sync dist/ s3://recipema.com/; npm version minor; git push;",
+    "deploy-gh": "npm run build; gh-pages -d . -s '{dist/**,CNAME}'",
     "analyze": "parcel build app/index.html; open dist/report.html",
     "setup": "./setup.sh"
   },
@@ -30,6 +31,7 @@
     "eslint": "^5.13.0",
     "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-react-hooks": "^1.0.2",
+    "gh-pages": "^2.0.1",
     "parcel-bundler": "^1.11.0",
     "parcel-plugin-bundle-visualiser": "^1.2.0"
   }
