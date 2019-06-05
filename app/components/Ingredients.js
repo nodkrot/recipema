@@ -1,13 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import get from 'lodash/get'
 import Form from 'antd/lib/form'
 import Input from 'antd/lib/input'
 import Button from 'antd/lib/button'
 import Select from 'antd/lib/select'
 import AutoComplete from 'antd/lib/auto-complete'
-import get from 'lodash/get'
-import Messages from '../../messages.json'
-import './styles.css'
+import Messages from '../messages.json'
 
 const messages = Messages['ru_RU']
 const FormItem = Form.Item

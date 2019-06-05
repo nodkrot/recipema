@@ -5,8 +5,7 @@ import Form from 'antd/lib/form'
 import Upload from 'antd/lib/upload'
 import Modal from 'antd/lib/modal'
 import message from 'antd/lib/message'
-import Messages from '../../messages.json'
-import './styles.css'
+import Messages from '../messages.json'
 
 const FormItem = Form.Item
 const messages = Messages['ru_RU']

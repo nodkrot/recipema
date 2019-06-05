@@ -4,8 +4,7 @@ import Form from 'antd/lib/form'
 import Input from 'antd/lib/input'
 import Button from 'antd/lib/button'
 import get from 'lodash/get'
-import Messages from '../../messages.json'
-import './styles.css'
+import Messages from '../messages.json'
 
 const messages = Messages['ru_RU']
 const FormItem = Form.Item

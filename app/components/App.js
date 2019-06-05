@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Router, Route, Redirect, Switch } from 'react-router-dom'
-import Dashboard from './Dashboard/Dashboard.js'
-import HomePage from './HomePage/HomePage.js'
-import Login from './Login/Login.js'
+import Dashboard from './Dashboard.js'
+import ListView from './ListView.js'
+import Login from './Login.js'
 import { auth } from '../firebase.js'
 import history from '../history.js'
 
@@ -23,7 +23,7 @@ export default function App() {
   }, [])
 
   if (isSignedIn === null) return null
-  // <Route path="/" exact component={HomePage} />
+  // <Route path="/preview" component={ListView} />
   return (
     <Router history={history}>
       <Switch>

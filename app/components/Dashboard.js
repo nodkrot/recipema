@@ -9,12 +9,12 @@ import Button from 'antd/lib/button'
 import Modal from 'antd/lib/modal'
 import message from 'antd/lib/message'
 import imageCompression from 'browser-image-compression'
-import RecipeForm from '../RecipeForm/RecipeForm.js'
-import RecipeList from '../RecipeList/RecipeList.js'
-import { auth, createImage, deleteImage, getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../firebase.js'
-import history from '../../history.js'
-import Messages from '../../messages.json'
-import './styles.css'
+import RecipeForm from './RecipeForm.js'
+import RecipeList from './RecipeList.js'
+import { auth, createImage, deleteImage, getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../firebase.js'
+import history from '../history.js'
+import Messages from '../messages.json'
+import './Dashboard.css'
 
 const messages = Messages['ru_RU']
 const { Header, Content, Footer } = Layout

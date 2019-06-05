@@ -1,7 +1,7 @@
 import React from 'react'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
-import firebase, { auth, setUser } from '../../firebase.js'
-import './styles.css'
+import firebase, { auth, setUser } from '../firebase.js'
+import './Login.css'
 
 const uiConfig = {
   signInFlow: 'redirect',

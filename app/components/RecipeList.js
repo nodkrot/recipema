@@ -3,8 +3,7 @@ import PropTypes from 'prop-types'
 import List from 'antd/lib/list'
 import Button from 'antd/lib/button'
 import Modal from 'antd/lib/modal'
-import Messages from '../../messages.json'
-import './styles.css'
+import Messages from '../messages.json'
 
 const messages = Messages['ru_RU']
 

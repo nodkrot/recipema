@@ -10,8 +10,8 @@ import omit from 'lodash/omit'
 import Ingredients from './Ingredients.js'
 import Directions from './Directions.js'
 import Uploader from './Uploader.js'
-import Messages from '../../messages.json'
-import './styles.css'
+import Messages from '../messages.json'
+import './RecipeForm.css'
 
 const messages = Messages['ru_RU']
 const FormItem = Form.Item
