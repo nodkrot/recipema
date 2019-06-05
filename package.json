@@ -1,15 +1,14 @@
 {
-  "name": "recipema.com",
-  "version": "0.3.0",
-  "description": "Family recipes hub.",
+  "name": "recipema",
+  "version": "0.4.0",
+  "description": "Family recipe hub.",
   "license": "MIT",
   "repository": "https://github.com/nodkrot/recipema",
+  "author": "Vyacheslav Alayev",
   "scripts": {
-    "start": "parcel app/index.html",
-    "build": "rm -rf dist/; NODE_ENV=production parcel build app/index.html",
-    "deploy": "npm run build; aws s3 sync dist/ s3://recipema.com/; npm version minor; git push;",
-    "deploy-gh": "npm run build; gh-pages -d . -s '{dist/**,CNAME}'",
-    "analyze": "parcel build app/index.html; open dist/report.html",
+    "start": "parcel ./app/index.html",
+    "analyze": "parcel build ./app/index.html; open ./dist/report.html",
+    "deploy": "./deploy.sh",
     "setup": "./setup.sh"
   },
   "dependencies": {

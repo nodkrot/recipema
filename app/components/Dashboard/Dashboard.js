@@ -12,6 +12,7 @@ import imageCompression from 'browser-image-compression'
 import RecipeForm from '../RecipeForm/RecipeForm.js'
 import RecipeList from '../RecipeList/RecipeList.js'
 import { auth, createImage, deleteImage, getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../firebase.js'
+import history from '../../history.js'
 import Messages from '../../messages.json'
 import './styles.css'
 
@@ -132,12 +133,18 @@ export default function Dashboard() {
     })
   }
 
+  function handleHome() {
+    history.push('/')
+  }
+
   return (
     <Layout className="dashboard">
       <Header className="dashboard__header">
-        <span className="dashboard__header-space" />
         <a href="/" className="dashboard__logo">RecipeMa</a>
-        <Button shape="circle" icon="logout" size="large" onClick={handleSignOut} />
+        <div className="dashboard__header-space">
+          <Button shape="circle" icon="home" size="large" onClick={handleHome} />
+          <Button shape="circle" icon="logout" size="large" onClick={handleSignOut} />
+        </div>
       </Header>
       <Content className="dashboard__content">
         <Row type="flex" justify="center" gutter={16}>

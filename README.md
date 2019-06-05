@@ -29,7 +29,6 @@ Use these commands for development:
 npm install                     # This will install npm dependencies
 npm start                       # This will start the app on port 1234
 
-npm run build                   # This will build production bundle
-npm run deploy                  # This will build and deploy the app to S3 bucket
+npm run deploy                  # This will build and deploy the app
 npm run analyze                 # This will generate bundle size report
 ```
