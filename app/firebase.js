@@ -18,6 +18,16 @@ export function setUser(user) {
   return db.collection('users').doc(user.uid).set(user, { merge: true })
 }
 
+export async function getRecipeById(id) {
+  const doc = await db.collection('recipes').doc(id).get()
+
+  if (doc.exists) {
+    return Object.assign({ id: doc.id }, doc.data())
+  }
+
+  throw new Error('Unable to fetch recipe with provided id')
+}
+
 export async function getRecipes() {
   const querySnapshot = await db.collection('recipes').orderBy('createdAt', 'desc').get()
   const recipes = []

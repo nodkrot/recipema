@@ -3,12 +3,12 @@ import uniqueId from 'lodash/uniqueId'
 import differenceWith from 'lodash/differenceWith'
 import Row from 'antd/lib/row'
 import Col from 'antd/lib/col'
-import Icon from 'antd/lib/icon'
-import Layout from 'antd/lib/layout'
 import Button from 'antd/lib/button'
 import Modal from 'antd/lib/modal'
 import message from 'antd/lib/message'
 import imageCompression from 'browser-image-compression'
+import Header from './Header.js'
+import Footer from './Footer.js'
 import RecipeForm from './RecipeForm.js'
 import RecipeList from './RecipeList.js'
 import { auth, createImage, deleteImage, getRecipes, createRecipe, updateRecipe, deleteRecipe } from '../firebase.js'
@@ -17,7 +17,6 @@ import Messages from '../messages.json'
 import './Dashboard.css'
 
 const messages = Messages['ru_RU']
-const { Header, Content, Footer } = Layout
 
 function extractRawIngredients(recipes) {
   const set = new Set()
@@ -138,15 +137,13 @@ export default function Dashboard() {
   }
 
   return (
-    <Layout className="dashboard">
-      <Header className="dashboard__header">
-        <a href="/" className="dashboard__logo">RecipeMa</a>
-        <div className="dashboard__header-space">
-          <Button shape="circle" icon="home" size="large" onClick={handleHome} />
-          <Button shape="circle" icon="logout" size="large" onClick={handleSignOut} />
-        </div>
+    <div className="dashboard">
+      <Header path="/dashboard">
+        <Button shape="circle" icon="home" size="large" onClick={handleHome} />
+        {' '}
+        <Button shape="circle" icon="logout" size="large" onClick={handleSignOut} />
       </Header>
-      <Content className="dashboard__content">
+      <div className="dashboard__content">
         <Row type="flex" justify="center" gutter={16}>
           <Col xs={24} sm={14}>
             <RecipeForm
@@ -169,10 +166,8 @@ export default function Dashboard() {
               onRemove={handleRemove} />
           </Col>
         </Row>
-      </Content>
-      <Footer className="dashboard__footer">
-        Made with <Icon type="heart" /> {new Date().getFullYear()}
-      </Footer>
-    </Layout>
+      </div>
+      <Footer />
+    </div>
   )
 }

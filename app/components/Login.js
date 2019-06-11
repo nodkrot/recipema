@@ -1,6 +1,7 @@
 import React from 'react'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
 import firebase, { auth, setUser } from '../firebase.js'
+import history from '../history.js'
 import './Login.css'
 
 const uiConfig = {
@@ -10,13 +11,14 @@ const uiConfig = {
   ],
   callbacks: {
     signInSuccessWithAuthResult: (authResult) => {
-      // Save logged in/registered user
       setUser({
         uid: authResult.user.uid,
         name: authResult.user.displayName,
         email: authResult.user.email,
         loggedInAt: Date.now()
       })
+        .then(() => history.push('/dashboard'))
+        .catch(() => console.log('Failed to save user'))
 
       return false
     }

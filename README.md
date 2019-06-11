@@ -32,3 +32,10 @@ npm start                       # This will start the app on port 1234
 npm run deploy                  # This will build and deploy the app
 npm run analyze                 # This will generate bundle size report
 ```
+
+## Notes
+
+* Create list page
+* Create single page
+* Use https://github.com/i18next/react-i18next/tree/master/example/react
+* Use https://github.com/jaredpalmer/formik
