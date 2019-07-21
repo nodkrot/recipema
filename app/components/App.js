@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import { Router, Route, Redirect, Switch } from 'react-router-dom'
 import Dashboard from './Dashboard.js'
 import ListView from './ListView.js'
@@ -12,6 +13,11 @@ const PrivateRoute = ({ component: Component, auth, ...rest }) => (
     auth ? <Component {...props} /> : <Redirect to="/login" />
   )} />
 )
+
+PrivateRoute.propTypes = {
+  component: PropTypes.func.isRequired,
+  auth: PropTypes.bool.isRequired
+}
 
 export default function App() {
   const [isSignedIn, setIsSignedIn] = useState(null)
