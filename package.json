@@ -8,8 +8,7 @@
   "scripts": {
     "start": "parcel ./app/index.html",
     "analyze": "parcel build ./app/index.html; open ./dist/report.html",
-    "deploy": "./deploy.sh",
-    "setup": "./setup.sh"
+    "deploy": "./deploy.sh"
   },
   "dependencies": {
     "antd": "^3.20.5",

@@ -4,12 +4,6 @@ Family recipes hub.
 
 ## Setup
 
-[Setup AWS credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) on your machine first then run below command to create website S3 bucket in AWS:
-
-```
-npm run setup -- example.com
-```
-
 Create `.env.local` and/or `.env.production` with the following variables (this project uses Firebase):
 
 ```
@@ -33,9 +27,7 @@ npm run deploy                  # This will build and deploy the app
 npm run analyze                 # This will generate bundle size report
 ```
 
-## Notes
+## Notes/Todos
 
-* Create list page
-* Create single page
 * Use https://github.com/i18next/react-i18next/tree/master/example/react
 * Use https://github.com/jaredpalmer/formik

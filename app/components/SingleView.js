@@ -35,6 +35,7 @@ export default function SingleView({ match, location: { state = {} } }) {
             <Button shape="circle" icon="edit" size="large" onClick={handleEdit} />
           </Header>
           <h1 className="single-view__title">{recipe.name}</h1>
+          <p className="single-view__description">{recipe.description}</p>
           <Row type="flex">
             <Col xs={18} sm={12}>
               <h2 className="single-view__subtitle">Ingredients</h2>
@@ -48,11 +49,11 @@ export default function SingleView({ match, location: { state = {} } }) {
             </Col>
             <Col xs={18} sm={12}>
               <h2 className="single-view__subtitle">Directions</h2>
-              <ul className="single-view__list">
+              <ol className="single-view__list">
                 {recipe.directions.map((direction, i) => (
-                  <ol key={i} className="single-view__list-item">{direction.text}</ol>
+                  <li key={i} className="single-view__list-item">{direction.text}</li>
                 ))}
-              </ul>
+              </ol>
             </Col>
           </Row>
           <Footer />
