@@ -36,3 +36,7 @@
   font-size: 15px;
   letter-spacing: 0.3px;
 }
+
+.single-view__directions-list .single-view__list-item {
+  margin-bottom: 8px;
+}
