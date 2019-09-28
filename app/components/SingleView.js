@@ -40,7 +40,7 @@ export default function SingleView({ match, location: { state = {} } }) {
               <span className="single-view__amount">
                 {ingredient.amount.value} {ingredient.amount.unit}
               </span>
-              {'of'} {ingredient.name.toLowerCase()}
+              {ingredient.name.toLowerCase()}
             </li>
           ))}
         </ul>

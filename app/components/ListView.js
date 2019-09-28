@@ -63,8 +63,8 @@ export default function ListView() {
                 state: { recipe }
               }}>
                 <h2 className="list-view__item-title">{recipe.name}</h2>
+                {recipe.description && <p className="list-view__item-description">{recipe.description}</p>}
               </Link>
-              {recipe.description && <p className="list-view__item-description">{recipe.description}</p>}
             </li>
           ))}
         </ul>

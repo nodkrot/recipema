@@ -1,6 +1,7 @@
 .single-view__title {
-  font-size: 36px;
-  margin: 28px 0 0;
+  font-size: 34px;
+  line-height: 1.2;
+  margin: 28px 0 8px;
 }
 
 .single-view__container {
