@@ -1,7 +1,12 @@
 .single-view__title {
-  font-size: 34px;
-  line-height: 1.2;
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 1.1;
   margin: 28px 0 8px;
+}
+
+.single-view__subtitle {
+  font-weight: 300;
 }
 
 .single-view__container {
@@ -25,4 +30,9 @@
 .single-view__directions-list {
   padding: 0 0 0 20px;
   margin: 0 0 20px;
+}
+
+.single-view__list-item {
+  font-size: 15px;
+  letter-spacing: 0.5px;
 }

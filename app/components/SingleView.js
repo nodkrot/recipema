@@ -5,10 +5,17 @@ import Header from './Header.js'
 import Footer from './Footer.js'
 import { getRecipeById } from '../firebase.js'
 import history from '../history.js'
+import Messages from '../messages.json'
 import './SingleView.css'
+
+const messages = Messages['ru_RU']
 
 export default function SingleView({ match, location: { state = {} } }) {
   const [recipe, setRecipe] = useState(state.recipe)
+
+  useEffect(() => {
+    scrollTo(0, 0)
+  }, [])
 
   useEffect(() => {
     if (!recipe) {
@@ -38,7 +45,7 @@ export default function SingleView({ match, location: { state = {} } }) {
           {recipe.ingredients.map((ingredient, i) => (
             <li key={i} className="single-view__list-item">
               <span className="single-view__amount">
-                {ingredient.amount.value} {ingredient.amount.unit}
+                {ingredient.amount.value} {messages[`unit_${ingredient.amount.unit}`]}
               </span>
               {ingredient.name.toLowerCase()}
             </li>
