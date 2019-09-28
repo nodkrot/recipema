@@ -1,4 +1,27 @@
 .single-view__title {
   font-size: 36px;
-  margin: 44px 0 0;
+  margin: 28px 0 0;
+}
+
+.single-view__container {
+  padding: 0 20px;
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+.single-view__ingredients-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+}
+
+.single-view__amount {
+  font-weight: 200;
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+.single-view__directions-list {
+  padding: 0 0 0 20px;
+  margin: 0 0 20px;
 }
