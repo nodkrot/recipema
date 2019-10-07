@@ -40,7 +40,7 @@ export default function SingleView({ match, location: { state = {} } }) {
         </Header>
         <h1 className="single-view__title">{recipe.name}</h1>
         <p className="single-view__description">{recipe.description}</p>
-        <h2 className="single-view__subtitle">Ingredients</h2>
+        <h2 className="single-view__subtitle">{messages.recipe_form_title_ingredient}</h2>
         <ul className="single-view__ingredients-list">
           {recipe.ingredients.map((ingredient, i) => (
             <li key={i} className="single-view__list-item">
@@ -51,7 +51,7 @@ export default function SingleView({ match, location: { state = {} } }) {
             </li>
           ))}
         </ul>
-        <h2 className="single-view__subtitle">Directions</h2>
+        <h2 className="single-view__subtitle">{messages.recipe_form_title_direction}</h2>
         <ol className="single-view__directions-list">
           {recipe.directions.map((direction, i) => (
             <li key={i} className="single-view__list-item">{direction.text}</li>
