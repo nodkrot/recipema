@@ -22,6 +22,7 @@ const filterInput = (input, option) => option.props.children.toLowerCase().index
 RecipeForm.propTypes = {
   isLoading: PropTypes.bool,
   onSubmit: PropTypes.func.isRequired,
+  onPreview: PropTypes.func,
   onChange: PropTypes.func, // eslint-disable-line
   form: PropTypes.shape({
     validateFields: PropTypes.func,
@@ -59,6 +60,7 @@ function RecipeForm({
   recipe,
   recipes,
   onSubmit,
+  onPreview,
   ingredientList,
   isLoading,
   form: { getFieldValue, setFieldsValue, validateFields, getFieldDecorator }
@@ -75,6 +77,10 @@ function RecipeForm({
     setFieldsValue({ [field]: keys.concat(keys.length) })
   }
 
+  function handlePreview() {
+    onPreview(recipe)
+  }
+
   function handleSubmit() {
     validateFields((err, data) => {
       if (err) return
@@ -87,7 +93,10 @@ function RecipeForm({
     <Form onSubmit={handleSubmit} className="recipe-form">
       <h1 className="recipe-form__title">
         {recipe ? recipe.name : messages.app_form_title}
-        {recipe && <Button type="primary" shape="circle" icon="save" size="large" loading={isLoading} onClick={handleSubmit} />}
+        <div>
+          {(recipe && onPreview) && <Button shape="circle" icon="eye" size="large" onClick={handlePreview} />}{' '}
+          {recipe && <Button type="primary" shape="circle" icon="save" size="large" loading={isLoading} onClick={handleSubmit} />}
+        </div>
       </h1>
       <FormItem>
         {getFieldDecorator('name', {

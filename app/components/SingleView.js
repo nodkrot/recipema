@@ -28,7 +28,7 @@ export default function SingleView({ match, location: { state = {} } }) {
   }, [recipe])
 
   function handleEdit() {
-    history.push('/dashboard')
+    history.push(`/dashboard/${match.params.recipeId}`)
   }
 
   if (!recipe) return null
