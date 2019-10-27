@@ -45,7 +45,8 @@ export default function SingleView({ match, location: { state = {} } }) {
           {recipe.ingredients.map((ingredient, i) => (
             <li key={i} className="single-view__list-item">
               <span className="single-view__amount">
-                {ingredient.amount.value} {messages[`unit_${ingredient.amount.unit}`]}
+                {ingredient.amount.value !== '0' ? ingredient.amount.value : null}
+                {' '}{messages[`unit_${ingredient.amount.unit}`]}
               </span>
               {ingredient.name.toLowerCase()}
             </li>
