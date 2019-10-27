@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import Button from 'antd/lib/button'
+import Carousel from 'antd/lib/carousel'
 import Header from './Header.js'
 import Footer from './Footer.js'
 import { getRecipeById } from '../firebase.js'
@@ -39,6 +40,13 @@ export default function SingleView({ match, location: { state = {} } }) {
           <Button shape="circle" icon="edit" size="large" onClick={handleEdit} />
         </Header>
         <h1 className="single-view__title">{recipe.name}</h1>
+      </div>
+      {!!recipe.gallery.length && (
+        <Carousel autoplay>
+          {recipe.gallery.map((image, i) => (<img key={i} src={image.url} />))}
+        </Carousel>
+      )}
+      <div className="single-view__container">
         <p className="single-view__description">{recipe.description}</p>
         <h2 className="single-view__subtitle">{messages.recipe_form_title_ingredient}</h2>
         <ul className="single-view__ingredients-list">
