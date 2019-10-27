@@ -41,7 +41,7 @@ export default function SingleView({ match, location: { state = {} } }) {
         </Header>
         <h1 className="single-view__title">{recipe.name}</h1>
       </div>
-      {!!recipe.gallery.length && (
+      {!!(recipe.gallery && recipe.gallery.length) && (
         <Carousel autoplay>
           {recipe.gallery.map((image, i) => (<img key={i} src={image.url} />))}
         </Carousel>
