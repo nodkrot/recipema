@@ -40,3 +40,15 @@
 .single-view__directions-list .single-view__list-item {
   margin-bottom: 8px;
 }
+
+.single-view .ant-carousel {
+  max-width: 920px;
+  height: 300px;
+  margin: 12px auto 12px;
+}
+
+.single-view .ant-carousel img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+}
