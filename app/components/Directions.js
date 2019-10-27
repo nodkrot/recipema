@@ -37,7 +37,7 @@ export default function Directions({
           {getFieldDecorator(`directions[${i}].text`, {
             initialValue: get(val, 'text'),
             rules: [{ required: true, message: messages.recipe_form_direction_text_error }]
-          })(<TextArea autosize={{ minRows: 2, maxRows: 4 }} placeholder={messages.recipe_form_direction_text} />)}
+          })(<TextArea autoSize={{ minRows: 2, maxRows: 4 }} placeholder={messages.recipe_form_direction_text} />)}
         </FormItem>
         {i > 0 && <Button
           shape="circle"

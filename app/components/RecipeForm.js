@@ -108,7 +108,7 @@ function RecipeForm({
         {getFieldDecorator('description', {
           initialValue: get(recipe, 'description', ''),
           rules: [{ required: false, message: messages.recipe_form_description_error }]
-        })(<TextArea autosize={{ minRows: 2, maxRows: 6 }} placeholder={messages.recipe_form_description} />)}
+        })(<TextArea autoSize={{ minRows: 2, maxRows: 6 }} placeholder={messages.recipe_form_description} />)}
       </FormItem>
       <FormItem>
         {getFieldDecorator('pairings', {
