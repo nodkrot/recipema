@@ -38,6 +38,7 @@ export default function App() {
         <Route exact path="/" component={ListView} />
         <Route path="/recipe/:recipeId" component={SingleView} />
         <Route path="/login" component={Login} />
+        <PrivateRoute auth={isSignedIn} path="/dashboard/:recipeId" component={Dashboard} />
         <PrivateRoute auth={isSignedIn} path="/dashboard" component={Dashboard} />
         <Redirect from="*" to="/" />
       </Switch>
