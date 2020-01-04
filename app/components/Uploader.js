@@ -1,33 +1,36 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import Icon from 'antd/lib/icon'
 import Form from 'antd/lib/form'
 import Upload from 'antd/lib/upload'
+import Button from 'antd/lib/button'
 import Modal from 'antd/lib/modal'
 import message from 'antd/lib/message'
 import Messages from '../messages.json'
+import './Uploader.css'
 
 const FormItem = Form.Item
 const messages = Messages['ru_RU']
 
-function validateFile(file) {
-  // Already uploaded image
-  if (!(file instanceof File)) return true
-
+function sanitizeFiles({ file, fileList }) {
   const MAX_SIZE = 5
   const IMG_TYPES = ['image/jpeg']
-  const isTypeOk = IMG_TYPES.includes(file.type)
-  const isSizeOk = file.size / 1024 / 1024 < MAX_SIZE
+  const matchesType = (file) => IMG_TYPES.includes(file.type)
+  const matchesSize = (file) => file.size / 1024 / 1024 < MAX_SIZE
+  // `file` in `fileList` is not na instance of `File` so we check
+  //  for `originFileObj` property instead
+  const uploadedFiles = fileList.filter((file) => !file.originFileObj)
+  const rawFiles = fileList.filter((file) => !!file.originFileObj)
+  const sanitizedFiles = rawFiles.filter(matchesType).filter(matchesSize)
 
-  if (!isTypeOk) {
-    message.error(`You can only upload ${IMG_TYPES.join(', ')}!`)
+  if (file instanceof File && !matchesType(file)) {
+    message.error(`Image must be of type(s) ${IMG_TYPES.join(', ')}!`)
+  }
+  if (file instanceof File && !matchesSize(file)) {
+    message.error(`Image must be smaller than ${MAX_SIZE}Mb!`)
   }
 
-  if (!isSizeOk) {
-    message.error(`Image must smaller than ${MAX_SIZE}Mb!`)
-  }
-
-  return isTypeOk && isSizeOk
+  return [...uploadedFiles, ...sanitizedFiles]
 }
 
 Uploader.propTypes = {
@@ -42,6 +45,8 @@ export default function Uploader({ gallery, form: { getFieldDecorator }}) {
   const [previewVisible, setPreviewVisible] = useState(false)
 
   function handlePreview(file) {
+    // We need to upload the file first to get `file.url`
+    // in order to preview large size
     setPreviewImage(file.url || file.thumbUrl)
     setPreviewVisible(true)
   }
@@ -51,30 +56,34 @@ export default function Uploader({ gallery, form: { getFieldDecorator }}) {
   }
 
   return (
-    <FormItem>
-      {getFieldDecorator('gallery', {
-        valuePropName: 'fileList',
-        initialValue: gallery,
-        getValueFromEvent: (e) => validateFile(e.file) ? e.fileList : e.fileList.slice(0, -1)
-      })(
-        <Upload
-          listType="picture-card"
-          onPreview={handlePreview}
-          beforeUpload={() => false}>
-          <div>
-            <Icon type="plus" />
-            <div className="ant-upload-text">{messages.upload_button}</div>
-          </div>
-        </Upload>
-      )}
-      <Modal
-        width="82%"
-        footer={null}
-        visible={previewVisible}
-        bodyStyle={{ textAlign: 'center' }}
-        onCancel={handleCancel}>
-        <img alt="example" style={{ maxWidth: '100%' }} src={previewImage} />
-      </Modal>
-    </FormItem>
+    <div className="uploader">
+      <FormItem>
+        {getFieldDecorator('gallery', {
+          valuePropName: 'fileList',
+          initialValue: gallery,
+          getValueFromEvent: sanitizeFiles
+        })(
+          <Upload
+            listType="picture"
+            onPreview={handlePreview}
+            beforeUpload={() => false}
+            multiple
+          >
+            <Button size="large">
+              <Icon type="upload" /> {messages.upload_button}
+            </Button>
+          </Upload>
+        )}
+        <Modal
+          width="82%"
+          footer={null}
+          visible={previewVisible}
+          bodyStyle={{ textAlign: 'center' }}
+          onCancel={handleCancel}
+        >
+          <img alt="example" style={{ maxWidth: '100%' }} src={previewImage} />
+        </Modal>
+      </FormItem>
+    </div>
   )
 }

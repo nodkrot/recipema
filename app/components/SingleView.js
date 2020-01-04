@@ -39,14 +39,16 @@ export default function SingleView({ match, location: { state = {} } }) {
         <Header>
           <Button shape="circle" icon="edit" size="large" onClick={handleEdit} />
         </Header>
-        <h1 className="single-view__title">{recipe.name}</h1>
       </div>
       {!!(recipe.gallery && recipe.gallery.length) && (
-        <Carousel autoplay>
-          {recipe.gallery.map((image, i) => (<img key={i} src={image.url} />))}
-        </Carousel>
+        <div className="single-view__gallery">
+          <Carousel autoplay>
+            {recipe.gallery.map((image, i) => (<img key={i} src={image.url} />))}
+          </Carousel>
+        </div>
       )}
       <div className="single-view__container">
+        <h1 className="single-view__title">{recipe.name}</h1>
         <p className="single-view__description">{recipe.description}</p>
         <h2 className="single-view__subtitle">{messages.recipe_form_title_ingredient}</h2>
         <ul className="single-view__ingredients-list">
