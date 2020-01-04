@@ -105,6 +105,7 @@ export default function Dashboard({ match }) {
       }
 
       goToDashboard(recipe.id)
+      setCurrentRecipe(recipe)
       setRecipes(updatedRecipes)
     } catch(err) {
       message.error(messages.notification_failure)
