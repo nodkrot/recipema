@@ -93,7 +93,7 @@ function RecipeForm({
     <Form onSubmit={handleSubmit} className="recipe-form">
       <h1 className="recipe-form__title">
         {recipe ? recipe.name : messages.app_form_title}
-        <div>
+        <div className="recipe-form__actions">
           {(recipe && onPreview) && <Button shape="circle" icon="eye" size="large" onClick={handlePreview} />}{' '}
           {recipe && <Button type="primary" shape="circle" icon="save" size="large" loading={isLoading} onClick={handleSubmit} />}
         </div>

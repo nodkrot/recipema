@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Button from 'antd/lib/button'
 import { Link } from 'react-router-dom'
+import useSearchRecipes from '../utilities/useSearchRecipes'
 import Header from './Header.js'
 import Footer from './Footer.js'
 import { getRecipes } from '../firebase.js'
@@ -8,35 +9,16 @@ import history from '../history.js'
 import './ListView.css'
 
 export default function ListView() {
-  const [recipes, setRecipes] = useState([])
-  const [results, setResults] = useState([])
-  let searchTimeout = null
+  const [results, handleSearchRecipes, setSearchRecipes] = useSearchRecipes([])
 
   useEffect(() => {
     getRecipes()
-      .then((recipes) => {
-        setRecipes(recipes)
-        setResults(recipes)
-      })
+      .then((recipes) => setSearchRecipes(recipes))
       .catch((err) => console.log('Cannot fetch recipes', err))
   }, [])
 
   function handleEdit() {
     history.push('/dashboard')
-  }
-
-  function handleSearch(e) {
-    const value = e.target.value.toLowerCase()
-
-    clearTimeout(searchTimeout)
-
-    searchTimeout = setTimeout(() => {
-      const newResults = recipes.filter(({ name, description }) => (
-        name.toLowerCase().includes(value) || description.toLowerCase().includes(value)
-      ))
-
-      setResults(newResults)
-    }, 200)
   }
 
   return (
@@ -52,7 +34,7 @@ export default function ListView() {
           className="list-view__search"
           type="text"
           placeholder="Search recipes"
-          onChange={handleSearch}
+          onChange={handleSearchRecipes}
           autoComplete="off"
         />
         <ul className="list-view__list">

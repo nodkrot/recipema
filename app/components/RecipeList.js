@@ -3,7 +3,11 @@ import PropTypes from 'prop-types'
 import List from 'antd/lib/list'
 import Button from 'antd/lib/button'
 import Modal from 'antd/lib/modal'
+import Input from 'antd/lib/input'
+import Icon from 'antd/lib/icon'
+import useSearchRecipes from '../utilities/useSearchRecipes'
 import Messages from '../messages.json'
+import './RecipeList.css'
 
 const messages = Messages['ru_RU']
 
@@ -12,6 +16,8 @@ function trimString(str, length = 60) {
 }
 
 export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
+  const [results, handleSearchRecipes] = useSearchRecipes(recipes)
+
   function handleRemove(item) {
     Modal.confirm({
       title: messages.modal_remove_title.replace('$a', item.name),
@@ -21,11 +27,22 @@ export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
 
   return (
     <div className="recipe-list">
+      <div className="recipe-list__search">
+        <Input
+          placeholder="Search recipes"
+          onChange={handleSearchRecipes}
+          prefix={<Icon type="search" />}
+          autoComplete="off"
+          size="large"
+          allowClear
+        />
+      </div>
       <List
         bordered
         loading={isLoading}
         itemLayout="horizontal"
-        dataSource={recipes}
+        dataSource={results}
+        locale={{ emptyText: messages.recipe_list_no_data }}
         renderItem={(item) => (
           <List.Item actions={[
             <Button key="1" shape="circle" icon="edit" size="large" onClick={() => onEdit(item)} />,

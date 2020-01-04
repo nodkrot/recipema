@@ -1,0 +1,7 @@
+.recipe-list__search {
+  margin-bottom: 12px;
+}
+
+.recipe-list .ant-input-affix-wrapper .ant-input {
+  min-height: auto;
+}
