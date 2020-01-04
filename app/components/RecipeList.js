@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import List from 'antd/lib/list'
 import Button from 'antd/lib/button'
@@ -16,7 +16,11 @@ function trimString(str, length = 60) {
 }
 
 export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
-  const [results, handleSearchRecipes] = useSearchRecipes(recipes)
+  const [results, handleSearchRecipes, setSearchRecipe] = useSearchRecipes(recipes)
+
+  useEffect(() => {
+    setSearchRecipe(recipes)
+  }, [recipes])
 
   function handleRemove(item) {
     Modal.confirm({

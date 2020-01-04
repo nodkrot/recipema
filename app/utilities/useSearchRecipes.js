@@ -1,17 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 export default function useSearchRecipes(initRecipes) {
   const [recipes, setRecipes] = useState(initRecipes)
   const [results, setResults] = useState(initRecipes)
   let searchTimeout = null
 
-  // Automatically pick up new passed in data
-  useEffect(() => {
-    setRecipes(initRecipes)
-    setResults(initRecipes)
-  }, [initRecipes])
-
-  // Manually allow consumers to set new data
   function setSearchRecipes(newRecipes) {
     setRecipes(newRecipes)
     setResults(newRecipes)
