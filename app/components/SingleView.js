@@ -11,21 +11,18 @@ import './SingleView.css'
 
 const messages = Messages['ru_RU']
 
-export default function SingleView({ match, location: { state = {} } }) {
-  const [recipe, setRecipe] = useState(state.recipe)
+export default function SingleView({ match }) {
+  const [recipe, setRecipe] = useState(null)
 
   useEffect(() => {
     scrollTo(0, 0)
   }, [])
 
   useEffect(() => {
-    if (!recipe) {
-      console.log('Fetching new recipe with id', match.params.recipeId)
-      getRecipeById(match.params.recipeId)
-        .then((fetchedRecipe) => setRecipe(fetchedRecipe))
-        .catch((err) => console.log('Unable to fetch recipe with id', err))
-    }
-  }, [recipe])
+    getRecipeById(match.params.recipeId)
+      .then((fetchedRecipe) => setRecipe(fetchedRecipe))
+      .catch((err) => console.log('Unable to fetch recipe with id', err))
+  }, [])
 
   function handleEdit() {
     history.push(`/dashboard/${match.params.recipeId}`)

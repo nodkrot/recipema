@@ -1,24 +1,42 @@
-import React, { useEffect, useState } from 'react'
-import Button from 'antd/lib/button'
-import { Link } from 'react-router-dom'
-import useSearchRecipes from '../utilities/useSearchRecipes'
-import Header from './Header.js'
-import Footer from './Footer.js'
-import { getRecipes } from '../firebase.js'
-import history from '../history.js'
-import './ListView.css'
+import React, { useEffect } from "react";
+import Button from "antd/lib/button";
+import { Link } from "react-router-dom";
+import useSearchRecipes from "../utilities/useSearchRecipes";
+import Header from "./Header.js";
+import Footer from "./Footer.js";
+import { getRecipes } from "../firebase.js";
+import history from "../history.js";
+import "./ListView.css";
+
+function getItemImage(item) {
+  if (item.gallery.length) {
+    return (
+      <img
+        className="list-view__card-img"
+        alt={item.name}
+        src={item.gallery[item.gallery.length - 1].url}
+      />
+    );
+  }
+
+  return (
+    <div className="list-view-card-placeholder">
+      {item.name}
+    </div>
+  );
+}
 
 export default function ListView() {
-  const [results, handleSearchRecipes, setSearchRecipes] = useSearchRecipes([])
+  const [results, handleSearchRecipes, setSearchRecipes] = useSearchRecipes([]);
 
   useEffect(() => {
     getRecipes()
       .then((recipes) => setSearchRecipes(recipes))
-      .catch((err) => console.log('Cannot fetch recipes', err))
-  }, [])
+      .catch((err) => console.log("Cannot fetch recipes", err));
+  }, []);
 
   function handleEdit() {
-    history.push('/dashboard')
+    history.push("/dashboard");
   }
 
   return (
@@ -28,8 +46,6 @@ export default function ListView() {
           <Button shape="circle" icon="edit" size="large" onClick={handleEdit} />
         </Header>
         <h1 className="list-view__title">Recipes</h1>
-      </div>
-      <div className="list-view__container list-view__container--no-gutter">
         <input
           className="list-view__search"
           type="text"
@@ -37,23 +53,28 @@ export default function ListView() {
           onChange={handleSearchRecipes}
           autoComplete="off"
         />
-        <ul className="list-view__list">
-          {results.map((recipe) => (
-            <li key={recipe.id} className="list-view__item">
-              <Link to={{
-                pathname: `/recipe/${recipe.id}`,
-                state: { recipe }
-              }}>
-                <h2 className="list-view__item-title">{recipe.name}</h2>
-                {recipe.description && <p className="list-view__item-description">{recipe.description}</p>}
-              </Link>
-            </li>
-          ))}
-        </ul>
+      </div>
+      <div className="list-view__cards list-view__container">
+        {results.map((item) => (
+          <div key={item.id} className="list-view__card">
+            <Link
+              to={{
+                pathname: `/recipe/${item.id}`,
+                state: { item }
+              }}
+            >
+              {getItemImage(item)}
+              <div className="list-view__card-caption">
+                <div className="list-view__card-title">{item.name}</div>
+                <div className="list-view__card-description">{item.description}</div>
+              </div>
+            </Link>
+          </div>
+        ))}
       </div>
       <div className="list-view__container">
         <Footer />
       </div>
     </div>
-  )
+  );
 }

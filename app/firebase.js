@@ -63,7 +63,8 @@ export function deleteRecipe(id) {
 
 export async function createImage(image) {
   const fileName = `${image.uid}.${image.name.split('.').pop()}`
-  const snapshot = await store.ref(`images/${fileName}`).put(image.originFileObj)
+  const snapshot = await store.ref(`images/${fileName}`)
+    .put(image.originFileObj, { cacheControl: 'public,max-age=720' })
   const downloadURL = await snapshot.ref.getDownloadURL()
 
   return {

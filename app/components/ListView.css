@@ -2,12 +2,12 @@
   font-size: 32px;
   font-weight: 300;
   line-height: 1.1;
-  margin: 28px 0 8px;
+  margin: 28px 0;
 }
 
 .list-view__container {
   padding: 0 20px;
-  max-width: 768px;
+  max-width: 1440px;
   margin: 0 auto;
 }
 
@@ -17,48 +17,87 @@
   font-size: 16px;
   padding: 10px 20px;
   background: #fafafa;
-  border-top: 1px solid #f0f0f0;
+  margin-bottom: 12px;
 }
 
-.list-view__container.list-view__container--no-gutter {
-  padding: 0;
+.list-view__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-rows: repeat(6, 200px);
+  grid-gap: 12px;
+  grid-auto-flow: dense;
 }
 
-.list-view__list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.list-view__card {
+  position: relative;
+  transition: box-shadow 0.25s;
 }
 
-.list-view__item {
-  border-bottom: 1px solid #f0f0f0;
+.list-view__card:hover {
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.225);
 }
 
-.list-view__item a {
+.list-view__card-img {
   display: block;
-  padding: 8px 20px 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.list-view__item:active a {
-  background: #fafafa;
+.list-view-card-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: #a7a7a7;
+  width: 100%;
+  height: 100%;
+  background-color: #f4f4f4;
 }
 
-.list-view__item:first-child {
-  border-top: 1px solid #f0f0f0;
+@media (min-width: 600px) {
+  .list-view__card:nth-child(4n + 1) {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
 }
 
-.list-view__item-title {
+.list-view__card-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 12px 12px 10px;
+  background-color: rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s;
+}
+
+.list-view__card:hover .list-view__card-caption {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-width: 600px) {
+  .list-view__card-caption {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.list-view__card-title {
   font-size: 20px;
-  font-weight: 300;
-  margin: 0;
+  font-weight: 400;
+  color: #fff;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
 }
 
-.list-view__item-description {
+.list-view__card-description {
   margin: 0 0 4px;
-  color: #888;
+  color: #fff;
   font-weight: 200;
   text-overflow: ellipsis;
   overflow: hidden;
