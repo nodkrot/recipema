@@ -4,9 +4,12 @@ import { Link } from "react-router-dom";
 import useSearchRecipes from "../utilities/useSearchRecipes";
 import Header from "./Header.js";
 import Footer from "./Footer.js";
+import Messages from "../messages.json";
 import { getRecipes } from "../firebase.js";
 import history from "../history.js";
 import "./ListView.css";
+
+const messages = Messages["ru_RU"];
 
 function getItemImage(item) {
   if (item.gallery && item.gallery.length) {
@@ -46,11 +49,11 @@ export default function ListView() {
             onClick={handleEdit}
           />
         </Header>
-        <h1 className="list-view__title">Recipes</h1>
+        <h1 className="list-view__title">{messages.app_list_title}</h1>
         <input
           className="list-view__search"
           type="text"
-          placeholder="Search recipes"
+          placeholder={messages.search_recipe_input}
           onChange={handleSearchRecipes}
           autoComplete="off"
         />

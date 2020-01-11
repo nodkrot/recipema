@@ -35,7 +35,7 @@ export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
     <div className="recipe-list">
       <div className="recipe-list__search">
         <Input
-          placeholder="Search recipes"
+          placeholder={messages.search_recipe_input}
           onChange={handleSearchRecipes}
           prefix={<Icon type="search" />}
           autoComplete="off"
