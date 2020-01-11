@@ -62,6 +62,7 @@ export default function ListView() {
         {results.map(item => (
           <div key={item.id} className="list-view__card">
             <Link
+              className="list-view__card-link"
               to={{
                 pathname: `/recipe/${item.id}`,
                 state: { item }
