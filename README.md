@@ -22,7 +22,7 @@ Use these commands for development:
 ```
 npm install                     # This will install npm dependencies
 npm start                       # This will start the app on port 1234
-
+npm run format                  # This will format code with prettier
 npm run deploy                  # This will build and deploy the app
 npm run analyze                 # This will generate bundle size report
 ```
