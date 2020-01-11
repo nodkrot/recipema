@@ -87,6 +87,5 @@ export default function SingleView({ match }) {
 }
 
 SingleView.propTypes = {
-  match: PropTypes.object,
-  location: PropTypes.object
+  match: PropTypes.object
 };
