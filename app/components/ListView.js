@@ -9,7 +9,7 @@ import history from "../history.js";
 import "./ListView.css";
 
 function getItemImage(item) {
-  if (item.gallery.length) {
+  if (item.gallery && item.gallery.length) {
     return (
       <img
         className="list-view__card-img"
