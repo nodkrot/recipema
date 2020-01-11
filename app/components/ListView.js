@@ -19,11 +19,7 @@ function getItemImage(item) {
     );
   }
 
-  return (
-    <div className="list-view-card-placeholder">
-      {item.name}
-    </div>
-  );
+  return <div className="list-view-card-placeholder">{item.name}</div>;
 }
 
 export default function ListView() {
@@ -31,8 +27,8 @@ export default function ListView() {
 
   useEffect(() => {
     getRecipes()
-      .then((recipes) => setSearchRecipes(recipes))
-      .catch((err) => console.log("Cannot fetch recipes", err));
+      .then(recipes => setSearchRecipes(recipes))
+      .catch(err => console.log("Cannot fetch recipes", err));
   }, []);
 
   function handleEdit() {
@@ -43,7 +39,12 @@ export default function ListView() {
     <div className="list-view">
       <div className="list-view__container">
         <Header>
-          <Button shape="circle" icon="edit" size="large" onClick={handleEdit} />
+          <Button
+            shape="circle"
+            icon="edit"
+            size="large"
+            onClick={handleEdit}
+          />
         </Header>
         <h1 className="list-view__title">Recipes</h1>
         <input
@@ -55,7 +56,7 @@ export default function ListView() {
         />
       </div>
       <div className="list-view__cards list-view__container">
-        {results.map((item) => (
+        {results.map(item => (
           <div key={item.id} className="list-view__card">
             <Link
               to={{
@@ -66,7 +67,9 @@ export default function ListView() {
               {getItemImage(item)}
               <div className="list-view__card-caption">
                 <div className="list-view__card-title">{item.name}</div>
-                <div className="list-view__card-description">{item.description}</div>
+                <div className="list-view__card-description">
+                  {item.description}
+                </div>
               </div>
             </Link>
           </div>

@@ -1,7 +1,7 @@
-import firebase from 'firebase/app'
-import 'firebase/auth'
-import 'firebase/firestore'
-import 'firebase/storage'
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
+import "firebase/storage";
 
 const config = {
   apiKey: process.env.FB_API_KEY,
@@ -10,76 +10,95 @@ const config = {
   projectId: process.env.FB_PROJECT_ID,
   storageBucket: process.env.FB_STORAGE_BUCKET,
   messagingSenderId: process.env.FB_MESSAGEING_SENDER_ID
-}
+};
 
-firebase.apps.length ? firebase.app() : firebase.initializeApp(config)
+firebase.apps.length ? firebase.app() : firebase.initializeApp(config);
 
 export function setUser(user) {
-  return db.collection('users').doc(user.uid).set(user, { merge: true })
+  return db
+    .collection("users")
+    .doc(user.uid)
+    .set(user, { merge: true });
 }
 
 export async function getRecipeById(id) {
-  const doc = await db.collection('recipes').doc(id).get()
+  const doc = await db
+    .collection("recipes")
+    .doc(id)
+    .get();
 
   if (doc.exists) {
-    return Object.assign({ id: doc.id }, doc.data())
+    return Object.assign({ id: doc.id }, doc.data());
   }
 
-  throw new Error('Unable to fetch recipe with provided id')
+  throw new Error("Unable to fetch recipe with provided id");
 }
 
 export async function getRecipes() {
-  const querySnapshot = await db.collection('recipes').orderBy('createdAt', 'desc').get()
-  const recipes = []
+  const querySnapshot = await db
+    .collection("recipes")
+    .orderBy("createdAt", "desc")
+    .get();
+  const recipes = [];
 
-  querySnapshot.forEach((recipeDoc) => {
-    recipes.push(Object.assign({ id: recipeDoc.id }, recipeDoc.data()))
-  })
+  querySnapshot.forEach(recipeDoc => {
+    recipes.push(Object.assign({ id: recipeDoc.id }, recipeDoc.data()));
+  });
 
-  return recipes
+  return recipes;
 }
 
 export async function createRecipe(recipe) {
   const newRecipe = Object.assign({}, recipe, {
     createdAt: new Date().toISOString(),
     authorId: firebase.auth().currentUser.uid
-  })
-  const recipeRef = await db.collection('recipes').add(newRecipe)
+  });
+  const recipeRef = await db.collection("recipes").add(newRecipe);
 
-  return Object.assign({ id: recipeRef.id }, newRecipe)
+  return Object.assign({ id: recipeRef.id }, newRecipe);
 }
 
 export async function updateRecipe(id, recipe) {
-  await db.collection('recipes').doc(id).set(Object.assign({}, recipe, {
-    updatedAt: new Date().toISOString()
-  }), { merge: true })
+  await db
+    .collection("recipes")
+    .doc(id)
+    .set(
+      Object.assign({}, recipe, {
+        updatedAt: new Date().toISOString()
+      }),
+      { merge: true }
+    );
 
-  return Object.assign({ id }, recipe)
+  return Object.assign({ id }, recipe);
 }
 
 export function deleteRecipe(id) {
-  return db.collection('recipes').doc(id).delete()
+  return db
+    .collection("recipes")
+    .doc(id)
+    .delete();
 }
 
 export async function createImage(image) {
-  const fileName = `${image.uid}.${image.name.split('.').pop()}`
-  const snapshot = await store.ref(`images/${fileName}`)
-    .put(image.originFileObj, { cacheControl: 'public,max-age=720' })
-  const downloadURL = await snapshot.ref.getDownloadURL()
+  const fileName = `${image.uid}.${image.name.split(".").pop()}`;
+  const snapshot = await store
+    .ref(`images/${fileName}`)
+    .put(image.originFileObj, { cacheControl: "public,max-age=720" });
+  const downloadURL = await snapshot.ref.getDownloadURL();
 
   return {
     uid: image.uid,
     name: snapshot.metadata.name,
     url: downloadURL
-  }
+  };
 }
 
 export function deleteImage(image) {
-  return store.ref(`images/${image.name}`).delete()
+  return store.ref(`images/${image.name}`).delete();
 }
 
-export const auth = firebase.auth()
-export const db = firebase.firestore()
-export const store = firebase.storage()
+export const auth = firebase.auth();
+export const db = firebase.firestore();
+export const store = firebase.storage();
 
-export default firebase
+export default firebase;
