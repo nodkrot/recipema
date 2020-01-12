@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
+import PageHeader from "antd/lib/page-header";
 import Carousel from "antd/lib/carousel";
 import Header from "./Header.js";
 import Footer from "./Footer.js";
@@ -11,22 +12,45 @@ import "./SingleView.css";
 
 const messages = Messages["ru_RU"];
 
-export default function SingleView({ match }) {
-  const [recipe, setRecipe] = useState(null);
+export default function SingleView({ match, location: { state = {} } }) {
+  const [recipe, setRecipe] = useState(state.item);
 
   useEffect(() => {
     scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
-    getRecipeById(match.params.recipeId)
-      .then(fetchedRecipe => setRecipe(fetchedRecipe))
-      .catch(err => console.log("Unable to fetch recipe with id", err));
-  }, []);
+    if (!recipe) {
+      console.log("Fetching new recipe with id", match.params.recipeId);
+      getRecipeById(match.params.recipeId)
+        .then(fetchedRecipe => setRecipe(fetchedRecipe))
+        .catch(err => console.log("Unable to fetch recipe with id", err));
+    }
+  }, [match.params.recipeId]);
 
   function handleEdit() {
     history.push(`/dashboard/${match.params.recipeId}`);
   }
+
+  // function handleNavClick(item) {
+  //   history.push(`/recipe/${item.id}`);
+  // }
+
+  // if (state.prev) {
+  //   navButtons.push(
+  //     <Button key="0" onClick={() => handleNavClick(state.prev)}>
+  //       Previous
+  //     </Button>
+  //   );
+  // }
+
+  // if (state.next) {
+  //   navButtons.push(
+  //     <Button key="1" onClick={() => handleNavClick(state.next)}>
+  //       Next
+  //     </Button>
+  //   );
+  // }
 
   if (!recipe) return null;
 
@@ -41,6 +65,7 @@ export default function SingleView({ match }) {
             onClick={handleEdit}
           />
         </Header>
+        <PageHeader onBack={() => history.goBack()} title={recipe.name} />
       </div>
       {!!(recipe.gallery && recipe.gallery.length) && (
         <div className="single-view__gallery">
@@ -52,7 +77,6 @@ export default function SingleView({ match }) {
         </div>
       )}
       <div className="single-view__container">
-        <h1 className="single-view__title">{recipe.name}</h1>
         <p className="single-view__description">{recipe.description}</p>
         <h2 className="single-view__subtitle">
           {messages.recipe_form_title_ingredient}
@@ -87,5 +111,6 @@ export default function SingleView({ match }) {
 }
 
 SingleView.propTypes = {
-  match: PropTypes.object
+  match: PropTypes.object,
+  location: PropTypes.object
 };

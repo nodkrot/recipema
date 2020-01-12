@@ -1,8 +1,10 @@
-.single-view__title {
-  font-size: 32px;
+.single-view .ant-page-header {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.single-view .ant-page-header-heading-title {
   font-weight: 300;
-  line-height: 1.1;
-  margin: 28px 0 8px;
 }
 
 .single-view__subtitle {
