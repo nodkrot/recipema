@@ -45,6 +45,7 @@
 }
 
 .list-view-card-placeholder {
+  position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,11 +71,6 @@
 }
 
 @media (max-width: 600px) {
-  .list-view__card-link {
-    display: block;
-    height: 200px;
-  }
-
   .list-view-card-placeholder {
     align-items: flex-start;
     padding-top: 60px;
