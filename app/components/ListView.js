@@ -1,12 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import Button from "antd/lib/button";
 import { Link } from "react-router-dom";
 import useSearchRecipes from "../utilities/useSearchRecipes";
 import Header from "./Header.js";
 import Footer from "./Footer.js";
 import Messages from "../messages.json";
-import { getRecipes } from "../firebase.js";
-import history from "../history.js";
+import { getRecipes } from "../utilities/firebase.js";
+import history from "../utilities/history.js";
+import { Context } from "../utilities/store.js";
+import { UserRoles } from "../utilities/constants.js";
 import "./ListView.css";
 
 const messages = Messages["ru_RU"];
@@ -26,12 +28,13 @@ function getItemImage(item) {
 }
 
 export default function ListView() {
+  const [{ user }] = useContext(Context);
   const [results, handleSearchRecipes, setSearchRecipes] = useSearchRecipes([]);
 
   useEffect(() => {
     getRecipes()
-      .then((recipes) => setSearchRecipes(recipes))
-      .catch((err) => console.log("Cannot fetch recipes", err));
+      .then(recipes => setSearchRecipes(recipes))
+      .catch(err => console.log("Cannot fetch recipes", err));
   }, []);
 
   function handleEdit() {
@@ -42,7 +45,14 @@ export default function ListView() {
     <div className="list-view">
       <div className="list-view__container">
         <Header>
-          <Button shape="circle" icon="edit" size="large" onClick={handleEdit} />
+          {user && user.role === UserRoles.ADMIN && (
+            <Button
+              shape="circle"
+              icon="edit"
+              size="large"
+              onClick={handleEdit}
+            />
+          )}
         </Header>
         <h1 className="list-view__title">{messages.app_list_title}</h1>
         <input
@@ -54,7 +64,7 @@ export default function ListView() {
         />
       </div>
       <div className="list-view__cards list-view__container">
-        {results.map((item) => (
+        {results.map(item => (
           <Link
             key={item.id}
             className="list-view__card"
@@ -66,7 +76,9 @@ export default function ListView() {
             {getItemImage(item)}
             <div className="list-view__card-caption">
               <div className="list-view__card-title">{item.name}</div>
-              <div className="list-view__card-description">{item.description}</div>
+              <div className="list-view__card-description">
+                {item.description}
+              </div>
             </div>
           </Link>
         ))}

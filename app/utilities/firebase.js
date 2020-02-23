@@ -14,6 +14,19 @@ const config = {
 
 firebase.apps.length ? firebase.app() : firebase.initializeApp(config);
 
+export async function getUser(id) {
+  const doc = await db
+    .collection("users")
+    .doc(id)
+    .get();
+
+  if (doc.exists) {
+    return doc.data();
+  }
+
+  throw new Error("Unable to fetch user with provided id");
+}
+
 export function setUser(user) {
   return db
     .collection("users")

@@ -89,7 +89,8 @@
   transition: all 0.25s;
 }
 
-.list-view__card:hover .list-view__card-caption {
+.list-view__card:hover .list-view__card-caption,
+.list-view__card:focus .list-view__card-caption {
   opacity: 1;
   visibility: visible;
 }

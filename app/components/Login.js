@@ -1,7 +1,8 @@
 import React from "react";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
-import firebase, { auth, setUser } from "../firebase.js";
-import history from "../history.js";
+import firebase, { auth, setUser } from "../utilities/firebase.js";
+import history from "../utilities/history.js";
+import { UserRoles } from "../utilities/constants.js";
 import "./Login.css";
 
 const uiConfig = {
@@ -13,6 +14,7 @@ const uiConfig = {
         uid: authResult.user.uid,
         name: authResult.user.displayName,
         email: authResult.user.email,
+        role: UserRoles.CUSTOMER,
         loggedInAt: Date.now()
       })
         .then(() => history.push("/dashboard"))

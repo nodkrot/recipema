@@ -21,8 +21,8 @@ import {
   createRecipe,
   updateRecipe,
   deleteRecipe
-} from "../firebase.js";
-import history from "../history.js";
+} from "../utilities/firebase.js";
+import history from "../utilities/history.js";
 import Messages from "../messages.json";
 import "./Dashboard.css";
 

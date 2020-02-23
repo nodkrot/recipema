@@ -1,39 +1,37 @@
-import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
+import React, { useEffect, useContext } from "react";
 import { Router, Route, Redirect, Switch } from "react-router-dom";
+import PrivateRoute from "./PrivateRoute.js";
 import Dashboard from "./Dashboard.js";
 import ListView from "./ListView.js";
 import SingleView from "./SingleView";
 import Login from "./Login.js";
-import { auth } from "../firebase.js";
-import history from "../history.js";
-
-const PrivateRoute = ({ component: Component, auth, ...rest }) => (
-  <Route
-    {...rest}
-    render={props =>
-      auth ? <Component {...props} /> : <Redirect to="/login" />
-    }
-  />
-);
-
-PrivateRoute.propTypes = {
-  component: PropTypes.func.isRequired,
-  auth: PropTypes.bool.isRequired
-};
+import { Context } from "../utilities/store.js";
+import { auth, getUser } from "../utilities/firebase.js";
+import history from "../utilities/history.js";
+import { UserRoles } from "../utilities/constants.js";
 
 export default function App() {
-  const [isSignedIn, setIsSignedIn] = useState(null);
+  const [{ user, isUserFetched }, dispatch] = useContext(Context);
 
   useEffect(() => {
-    const unregisterAuthObserver = auth.onAuthStateChanged(user => {
-      setIsSignedIn(Boolean(user));
+    const unregisterAuthObserver = auth.onAuthStateChanged(async authState => {
+      if (!authState) {
+        return dispatch({ type: "RECEIVE_USER", payload: null });
+      }
+
+      try {
+        const userData = await getUser(authState.uid);
+
+        return dispatch({ type: "RECEIVE_USER", payload: userData });
+      } catch (err) {
+        return dispatch({ type: "RECEIVE_USER", payload: null });
+      }
     });
 
     return () => unregisterAuthObserver();
   }, []);
 
-  if (isSignedIn === null) return null;
+  if (!isUserFetched) return null;
 
   return (
     <Router history={history}>
@@ -42,12 +40,14 @@ export default function App() {
         <Route path="/recipe/:recipeId" component={SingleView} />
         <Route path="/login" component={Login} />
         <PrivateRoute
-          auth={isSignedIn}
+          user={user}
+          roles={[UserRoles.ADMIN]}
           path="/dashboard/:recipeId"
           component={Dashboard}
         />
         <PrivateRoute
-          auth={isSignedIn}
+          user={user}
+          roles={[UserRoles.ADMIN]}
           path="/dashboard"
           component={Dashboard}
         />
