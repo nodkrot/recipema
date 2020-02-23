@@ -24,14 +24,16 @@ export async function getUser(id) {
     return doc.data();
   }
 
-  throw new Error("Unable to fetch user with provided id");
+  return null;
 }
 
-export function setUser(user) {
-  return db
+export async function createUser(user) {
+  await db
     .collection("users")
     .doc(user.uid)
     .set(user, { merge: true });
+
+  return user;
 }
 
 export async function getRecipeById(id) {
@@ -44,7 +46,7 @@ export async function getRecipeById(id) {
     return Object.assign({ id: doc.id }, doc.data());
   }
 
-  throw new Error("Unable to fetch recipe with provided id");
+  return null;
 }
 
 export async function getRecipes() {

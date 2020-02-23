@@ -16,15 +16,15 @@ export default function App() {
   useEffect(() => {
     const unregisterAuthObserver = auth.onAuthStateChanged(async authState => {
       if (!authState) {
-        return dispatch({ type: "RECEIVE_USER", payload: null });
+        return dispatch({ type: "SET_USER", payload: null });
       }
 
       try {
         const userData = await getUser(authState.uid);
 
-        return dispatch({ type: "RECEIVE_USER", payload: userData });
+        return dispatch({ type: "SET_USER", payload: userData });
       } catch (err) {
-        return dispatch({ type: "RECEIVE_USER", payload: null });
+        return dispatch({ type: "SET_USER", payload: null });
       }
     });
 

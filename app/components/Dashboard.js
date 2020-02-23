@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types";
 import uniqueId from "lodash/uniqueId";
 import differenceWith from "lodash/differenceWith";
@@ -22,6 +22,7 @@ import {
   updateRecipe,
   deleteRecipe
 } from "../utilities/firebase.js";
+import { Context } from "../utilities/store.js";
 import history from "../utilities/history.js";
 import Messages from "../messages.json";
 import "./Dashboard.css";
@@ -46,6 +47,7 @@ async function compressImage(image) {
 }
 
 export default function Dashboard({ match }) {
+  const [, dispatch] = useContext(Context);
   const [currentRecipe, setCurrentRecipe] = useState(null);
   const [newRecipeId, setNewRecipeId] = useState(uniqueId());
   const [recipes, setRecipes] = useState([]);
@@ -138,8 +140,13 @@ export default function Dashboard({ match }) {
     }
   }
 
-  function handleSignOut() {
-    auth.signOut().catch(() => message.error(message.notification_failure));
+  async function handleSignOut() {
+    try {
+      await auth.signOut();
+      dispatch({ type: "UNSET_USER" });
+    } catch (err) {
+      message.error(message.notification_failure);
+    }
   }
 
   async function handleRemove(recipe) {
