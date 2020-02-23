@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
-import firebase, { auth, getUser, createUser } from "../utilities/firebase.js";
+import firebase, { auth, getUser, upsertUser } from "../utilities/firebase.js";
 import history from "../utilities/history.js";
 import { Context } from "../utilities/store.js";
 import { UserRoles } from "../utilities/constants.js";
@@ -17,13 +17,18 @@ export default function Login() {
           let user = await getUser(authResult.user.uid);
 
           if (!user) {
-            user = await createUser({
+            user = await upsertUser({
               uid: authResult.user.uid,
               name: authResult.user.displayName,
               email: authResult.user.email,
               role: UserRoles.CUSTOMER,
-              loggedInAt: Date.now()
+              createdAt: new Date().toISOString(),
+              loggedInAt: new Date().toISOString()
             });
+          } else {
+            user = await upsertUser(Object.assign({}, user, {
+              loggedInAt: new Date().toISOString()
+            }));
           }
 
           dispatch({ type: "SET_USER", payload: user });

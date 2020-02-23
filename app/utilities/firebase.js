@@ -27,7 +27,7 @@ export async function getUser(id) {
   return null;
 }
 
-export async function createUser(user) {
+export async function upsertUser(user) {
   await db
     .collection("users")
     .doc(user.uid)
