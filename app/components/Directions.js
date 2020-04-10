@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Form from "antd/lib/form";
-import Input from "antd/lib/input";
-import Button from "antd/lib/button";
+import Form from "antd/es/form";
+import Input from "antd/es/input";
+import Button from "antd/es/button";
 import get from "lodash/get";
 import Messages from "../messages.json";
 

@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
 import PropTypes from "prop-types";
-import Button from "antd/lib/button";
-import PageHeader from "antd/lib/page-header";
-import Carousel from "antd/lib/carousel";
+import Button from "antd/es/button";
+import PageHeader from "antd/es/page-header";
+import Carousel from "antd/es/carousel";
 import Header from "./Header.js";
 import Footer from "./Footer.js";
 import { getRecipeById } from "../utilities/firebase.js";

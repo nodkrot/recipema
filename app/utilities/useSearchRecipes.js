@@ -1,8 +1,32 @@
 import { useState } from "react";
+import Fuse from "fuse.js";
+
+const options = {
+  threshold: 0.4,
+  keys: [
+    {
+      name: "name",
+      weight: 0.9
+    },
+    {
+      name: "description",
+      weight: 0.6
+    },
+    {
+      name: "ingredients.name",
+      weight: 0.1
+    },
+    {
+      name: "directions.text",
+      weight: 0.3
+    }
+  ]
+};
 
 export default function useSearchRecipes(initRecipes) {
   const [recipes, setRecipes] = useState(initRecipes);
   const [results, setResults] = useState(initRecipes);
+  const fuse = new Fuse(recipes, options);
   let searchTimeout = null;
 
   function setSearchRecipes(newRecipes) {
@@ -11,17 +35,16 @@ export default function useSearchRecipes(initRecipes) {
   }
 
   function handleSearch(e) {
-    const value = e.target.value.toLowerCase();
+    const value = e.target.value.trim();
 
     clearTimeout(searchTimeout);
 
     searchTimeout = setTimeout(() => {
-      const newResults = recipes.filter(
-        ({ name, description }) =>
-          name.toLowerCase().includes(value) || description.toLowerCase().includes(value)
-      );
-
-      setResults(newResults);
+      if (value.length) {
+        setResults(fuse.search(value).map(({ item }) => item));
+      } else {
+        setResults(recipes);
+      }
     }, 200);
   }
 

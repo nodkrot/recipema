@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import Icon from "antd/lib/icon";
-import Form from "antd/lib/form";
-import Upload from "antd/lib/upload";
-import Button from "antd/lib/button";
-import Modal from "antd/lib/modal";
-import message from "antd/lib/message";
+import Icon from "antd/es/icon";
+import Form from "antd/es/form";
+import Upload from "antd/es/upload";
+import Button from "antd/es/button";
+import Modal from "antd/es/modal";
+import message from "antd/es/message";
 import Messages from "../messages.json";
 import "./Uploader.css";
 

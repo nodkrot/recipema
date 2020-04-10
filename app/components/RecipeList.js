@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import List from "antd/lib/list";
-import Button from "antd/lib/button";
-import Modal from "antd/lib/modal";
-import Input from "antd/lib/input";
-import Icon from "antd/lib/icon";
+import List from "antd/es/list";
+import Button from "antd/es/button";
+import Modal from "antd/es/modal";
+import Input from "antd/es/input";
+import Icon from "antd/es/icon";
 import useSearchRecipes from "../utilities/useSearchRecipes";
 import Messages from "../messages.json";
 import "./RecipeList.css";

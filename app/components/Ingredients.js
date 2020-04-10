@@ -1,11 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import get from "lodash/get";
-import Form from "antd/lib/form";
-import Input from "antd/lib/input";
-import Button from "antd/lib/button";
-import Select from "antd/lib/select";
-import AutoComplete from "antd/lib/auto-complete";
+import Form from "antd/es/form";
+import Input from "antd/es/input";
+import Button from "antd/es/button";
+import Select from "antd/es/select";
+import AutoComplete from "antd/es/auto-complete";
 import Messages from "../messages.json";
 
 const messages = Messages["ru_RU"];

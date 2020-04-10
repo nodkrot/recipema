@@ -1,5 +1,5 @@
 import React from "react";
-import Icon from "antd/lib/icon";
+import Icon from "antd/es/icon";
 import "./Footer.css";
 
 export default function Footer() {
