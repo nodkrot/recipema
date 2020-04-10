@@ -1,5 +1,6 @@
 import React, { useEffect, useContext } from "react";
-import { Router, Route, Redirect, Switch } from "react-router-dom";
+import { Router, Route, Redirect } from "react-router-dom";
+import CacheRoute, { CacheSwitch } from "react-router-cache-route";
 import PrivateRoute from "./PrivateRoute.js";
 import Dashboard from "./Dashboard.js";
 import ListView from "./ListView.js";
@@ -14,7 +15,7 @@ export default function App() {
   const [{ user, isUserFetched }, dispatch] = useContext(Context);
 
   useEffect(() => {
-    const unregisterAuthObserver = auth.onAuthStateChanged(async authState => {
+    const unregisterAuthObserver = auth.onAuthStateChanged(async (authState) => {
       if (!authState) {
         return dispatch({ type: "SET_USER", payload: null });
       }
@@ -35,8 +36,8 @@ export default function App() {
 
   return (
     <Router history={history}>
-      <Switch>
-        <Route exact path="/" component={ListView} />
+      <CacheSwitch>
+        <CacheRoute exact path="/" component={ListView} />
         <Route path="/recipe/:recipeId" component={SingleView} />
         <Route path="/login" component={Login} />
         <PrivateRoute
@@ -52,7 +53,7 @@ export default function App() {
           component={Dashboard}
         />
         <Redirect from="*" to="/" />
-      </Switch>
+      </CacheSwitch>
     </Router>
   );
 }

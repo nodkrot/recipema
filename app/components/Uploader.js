@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Icon from "antd/lib/icon";
 import Form from "antd/lib/form";
@@ -15,12 +15,12 @@ const messages = Messages["ru_RU"];
 function sanitizeFiles({ file, fileList }) {
   const MAX_SIZE = 5;
   const IMG_TYPES = ["image/jpeg"];
-  const matchesType = file => IMG_TYPES.includes(file.type);
-  const matchesSize = file => file.size / 1024 / 1024 < MAX_SIZE;
+  const matchesType = (file) => IMG_TYPES.includes(file.type);
+  const matchesSize = (file) => file.size / 1024 / 1024 < MAX_SIZE;
   // `file` in `fileList` is not na instance of `File` so we check
   //  for `originFileObj` property instead
-  const uploadedFiles = fileList.filter(file => !file.originFileObj);
-  const rawFiles = fileList.filter(file => !!file.originFileObj);
+  const uploadedFiles = fileList.filter((file) => !file.originFileObj);
+  const rawFiles = fileList.filter((file) => !!file.originFileObj);
   const sanitizedFiles = rawFiles.filter(matchesType).filter(matchesSize);
 
   if (file instanceof File && !matchesType(file)) {
@@ -63,12 +63,7 @@ export default function Uploader({ gallery, form: { getFieldDecorator } }) {
           initialValue: gallery,
           getValueFromEvent: sanitizeFiles
         })(
-          <Upload
-            listType="picture"
-            onPreview={handlePreview}
-            beforeUpload={() => false}
-            multiple
-          >
+          <Upload listType="picture" onPreview={handlePreview} beforeUpload={() => false} multiple>
             <Button size="large">
               <Icon type="upload" /> {messages.upload_button}
             </Button>

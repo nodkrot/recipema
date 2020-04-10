@@ -26,9 +26,11 @@ export default function Login() {
               loggedInAt: new Date().toISOString()
             });
           } else {
-            user = await upsertUser(Object.assign({}, user, {
-              loggedInAt: new Date().toISOString()
-            }));
+            user = await upsertUser(
+              Object.assign({}, user, {
+                loggedInAt: new Date().toISOString()
+              })
+            );
           }
 
           dispatch({ type: "SET_USER", payload: user });

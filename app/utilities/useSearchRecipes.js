@@ -18,8 +18,7 @@ export default function useSearchRecipes(initRecipes) {
     searchTimeout = setTimeout(() => {
       const newResults = recipes.filter(
         ({ name, description }) =>
-          name.toLowerCase().includes(value) ||
-          description.toLowerCase().includes(value)
+          name.toLowerCase().includes(value) || description.toLowerCase().includes(value)
       );
 
       setResults(newResults);

@@ -106,12 +106,7 @@ function RecipeForm({
         {recipe ? recipe.name : messages.app_form_title}
         <div className="recipe-form__actions">
           {recipe && onPreview && (
-            <Button
-              shape="circle"
-              icon="eye"
-              size="large"
-              onClick={handlePreview}
-            />
+            <Button shape="circle" icon="eye" size="large" onClick={handlePreview} />
           )}{" "}
           {recipe && (
             <Button
@@ -135,7 +130,10 @@ function RecipeForm({
         {getFieldDecorator("description", {
           initialValue: get(recipe, "description", ""),
           rules: [
-            { required: false, message: messages.recipe_form_description_error }
+            {
+              required: false,
+              message: messages.recipe_form_description_error
+            }
           ]
         })(
           <TextArea
@@ -148,7 +146,10 @@ function RecipeForm({
         {getFieldDecorator("pairings", {
           initialValue: get(recipe, "pairings", []),
           rules: [
-            { required: false, message: messages.recipe_form_description_error }
+            {
+              required: false,
+              message: messages.recipe_form_description_error
+            }
           ]
         })(
           <Select
@@ -166,10 +167,7 @@ function RecipeForm({
         )}
       </FormItem>
       <h3>{messages.recipe_form_title_gallery}</h3>
-      <Uploader
-        gallery={get(recipe, "gallery", [])}
-        form={{ getFieldDecorator }}
-      />
+      <Uploader gallery={get(recipe, "gallery", [])} form={{ getFieldDecorator }} />
       <h3>{messages.recipe_form_title_ingredient}</h3>
       <Ingredients
         ingredients={ingredientsKeys}
@@ -177,12 +175,7 @@ function RecipeForm({
         form={{ getFieldDecorator, getFieldValue, setFieldsValue }}
       />
       <FormItem>
-        <Button
-          block
-          size="large"
-          type="dashed"
-          onClick={() => handleAddField("ingredientsKeys")}
-        >
+        <Button block size="large" type="dashed" onClick={() => handleAddField("ingredientsKeys")}>
           <Icon type="plus" /> {messages.recipe_form_add_ingredient}
         </Button>
       </FormItem>
@@ -192,23 +185,12 @@ function RecipeForm({
         form={{ getFieldDecorator, getFieldValue, setFieldsValue }}
       />
       <FormItem>
-        <Button
-          block
-          size="large"
-          type="dashed"
-          onClick={() => handleAddField("directionsKeys")}
-        >
+        <Button block size="large" type="dashed" onClick={() => handleAddField("directionsKeys")}>
           <Icon type="plus" /> {messages.recipe_form_add_direction}
         </Button>
       </FormItem>
       <FormItem>
-        <Button
-          block
-          size="large"
-          type="primary"
-          loading={isLoading}
-          onClick={handleSubmit}
-        >
+        <Button block size="large" type="primary" loading={isLoading} onClick={handleSubmit}>
           {messages.recipe_form_submit}
         </Button>
       </FormItem>

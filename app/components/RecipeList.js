@@ -16,9 +16,7 @@ function trimString(str, length = 60) {
 }
 
 export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
-  const [results, handleSearchRecipes, setSearchRecipe] = useSearchRecipes(
-    recipes
-  );
+  const [results, handleSearchRecipes, setSearchRecipe] = useSearchRecipes(recipes);
 
   useEffect(() => {
     setSearchRecipe(recipes);
@@ -29,6 +27,29 @@ export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
       title: messages.modal_remove_title.replace("$a", item.name),
       onOk: () => onRemove(item)
     });
+  }
+
+  function renderItems(recipe) {
+    const items = [
+      <Button key="1" shape="circle" icon="edit" size="large" onClick={() => onEdit(recipe)} />,
+      <Button
+        key="2"
+        shape="circle"
+        icon="delete"
+        size="large"
+        onClick={() => handleRemove(recipe)}
+      />
+    ];
+
+    if (recipe.gallery && recipe.gallery.length) {
+      items.unshift(<Icon key="0" type="file-image" />);
+    }
+
+    return (
+      <List.Item actions={items}>
+        <List.Item.Meta title={recipe.name} description={trimString(recipe.description)} />
+      </List.Item>
+    );
   }
 
   return (
@@ -49,31 +70,7 @@ export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
         itemLayout="horizontal"
         dataSource={results}
         locale={{ emptyText: messages.recipe_list_no_data }}
-        renderItem={item => (
-          <List.Item
-            actions={[
-              <Button
-                key="1"
-                shape="circle"
-                icon="edit"
-                size="large"
-                onClick={() => onEdit(item)}
-              />,
-              <Button
-                key="2"
-                shape="circle"
-                icon="delete"
-                size="large"
-                onClick={() => handleRemove(item)}
-              />
-            ]}
-          >
-            <List.Item.Meta
-              title={item.name}
-              description={trimString(item.description)}
-            />
-          </List.Item>
-        )}
+        renderItem={renderItems}
       />
       <small style={{ float: "right" }}>Total items: {recipes.length}</small>
     </div>

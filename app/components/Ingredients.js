@@ -63,11 +63,7 @@ export default function Ingredients({
                 }
               ]
             })(
-              <Input
-                size="large"
-                type="number"
-                placeholder={messages.recipe_form_ingredient_qty}
-              />
+              <Input size="large" type="number" placeholder={messages.recipe_form_ingredient_qty} />
             )}
           </FormItem>
           <FormItem style={{ width: 140, marginRight: 8 }}>
@@ -80,10 +76,7 @@ export default function Ingredients({
                 }
               ]
             })(
-              <Select
-                size="large"
-                placeholder={messages.recipe_form_ingredient_unit}
-              >
+              <Select size="large" placeholder={messages.recipe_form_ingredient_unit}>
                 {units.map((u, i) => (
                   <Option key={i} value={u}>
                     {messages[`unit_${u}`]}

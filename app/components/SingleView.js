@@ -26,8 +26,8 @@ export default function SingleView({ match, location: { state = {} } }) {
     if (!recipe) {
       console.log("Fetching new recipe with id", match.params.recipeId);
       getRecipeById(match.params.recipeId)
-        .then(fetchedRecipe => setRecipe(fetchedRecipe))
-        .catch(err => console.log("Unable to fetch recipe with id", err));
+        .then((fetchedRecipe) => setRecipe(fetchedRecipe))
+        .catch((err) => console.log("Unable to fetch recipe with id", err));
     }
   }, [match.params.recipeId]);
 
@@ -62,12 +62,7 @@ export default function SingleView({ match, location: { state = {} } }) {
       <div className="single-view__container">
         <Header>
           {user && user.role === UserRoles.ADMIN && (
-            <Button
-              shape="circle"
-              icon="edit"
-              size="large"
-              onClick={handleEdit}
-            />
+            <Button shape="circle" icon="edit" size="large" onClick={handleEdit} />
           )}
         </Header>
         <PageHeader onBack={() => history.goBack()} title={recipe.name} />
@@ -83,25 +78,19 @@ export default function SingleView({ match, location: { state = {} } }) {
       )}
       <div className="single-view__container">
         <p className="single-view__description">{recipe.description}</p>
-        <h2 className="single-view__subtitle">
-          {messages.recipe_form_title_ingredient}
-        </h2>
+        <h2 className="single-view__subtitle">{messages.recipe_form_title_ingredient}</h2>
         <ul className="single-view__ingredients-list">
           {recipe.ingredients.map((ingredient, i) => (
             <li key={i} className="single-view__list-item">
               <span className="single-view__amount">
-                {ingredient.amount.value !== "0"
-                  ? ingredient.amount.value
-                  : null}{" "}
+                {ingredient.amount.value !== "0" ? ingredient.amount.value : null}{" "}
                 {messages[`unit_${ingredient.amount.unit}`]}
               </span>
               {ingredient.name.toLowerCase()}
             </li>
           ))}
         </ul>
-        <h2 className="single-view__subtitle">
-          {messages.recipe_form_title_direction}
-        </h2>
+        <h2 className="single-view__subtitle">{messages.recipe_form_title_direction}</h2>
         <ol className="single-view__directions-list">
           {recipe.directions.map((direction, i) => (
             <li key={i} className="single-view__list-item">

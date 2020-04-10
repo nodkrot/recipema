@@ -15,10 +15,7 @@ const config = {
 firebase.apps.length ? firebase.app() : firebase.initializeApp(config);
 
 export async function getUser(id) {
-  const doc = await db
-    .collection("users")
-    .doc(id)
-    .get();
+  const doc = await db.collection("users").doc(id).get();
 
   if (doc.exists) {
     return doc.data();
@@ -28,19 +25,13 @@ export async function getUser(id) {
 }
 
 export async function upsertUser(user) {
-  await db
-    .collection("users")
-    .doc(user.uid)
-    .set(user, { merge: true });
+  await db.collection("users").doc(user.uid).set(user, { merge: true });
 
   return user;
 }
 
 export async function getRecipeById(id) {
-  const doc = await db
-    .collection("recipes")
-    .doc(id)
-    .get();
+  const doc = await db.collection("recipes").doc(id).get();
 
   if (doc.exists) {
     return Object.assign({ id: doc.id }, doc.data());
@@ -50,13 +41,10 @@ export async function getRecipeById(id) {
 }
 
 export async function getRecipes() {
-  const querySnapshot = await db
-    .collection("recipes")
-    .orderBy("createdAt", "desc")
-    .get();
+  const querySnapshot = await db.collection("recipes").orderBy("createdAt", "desc").get();
   const recipes = [];
 
-  querySnapshot.forEach(recipeDoc => {
+  querySnapshot.forEach((recipeDoc) => {
     recipes.push(Object.assign({ id: recipeDoc.id }, recipeDoc.data()));
   });
 
@@ -88,10 +76,7 @@ export async function updateRecipe(id, recipe) {
 }
 
 export function deleteRecipe(id) {
-  return db
-    .collection("recipes")
-    .doc(id)
-    .delete();
+  return db.collection("recipes").doc(id).delete();
 }
 
 export async function createImage(image) {

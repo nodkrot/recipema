@@ -31,7 +31,7 @@ const messages = Messages["ru_RU"];
 
 function extractRawIngredients(recipes) {
   const set = new Set();
-  recipes.forEach(recipe => recipe.ingredients.forEach(a => set.add(a.name)));
+  recipes.forEach((recipe) => recipe.ingredients.forEach((a) => set.add(a.name)));
 
   return [...set];
 }
@@ -58,8 +58,8 @@ export default function Dashboard({ match }) {
   useEffect(() => {
     if (match.params.recipeId) {
       getRecipeById(match.params.recipeId)
-        .then(fetchedRecipe => setCurrentRecipe(fetchedRecipe))
-        .catch(err => console.log("Unable to fetch recipe with id", err));
+        .then((fetchedRecipe) => setCurrentRecipe(fetchedRecipe))
+        .catch((err) => console.log("Unable to fetch recipe with id", err));
     } else {
       setCurrentRecipe(null);
     }
@@ -90,18 +90,12 @@ export default function Dashboard({ match }) {
     setIsSaving(true);
 
     const originalImages = currentRecipe ? currentRecipe.gallery : [];
-    const newImages = recipeForm.gallery.filter(image => !!image.originFileObj);
-    const oldImages = recipeForm.gallery.filter(image => !image.originFileObj);
-    const deletedImages = differenceWith(
-      originalImages,
-      oldImages,
-      (a, b) => a.uid === b.uid
-    );
+    const newImages = recipeForm.gallery.filter((image) => !!image.originFileObj);
+    const oldImages = recipeForm.gallery.filter((image) => !image.originFileObj);
+    const deletedImages = differenceWith(originalImages, oldImages, (a, b) => a.uid === b.uid);
 
     try {
-      const compressedNewImages = await Promise.all(
-        newImages.map(compressImage)
-      );
+      const compressedNewImages = await Promise.all(newImages.map(compressImage));
       const savedGallery = await Promise.all([
         ...oldImages,
         ...compressedNewImages.map(createImage),
@@ -120,9 +114,7 @@ export default function Dashboard({ match }) {
 
       if (currentRecipe) {
         recipe = await updateRecipe(currentRecipe.id, finalRecipeForm);
-        updatedRecipes = recipes.map(item =>
-          item.id === recipe.id ? recipe : item
-        );
+        updatedRecipes = recipes.map((item) => (item.id === recipe.id ? recipe : item));
         message.success(messages.notification_successfully_updated);
       } else {
         recipe = await createRecipe(finalRecipeForm);
@@ -151,10 +143,8 @@ export default function Dashboard({ match }) {
 
   async function handleRemove(recipe) {
     try {
-      await Promise.all(
-        (recipe.gallery || []).map(deleteImage).concat(deleteRecipe(recipe.id))
-      );
-      const updatedRecipes = recipes.filter(item => item.id !== recipe.id);
+      await Promise.all((recipe.gallery || []).map(deleteImage).concat(deleteRecipe(recipe.id)));
+      const updatedRecipes = recipes.filter((item) => item.id !== recipe.id);
 
       goToDashboard();
       setRecipes(updatedRecipes);
@@ -198,12 +188,7 @@ export default function Dashboard({ match }) {
     <div className="dashboard">
       <Header path="/dashboard">
         <Button shape="circle" icon="home" size="large" onClick={handleHome} />{" "}
-        <Button
-          shape="circle"
-          icon="logout"
-          size="large"
-          onClick={handleSignOut}
-        />
+        <Button shape="circle" icon="logout" size="large" onClick={handleSignOut} />
       </Header>
       <div className="dashboard__content">
         <Row type="flex" justify="center" gutter={16}>
@@ -221,13 +206,7 @@ export default function Dashboard({ match }) {
           <Col xs={24} sm={10}>
             <h1 className="dashboard__title">
               {messages.app_list_title}
-              <Button
-                type="primary"
-                shape="circle"
-                icon="plus"
-                size="large"
-                onClick={handleNew}
-              />
+              <Button type="primary" shape="circle" icon="plus" size="large" onClick={handleNew} />
             </h1>
             <RecipeList
               recipes={recipes}
