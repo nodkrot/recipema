@@ -59,22 +59,26 @@ export default function ListView() {
         />
       </div>
       <div className="list-view__cards list-view__container">
-        {results.map((item) => (
-          <Link
-            key={item.id}
-            className="list-view__card"
-            to={{
-              pathname: `/recipe/${item.id}`,
-              state: { item }
-            }}
-          >
-            {getItemImage(item)}
-            <div className="list-view__card-caption">
-              <div className="list-view__card-title">{item.name}</div>
-              <div className="list-view__card-description">{item.description}</div>
-            </div>
-          </Link>
-        ))}
+        {results.length ? (
+          results.map((item) => (
+            <Link
+              key={item.id}
+              className="list-view__card"
+              to={{
+                pathname: `/recipe/${item.id}`,
+                state: { item }
+              }}
+            >
+              {getItemImage(item)}
+              <div className="list-view__card-caption">
+                <div className="list-view__card-title">{item.name}</div>
+                <div className="list-view__card-description">{item.description}</div>
+              </div>
+            </Link>
+          ))
+        ) : (
+          <p className="list-view__no-results">{messages.recipe_list_no_data}</p>
+        )}
       </div>
       <div className="list-view__container">
         <Footer />

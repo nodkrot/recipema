@@ -2,7 +2,7 @@ import { useState } from "react";
 import Fuse from "fuse.js";
 
 const options = {
-  threshold: 0.4,
+  threshold: 0.3,
   keys: [
     {
       name: "name",
@@ -14,7 +14,7 @@ const options = {
     },
     {
       name: "ingredients.name",
-      weight: 0.1
+      weight: 0.3
     },
     {
       name: "directions.text",
