@@ -12,32 +12,34 @@ export default function Login() {
     signInFlow: "redirect",
     signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
     callbacks: {
-      signInSuccessWithAuthResult: async (authResult) => {
-        try {
-          let user = await getUser(authResult.user.uid);
+      signInSuccessWithAuthResult: (authResult) => {
+        getUser(authResult.user.uid)
+          .then(async (user) => {
+            try {
+              const newUser = !user
+                ? await upsertUser({
+                    uid: authResult.user.uid,
+                    name: authResult.user.displayName,
+                    email: authResult.user.email,
+                    role: UserRoles.CUSTOMER,
+                    createdAt: new Date().toISOString(),
+                    loggedInAt: new Date().toISOString()
+                  })
+                : await upsertUser(
+                    Object.assign({}, user, {
+                      loggedInAt: new Date().toISOString()
+                    })
+                  );
 
-          if (!user) {
-            user = await upsertUser({
-              uid: authResult.user.uid,
-              name: authResult.user.displayName,
-              email: authResult.user.email,
-              role: UserRoles.CUSTOMER,
-              createdAt: new Date().toISOString(),
-              loggedInAt: new Date().toISOString()
-            });
-          } else {
-            user = await upsertUser(
-              Object.assign({}, user, {
-                loggedInAt: new Date().toISOString()
-              })
-            );
-          }
-
-          dispatch({ type: "SET_USER", payload: user });
-          history.push("/dashboard");
-        } catch (err) {
-          console.log("Unable to fetch or create user");
-        }
+              dispatch({ type: "SET_USER", payload: newUser });
+              history.push("/dashboard");
+            } catch (err) {
+              console.warn("Unable to upsert user");
+            }
+          })
+          .catch(() => {
+            console.warn("Unable to fetch user");
+          });
 
         return false;
       }
