@@ -3,30 +3,34 @@ import PropTypes from "prop-types";
 
 const initialState = {
   user: null,
-  isUserFetched: false
+  userState: "none"
 };
 
 function reducer(state, action) {
   console.log(action);
   switch (action.type) {
-    case "SET_USER":
+    case "FETCH_USER":
+      return {
+        ...state,
+        userState: "fetching"
+      };
+    case "SET_AUTH_USER":
       return {
         ...state,
         user: action.payload,
-        isUserFetched: true
+        userState: "auth"
       };
-    case "UNSET_USER":
+    case "SET_GUEST_USER":
       return {
         ...state,
-        ...initialState
+        user: null,
+        userState: "guest"
       };
     default:
       return state;
   }
 }
 
-// TODO: saving this file in dev mode causes app to break
-// consider extracting reducer into separate file
 export const Context = createContext(initialState);
 
 export default function Store({ children }) {
