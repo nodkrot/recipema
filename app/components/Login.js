@@ -31,7 +31,8 @@ export default function Login() {
                     })
                   );
 
-              dispatch({ type: "SET_USER", payload: newUser });
+              localStorage.setItem("userId", authResult.user.uid);
+              dispatch({ type: "SET_AUTH_USER", payload: newUser });
               history.push("/dashboard");
             } catch (err) {
               console.warn("Unable to upsert user");

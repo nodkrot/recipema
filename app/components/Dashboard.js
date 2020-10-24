@@ -135,7 +135,9 @@ export default function Dashboard({ match }) {
   async function handleSignOut() {
     try {
       await auth.signOut();
-      dispatch({ type: "UNSET_USER" });
+      localStorage.removeItem("userId");
+      dispatch({ type: "SET_GUEST_USER" });
+      history.push("/login");
     } catch (err) {
       message.error(message.notification_failure);
     }
