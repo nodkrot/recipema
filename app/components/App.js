@@ -26,6 +26,7 @@ export default function App() {
         })
         .catch(() => {
           console.warn("Unable to fetch user");
+          dispatch({ type: "SET_GUEST_USER" });
         });
     } else {
       dispatch({ type: "SET_GUEST_USER" });
