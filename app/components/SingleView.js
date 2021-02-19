@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/es/button";
 import PageHeader from "antd/es/page-header";
@@ -7,15 +7,12 @@ import Header from "./Header.js";
 import Footer from "./Footer.js";
 import { getRecipeById } from "../utilities/firebase.js";
 import history from "../utilities/history.js";
-import { Context } from "../utilities/store.js";
-import { UserRoles } from "../utilities/constants.js";
 import Messages from "../messages.json";
 import "./SingleView.css";
 
 const messages = Messages["ru_RU"];
 
 export default function SingleView({ match, location: { state = {} } }) {
-  const [{ user }] = useContext(Context);
   const [recipe, setRecipe] = useState(state.item);
 
   useEffect(() => {
@@ -61,9 +58,7 @@ export default function SingleView({ match, location: { state = {} } }) {
     <div className="single-view">
       <div className="single-view__container">
         <Header>
-          {user && user.role === UserRoles.ADMIN && (
-            <Button shape="circle" icon="edit" size="large" onClick={handleEdit} />
-          )}
+          <Button shape="circle" icon="edit" size="large" onClick={handleEdit} />
         </Header>
         <PageHeader onBack={() => history.goBack()} title={recipe.name} />
       </div>
