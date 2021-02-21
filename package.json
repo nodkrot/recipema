@@ -6,17 +6,13 @@
   "repository": "https://github.com/nodkrot/recipema",
   "author": "Vyacheslav Alayev",
   "scripts": {
+    "postinstall": "husky install; husky add .husky/pre-commit \"npx pretty-quick --staged; npm run lint;\"",
     "start": "parcel ./app/index.html",
     "build": "parcel build app/index.html --no-source-maps --no-cache",
     "analyze": "parcel build ./app/index.html; open ./dist/report.html",
     "deploy": "./deploy.sh",
     "format": "prettier --write 'app/**/*.js'",
     "lint": "eslint 'app/**/*.js'"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged; npm run lint;"
-    }
   },
   "prettier": {
     "printWidth": 100,
