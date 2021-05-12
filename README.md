@@ -1,4 +1,4 @@
-# RecipeMa
+![logo](./logo.png)
 
 Family recipes hub.
 
