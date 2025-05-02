@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
-import firebase, { auth, getUser, upsertUser } from "../utilities/firebase.js";
+import { auth, getUser, upsertUser } from "../utilities/firebase.js";
+import { GoogleAuthProvider } from "firebase/auth";
 import history from "../utilities/history.js";
 import { Context } from "../utilities/store.js";
 import { UserRoles } from "../utilities/constants.js";
@@ -8,9 +9,11 @@ import "./Login.css";
 
 export default function Login() {
   const [, dispatch] = useContext(Context);
+  const googleProvider = new GoogleAuthProvider();
+
   const uiConfig = {
     signInFlow: "redirect",
-    signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
+    signInOptions: [googleProvider.providerId],
     callbacks: {
       signInSuccessWithAuthResult: (authResult) => {
         getUser(authResult.user.uid)

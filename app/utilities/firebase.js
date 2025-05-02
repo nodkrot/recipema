@@ -1,9 +1,20 @@
-import firebase from "firebase/app";
-import "firebase/auth";
-import "firebase/firestore";
-import "firebase/storage";
+import { initializeApp } from "firebase/app";
+import { getAuth, } from "firebase/auth";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  addDoc,
+  getDocs,
+  orderBy,
+  deleteDoc,
+  query,
+} from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
-const config = {
+const firebaseConfig = {
   apiKey: process.env.FB_API_KEY,
   authDomain: process.env.FB_AUTH_DOMAIN,
   databaseURL: process.env.FB_DATABASE_URL,
