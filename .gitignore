@@ -9,3 +9,9 @@ dist
 backup.sh
 backups
 ingredients.json
+
+import.js
+fix-images.js
+
+recipe-export.json
+recipema-*.json

@@ -6,6 +6,7 @@ import Input from "antd/es/input";
 import Button from "antd/es/button";
 import Select from "antd/es/select";
 import AutoComplete from "antd/es/auto-complete";
+import { CloseOutlined } from "@ant-design/icons";
 import Messages from "../messages.json";
 
 const messages = Messages["ru_RU"];
@@ -33,15 +34,14 @@ Ingredients.propTypes = {
   ingredientList: PropTypes.array.isRequired,
   form: PropTypes.shape({
     setFieldsValue: PropTypes.func.isRequired,
-    getFieldValue: PropTypes.func.isRequired,
-    getFieldDecorator: PropTypes.func.isRequired
+    getFieldValue: PropTypes.func.isRequired
   })
 };
 
 export default function Ingredients({
   ingredients,
   ingredientList,
-  form: { setFieldsValue, getFieldValue, getFieldDecorator }
+  form: { setFieldsValue, getFieldValue }
 }) {
   function handleRemove(k) {
     const keys = getFieldValue("ingredientsKeys");
@@ -53,60 +53,60 @@ export default function Ingredients({
     <>
       {ingredients.map((val, i) => (
         <div key={i} style={{ display: "flex" }}>
-          <FormItem style={{ width: 88, marginRight: 8 }}>
-            {getFieldDecorator(`ingredients[${i}].amount.value`, {
-              initialValue: get(val, "amount.value"),
-              rules: [
-                {
-                  required: true,
-                  message: messages.recipe_form_ingredient_qty_error
-                }
-              ]
-            })(
-              <Input size="large" type="number" placeholder={messages.recipe_form_ingredient_qty} />
-            )}
+          <FormItem
+            name={["ingredients", i, "amount", "value"]}
+            initialValue={get(val, "amount.value")}
+            rules={[
+              {
+                required: true,
+                message: messages.recipe_form_ingredient_qty_error
+              }
+            ]}
+            style={{ width: 88, marginRight: 8 }}
+          >
+            <Input size="large" type="number" placeholder={messages.recipe_form_ingredient_qty} />
           </FormItem>
-          <FormItem style={{ width: 140, marginRight: 8 }}>
-            {getFieldDecorator(`ingredients[${i}].amount.unit`, {
-              initialValue: get(val, "amount.unit"),
-              rules: [
-                {
-                  required: true,
-                  message: messages.recipe_form_ingredient_unit_error
-                }
-              ]
-            })(
-              <Select size="large" placeholder={messages.recipe_form_ingredient_unit}>
-                {units.map((u, i) => (
-                  <Option key={i} value={u}>
-                    {messages[`unit_${u}`]}
-                  </Option>
-                ))}
-              </Select>
-            )}
+          <FormItem
+            name={["ingredients", i, "amount", "unit"]}
+            initialValue={get(val, "amount.unit")}
+            rules={[
+              {
+                required: true,
+                message: messages.recipe_form_ingredient_unit_error
+              }
+            ]}
+            style={{ width: 140, marginRight: 8 }}
+          >
+            <Select size="large" placeholder={messages.recipe_form_ingredient_unit}>
+              {units.map((u, i) => (
+                <Option key={i} value={u}>
+                  {messages[`unit_${u}`]}
+                </Option>
+              ))}
+            </Select>
           </FormItem>
-          <FormItem style={{ flex: "auto" }}>
-            {getFieldDecorator(`ingredients[${i}].name`, {
-              initialValue: get(val, "name"),
-              rules: [
-                {
-                  required: true,
-                  message: messages.recipe_form_ingredient_name_error
-                }
-              ]
-            })(
-              <AutoComplete
-                size="large"
-                placeholder={messages.recipe_form_ingredient_name}
-                filterOption={filterInput}
-                dataSource={ingredientList}
-              />
-            )}
+          <FormItem
+            name={["ingredients", i, "name"]}
+            initialValue={get(val, "name")}
+            rules={[
+              {
+                required: true,
+                message: messages.recipe_form_ingredient_name_error
+              }
+            ]}
+            style={{ flex: "auto" }}
+          >
+            <AutoComplete
+              size="large"
+              placeholder={messages.recipe_form_ingredient_name}
+              filterOption={filterInput}
+              dataSource={ingredientList}
+            />
           </FormItem>
           {i > 0 && (
             <Button
               shape="circle"
-              icon="close"
+              icon={<CloseOutlined />}
               className="recipe-form__action"
               onClick={() => handleRemove(i)}
             />

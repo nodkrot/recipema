@@ -4,7 +4,7 @@ import List from "antd/es/list";
 import Button from "antd/es/button";
 import Modal from "antd/es/modal";
 import Input from "antd/es/input";
-import Icon from "antd/es/icon";
+import { EditOutlined, DeleteOutlined, UploadOutlined, SearchOutlined } from "@ant-design/icons";
 import useSearchRecipes from "../utilities/useSearchRecipes";
 import Messages from "../messages.json";
 import "./RecipeList.css";
@@ -31,18 +31,26 @@ export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
 
   function renderItems(recipe) {
     const items = [
-      <Button key="1" shape="circle" icon="edit" size="large" onClick={() => onEdit(recipe)} />,
+      <Button
+        key="1"
+        shape="circle"
+        icon={<EditOutlined />}
+        size="large"
+        onClick={() => onEdit(recipe)}
+      />,
       <Button
         key="2"
         shape="circle"
-        icon="delete"
+        icon={<DeleteOutlined />}
         size="large"
         onClick={() => handleRemove(recipe)}
       />
     ];
 
     if (recipe.gallery && recipe.gallery.length) {
-      items.unshift(<Icon key="0" type="file-image" />);
+      items.unshift(
+        <UploadOutlined key="0" />
+      );
     }
 
     return (
@@ -58,7 +66,7 @@ export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
         <Input
           placeholder={messages.search_recipe_input}
           onChange={handleSearchRecipes}
-          prefix={<Icon type="search" />}
+          prefix={<SearchOutlined />}
           autoComplete="off"
           size="large"
           allowClear

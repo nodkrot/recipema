@@ -7,7 +7,9 @@ import Col from "antd/es/col";
 import Button from "antd/es/button";
 import Modal from "antd/es/modal";
 import message from "antd/es/message";
+import { HomeOutlined, LogoutOutlined, PlusOutlined } from "@ant-design/icons";
 import imageCompression from "browser-image-compression";
+import { signOut } from "firebase/auth";
 import Header from "./Header.js";
 import Footer from "./Footer.js";
 import RecipeForm from "./RecipeForm.js";
@@ -134,12 +136,12 @@ export default function Dashboard({ match }) {
 
   async function handleSignOut() {
     try {
-      await auth.signOut();
+      await signOut(auth);
       localStorage.removeItem("userId");
       dispatch({ type: "SET_GUEST_USER" });
       history.push("/login");
     } catch (err) {
-      message.error(message.notification_failure);
+      message.error(messages.notification_failure);
     }
   }
 
@@ -189,8 +191,8 @@ export default function Dashboard({ match }) {
   return (
     <div className="dashboard">
       <Header path="/dashboard">
-        <Button shape="circle" icon="home" size="large" onClick={handleHome} />{" "}
-        <Button shape="circle" icon="logout" size="large" onClick={handleSignOut} />
+        <Button shape="circle" icon={<HomeOutlined />} size="large" onClick={handleHome} />{" "}
+        <Button shape="circle" icon={<LogoutOutlined />} size="large" onClick={handleSignOut} />
       </Header>
       <div className="dashboard__content">
         <Row type="flex" justify="center" gutter={16}>
@@ -208,7 +210,13 @@ export default function Dashboard({ match }) {
           <Col xs={24} sm={10}>
             <h1 className="dashboard__title">
               {messages.app_list_title}
-              <Button type="primary" shape="circle" icon="plus" size="large" onClick={handleNew} />
+              <Button
+                type="primary"
+                shape="circle"
+                icon={<PlusOutlined />}
+                size="large"
+                onClick={handleNew}
+              />
             </h1>
             <RecipeList
               recipes={recipes}

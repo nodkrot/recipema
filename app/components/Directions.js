@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import Form from "antd/es/form";
 import Input from "antd/es/input";
 import Button from "antd/es/button";
+import { CloseOutlined } from "@ant-design/icons";
 import get from "lodash/get";
 import Messages from "../messages.json";
 
@@ -14,15 +15,11 @@ Directions.propTypes = {
   directions: PropTypes.array.isRequired,
   form: PropTypes.shape({
     setFieldsValue: PropTypes.func.isRequired,
-    getFieldValue: PropTypes.func.isRequired,
-    getFieldDecorator: PropTypes.func.isRequired
+    getFieldValue: PropTypes.func.isRequired
   })
 };
 
-export default function Directions({
-  directions,
-  form: { setFieldsValue, getFieldValue, getFieldDecorator }
-}) {
+export default function Directions({ directions, form: { setFieldsValue, getFieldValue } }) {
   function handleRemove(k) {
     const keys = getFieldValue("directionsKeys");
 
@@ -34,26 +31,26 @@ export default function Directions({
       {directions.map((val, i) => (
         <div key={i} style={{ display: "flex" }}>
           <div className="recipe-form__step-count">{i + 1}.</div>
-          <FormItem style={{ flex: "auto" }}>
-            {getFieldDecorator(`directions[${i}].text`, {
-              initialValue: get(val, "text"),
-              rules: [
-                {
-                  required: true,
-                  message: messages.recipe_form_direction_text_error
-                }
-              ]
-            })(
-              <TextArea
-                autoSize={{ minRows: 2, maxRows: 4 }}
-                placeholder={messages.recipe_form_direction_text}
-              />
-            )}
+          <FormItem
+            name={["directions", i, "text"]}
+            initialValue={get(val, "text")}
+            rules={[
+              {
+                required: true,
+                message: messages.recipe_form_direction_text_error
+              }
+            ]}
+            style={{ flex: "auto" }}
+          >
+            <TextArea
+              autoSize={{ minRows: 2, maxRows: 4 }}
+              placeholder={messages.recipe_form_direction_text}
+            />
           </FormItem>
           {i > 0 && (
             <Button
               shape="circle"
-              icon="close"
+              icon={<CloseOutlined />}
               className="recipe-form__action"
               onClick={() => handleRemove(i)}
             />

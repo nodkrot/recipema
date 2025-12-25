@@ -1,6 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { Router, Route, Redirect } from "react-router-dom";
-import CacheRoute, { CacheSwitch } from "react-router-cache-route";
+import { Router, Route, Redirect, Switch } from "react-router";
 import PrivateRoute from "./PrivateRoute.js";
 import Dashboard from "./Dashboard.js";
 import ListView from "./ListView.js";
@@ -37,8 +36,8 @@ export default function App() {
 
   return (
     <Router history={history}>
-      <CacheSwitch>
-        <CacheRoute exact path="/" component={ListView} />
+      <Switch>
+        <Route exact path="/" component={ListView} />
         <Route path="/recipe/:recipeId" component={SingleView} />
         <Route path="/login" component={Login} />
         <PrivateRoute
@@ -54,7 +53,7 @@ export default function App() {
           component={Dashboard}
         />
         <Redirect from="*" to="/" />
-      </CacheSwitch>
+      </Switch>
     </Router>
   );
 }
