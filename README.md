@@ -27,6 +27,12 @@ npm run deploy                  # This will build and deploy the app
 npm run analyze                 # This will generate bundle size report
 ```
 
-## Bugs
+## Deployment
 
-- Deployment sporadically does not pick up prod env variables
+Note: For production deployments create `.env.production`
+
+Use these commands for deployment:
+
+```
+npm run deploy                  # This will build and deploy the app
+```
