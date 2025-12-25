@@ -1,9 +1,12 @@
-.cache
 .env*
 .DS_Store
 node_modules
 dist
 .husky
+
+# Vite
+*.local
+.vite
 
 # random
 backup.sh

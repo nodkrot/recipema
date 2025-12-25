@@ -1,14 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Route, Redirect } from "react-router";
+import { Navigate } from "react-router-dom";
 import { UserRoles } from "../utilities/constants.js";
 
-export default function PrivateRoute({ component: Component, user, roles, ...rest }) {
+export default function PrivateRoute({ children, user, roles }) {
   if (user && roles.indexOf(user.role) !== -1) {
-    return <Route {...rest} render={(props) => <Component {...props} />} />;
+    return children;
   }
 
-  return <Route {...rest} render={() => <Redirect to="/login" />} />;
+  return <Navigate to="/login" replace />;
 }
 
 PrivateRoute.defaultProps = {
@@ -16,7 +16,7 @@ PrivateRoute.defaultProps = {
 };
 
 PrivateRoute.propTypes = {
-  component: PropTypes.func.isRequired,
+  children: PropTypes.node.isRequired,
   roles: PropTypes.array,
   user: PropTypes.object
 };

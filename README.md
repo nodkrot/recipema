@@ -4,15 +4,15 @@ Family recipes hub.
 
 ## Setup
 
-Create `.env.local` and/or `.env.production` with the following variables (this project uses Firebase):
+Create `.env` with the following variables (this project uses Firebase):
 
 ```
-FB_API_KEY=
-FB_AUTH_DOMAIN=
-FB_DATABASE_URL=
-FB_PROJECT_ID=
-FB_STORAGE_BUCKET=
-FB_MESSAGEING_SENDER_ID=
+VITE_FB_API_KEY=
+VITE_FB_AUTH_DOMAIN=
+VITE_FB_DATABASE_URL=
+VITE_FB_PROJECT_ID=
+VITE_FB_STORAGE_BUCKET=
+VITE_FB_MESSAGEING_SENDER_ID=
 ```
 
 ## Development
@@ -30,10 +30,3 @@ npm run analyze                 # This will generate bundle size report
 ## Bugs
 
 - Deployment sporadically does not pick up prod env variables
-
-## Notes/Todos
-
-- Use https://github.com/i18next/react-i18next/tree/master/example/react
-- Upgrade `history` when `react-router` v6 comes out
-- Upgrade `antd` and update form handling
-  - Use https://github.com/jaredpalmer/formik

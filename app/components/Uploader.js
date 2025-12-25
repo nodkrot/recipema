@@ -12,12 +12,17 @@ import "./Uploader.css";
 const FormItem = Form.Item;
 const messages = Messages["ru_RU"];
 
-function sanitizeFiles({ file, fileList }) {
+function sanitizeFiles(e) {
+  // In antd 5, the event object structure has changed
+  // e can be an event object or directly the file list
+  const fileList = Array.isArray(e) ? e : e?.fileList || [];
+  const file = e?.file;
+
   const MAX_SIZE = 5;
-  const IMG_TYPES = ["image/jpeg"];
+  const IMG_TYPES = ["image/jpeg", "image/jpg", "image/png"];
   const matchesType = (file) => IMG_TYPES.includes(file.type);
   const matchesSize = (file) => file.size / 1024 / 1024 < MAX_SIZE;
-  // `file` in `fileList` is not na instance of `File` so we check
+  // `file` in `fileList` is not an instance of `File` so we check
   //  for `originFileObj` property instead
   const uploadedFiles = fileList.filter((file) => !file.originFileObj);
   const rawFiles = fileList.filter((file) => !!file.originFileObj);
@@ -70,8 +75,8 @@ export default function Uploader({ gallery }) {
       <Modal
         width="82%"
         footer={null}
-        visible={previewVisible}
-        bodyStyle={{ textAlign: "center" }}
+        open={previewVisible}
+        styles={{ body: { textAlign: "center" } }}
         onCancel={handleCancel}
       >
         <img alt="example" style={{ maxWidth: "100%" }} src={previewImage} />

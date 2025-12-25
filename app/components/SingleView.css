@@ -1,10 +1,14 @@
-.single-view .ant-page-header {
-  padding-left: 0;
-  padding-right: 0;
+.single-view__page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
 }
 
-.single-view .ant-page-header-heading-title {
+.single-view__page-title {
   font-weight: 300;
+  margin: 0;
+  font-size: 24px;
 }
 
 .single-view__subtitle {
