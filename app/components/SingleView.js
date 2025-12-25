@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Button from "antd/es/button";
-import { EditOutlined } from "@ant-design/icons";
-import PageHeader from "antd/es/page-header";
+import { EditOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import Carousel from "antd/es/carousel";
 import Header from "./Header.js";
 import Footer from "./Footer.js";
 import { getRecipeById } from "../utilities/firebase.js";
-import history from "../utilities/history.js";
 import Messages from "../messages.json";
 import "./SingleView.css";
 
 const messages = Messages["ru_RU"];
 
-export default function SingleView({ match, location: { state = {} } }) {
+export default function SingleView() {
+  const { recipeId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state || {};
   const [recipe, setRecipe] = useState(state.item);
 
   useEffect(() => {
@@ -22,15 +24,16 @@ export default function SingleView({ match, location: { state = {} } }) {
 
   useEffect(() => {
     if (!recipe) {
-      console.log("Fetching new recipe with id", match.params.recipeId);
-      getRecipeById(match.params.recipeId)
+      console.log("Fetching new recipe with id", recipeId);
+      getRecipeById(recipeId)
         .then((fetchedRecipe) => setRecipe(fetchedRecipe))
         .catch((err) => console.log("Unable to fetch recipe with id", err));
     }
-  }, [match.params.recipeId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recipeId]);
 
   function handleEdit() {
-    history.push(`/dashboard/${match.params.recipeId}`);
+    navigate(`/dashboard/${recipeId}`);
   }
 
   // function handleNavClick(item) {
@@ -61,7 +64,15 @@ export default function SingleView({ match, location: { state = {} } }) {
         <Header>
           <Button shape="circle" icon={<EditOutlined />} size="large" onClick={handleEdit} />
         </Header>
-        <PageHeader onBack={() => history.goBack()} title={recipe.name} />
+        <div className="single-view__page-header">
+          <Button
+            type="text"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate(-1)}
+            size="large"
+          />
+          <h1 className="single-view__page-title">{recipe.name}</h1>
+        </div>
       </div>
       {!!(recipe.gallery && recipe.gallery.length) && (
         <div className="single-view__gallery">
@@ -100,7 +111,3 @@ export default function SingleView({ match, location: { state = {} } }) {
   );
 }
 
-SingleView.propTypes = {
-  match: PropTypes.object,
-  location: PropTypes.object
-};

@@ -30,10 +30,3 @@ npm run analyze                 # This will generate bundle size report
 ## Bugs
 
 - Deployment sporadically does not pick up prod env variables
-
-## Notes/Todos
-
-- Use https://github.com/i18next/react-i18next/tree/master/example/react
-- Upgrade `history` when `react-router` v6 comes out
-- Upgrade `antd` and update form handling
-  - Use https://github.com/jaredpalmer/formik

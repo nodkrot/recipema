@@ -1,15 +1,14 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import App from "./components/App.js";
 import Store from "./utilities/store.js";
-import "antd/dist/antd.css";
 import "./styles.css";
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
   <Store>
     <App />
-  </Store>,
-  document.getElementById("root")
+  </Store>
 );
 
 // Hot Module Replacement

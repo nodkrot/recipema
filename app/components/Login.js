@@ -1,12 +1,13 @@
 import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { auth, getUser, upsertUser } from "../utilities/firebase.js";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import history from "../utilities/history.js";
 import { Context } from "../utilities/store.js";
 import { UserRoles } from "../utilities/constants.js";
 import "./Login.css";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [, dispatch] = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -38,7 +39,7 @@ export default function Login() {
 
       localStorage.setItem("userId", authResult.user.uid);
       dispatch({ type: "SET_AUTH_USER", payload: newUser });
-      history.push("/dashboard");
+      navigate("/dashboard");
     } catch (err) {
       console.error("Sign-in error:", err);
       setError("Unable to sign in. Please try again.");

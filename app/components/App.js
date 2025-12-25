@@ -1,12 +1,11 @@
 import React, { useContext, useEffect } from "react";
-import { Router, Route, Redirect, Switch } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute.js";
 import Dashboard from "./Dashboard.js";
 import ListView from "./ListView.js";
 import SingleView from "./SingleView";
 import Login from "./Login.js";
 import { Context } from "../utilities/store.js";
-import history from "../utilities/history.js";
 import { UserRoles } from "../utilities/constants.js";
 import { getUser } from "../utilities/firebase.js";
 
@@ -35,25 +34,29 @@ export default function App() {
   if (userState === "none" || userState === "fetching") return null;
 
   return (
-    <Router history={history}>
-      <Switch>
-        <Route exact path="/" component={ListView} />
-        <Route path="/recipe/:recipeId" component={SingleView} />
-        <Route path="/login" component={Login} />
-        <PrivateRoute
-          user={user}
-          roles={[UserRoles.ADMIN]}
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<ListView />} />
+        <Route path="/recipe/:recipeId" element={<SingleView />} />
+        <Route path="/login" element={<Login />} />
+        <Route
           path="/dashboard/:recipeId"
-          component={Dashboard}
+          element={
+            <PrivateRoute user={user} roles={[UserRoles.ADMIN]}>
+              <Dashboard />
+            </PrivateRoute>
+          }
         />
-        <PrivateRoute
-          user={user}
-          roles={[UserRoles.ADMIN]}
+        <Route
           path="/dashboard"
-          component={Dashboard}
+          element={
+            <PrivateRoute user={user} roles={[UserRoles.ADMIN]}>
+              <Dashboard />
+            </PrivateRoute>
+          }
         />
-        <Redirect from="*" to="/" />
-      </Switch>
-    </Router>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

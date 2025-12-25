@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import PropTypes from "prop-types";
+import { useParams, useNavigate } from "react-router-dom";
 import uniqueId from "lodash/uniqueId";
 import differenceWith from "lodash/differenceWith";
 import Row from "antd/es/row";
@@ -25,7 +25,6 @@ import {
   deleteRecipe
 } from "../utilities/firebase.js";
 import { Context } from "../utilities/store.js";
-import history from "../utilities/history.js";
 import Messages from "../messages.json";
 import "./Dashboard.css";
 
@@ -48,7 +47,9 @@ async function compressImage(image) {
   return { ...image, originFileObj: compressedFile };
 }
 
-export default function Dashboard({ match }) {
+export default function Dashboard() {
+  const { recipeId } = useParams();
+  const navigate = useNavigate();
   const [, dispatch] = useContext(Context);
   const [currentRecipe, setCurrentRecipe] = useState(null);
   const [newRecipeId, setNewRecipeId] = useState(uniqueId());
@@ -58,8 +59,8 @@ export default function Dashboard({ match }) {
   const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
-    if (match.params.recipeId) {
-      getRecipeById(match.params.recipeId)
+    if (recipeId) {
+      getRecipeById(recipeId)
         .then((fetchedRecipe) => setCurrentRecipe(fetchedRecipe))
         .catch((err) => console.log("Unable to fetch recipe with id", err));
     } else {
@@ -67,7 +68,7 @@ export default function Dashboard({ match }) {
     }
 
     scrollTo(0, 0);
-  }, [match.params.recipeId]);
+  }, [recipeId]);
 
   useEffect(() => {
     fetchRecipes();
@@ -139,7 +140,7 @@ export default function Dashboard({ match }) {
       await signOut(auth);
       localStorage.removeItem("userId");
       dispatch({ type: "SET_GUEST_USER" });
-      history.push("/login");
+      navigate("/login");
     } catch (err) {
       message.error(messages.notification_failure);
     }
@@ -174,18 +175,18 @@ export default function Dashboard({ match }) {
 
   function goToDashboard(id) {
     if (!id) {
-      history.push("/dashboard");
+      navigate("/dashboard");
     } else {
-      history.push(`/dashboard/${id}`);
+      navigate(`/dashboard/${id}`);
     }
   }
 
   function handlePreview(recipe) {
-    history.push(`/recipe/${recipe.id}`);
+    navigate(`/recipe/${recipe.id}`);
   }
 
   function handleHome() {
-    history.push("/");
+    navigate("/");
   }
 
   return (
@@ -195,7 +196,7 @@ export default function Dashboard({ match }) {
         <Button shape="circle" icon={<LogoutOutlined />} size="large" onClick={handleSignOut} />
       </Header>
       <div className="dashboard__content">
-        <Row type="flex" justify="center" gutter={16}>
+        <Row justify="center" gutter={16}>
           <Col xs={24} sm={14}>
             <RecipeForm
               key={currentRecipe ? currentRecipe.id : newRecipeId}
@@ -232,10 +233,3 @@ export default function Dashboard({ match }) {
   );
 }
 
-Dashboard.propTypes = {
-  match: PropTypes.shape({
-    params: PropTypes.shape({
-      recipeId: PropTypes.string
-    })
-  })
-};

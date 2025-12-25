@@ -1,13 +1,12 @@
 import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "antd/es/button";
 import { EditOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
 import useSearchRecipes from "../utilities/useSearchRecipes";
 import Header from "./Header.js";
 import Footer from "./Footer.js";
 import Messages from "../messages.json";
 import { getRecipes } from "../utilities/firebase.js";
-import history from "../utilities/history.js";
 import "./ListView.css";
 
 const messages = Messages["ru_RU"];
@@ -27,6 +26,7 @@ function getItemImage(item) {
 }
 
 export default function ListView() {
+  const navigate = useNavigate();
   const [results, handleSearchRecipes, setSearchRecipes] = useSearchRecipes([]);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function ListView() {
   }, []);
 
   function handleEdit() {
-    history.push("/dashboard");
+    navigate("/dashboard");
   }
 
   return (
