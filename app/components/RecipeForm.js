@@ -18,7 +18,7 @@ const FormItem = Form.Item;
 const { TextArea } = Input;
 const Option = Select.Option;
 const filterInput = (input, option) =>
-  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 
 function RecipeFormInner({
   recipe,
