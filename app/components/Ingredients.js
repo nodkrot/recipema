@@ -26,8 +26,7 @@ const units = [
   "milliliter",
   "taste"
 ];
-const filterInput = (input, option) =>
-  option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+const filterInput = (input, option) => option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 
 Ingredients.propTypes = {
   ingredients: PropTypes.array.isRequired,
@@ -35,18 +34,21 @@ Ingredients.propTypes = {
   form: PropTypes.shape({
     setFieldsValue: PropTypes.func.isRequired,
     getFieldValue: PropTypes.func.isRequired
-  })
+  }),
+  onRemove: PropTypes.func.isRequired
 };
 
 export default function Ingredients({
   ingredients,
   ingredientList,
-  form: { setFieldsValue, getFieldValue }
+  form: { setFieldsValue, getFieldValue },
+  onRemove
 }) {
   function handleRemove(k) {
-    const keys = getFieldValue("ingredientsKeys");
+    const currentIngredients = getFieldValue("ingredients") || ingredients;
 
-    setFieldsValue({ ingredientsKeys: keys.filter((_, i) => i !== k) });
+    setFieldsValue({ ingredients: currentIngredients.filter((_, i) => i !== k) });
+    onRemove(k);
   }
 
   return (

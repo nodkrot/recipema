@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { PlusOutlined, EyeOutlined, SaveOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EyeOutlined,
+  SaveOutlined,
+  CloudSyncOutlined,
+  CheckCircleOutlined
+} from "@ant-design/icons";
 import Form from "antd/es/form";
 import Input from "antd/es/input";
 import Button from "antd/es/button";
@@ -27,6 +33,8 @@ function RecipeFormInner({
   onPreview,
   ingredientList,
   isLoading,
+  isAutoSaving,
+  lastAutoSaved,
   form,
   onValuesChange
 }) {
@@ -62,6 +70,14 @@ function RecipeFormInner({
     }
   }
 
+  function handleRemoveField(field, index) {
+    if (field === "ingredientsKeys") {
+      setIngredientsKeys(ingredientsKeys.filter((_, i) => i !== index));
+    } else if (field === "directionsKeys") {
+      setDirectionsKeys(directionsKeys.filter((_, i) => i !== index));
+    }
+  }
+
   function handlePreview() {
     onPreview(recipe);
   }
@@ -77,11 +93,43 @@ function RecipeFormInner({
       });
   }
 
+  function getAutoSaveText() {
+    if (isAutoSaving) {
+      return messages.autosave_saving;
+    }
+    if (lastAutoSaved) {
+      const now = new Date();
+      const diff = Math.floor((now - lastAutoSaved) / 1000);
+      if (diff < 60) {
+        return messages.autosave_saved_just_now;
+      } else if (diff < 3600) {
+        const minutes = Math.floor(diff / 60);
+        return messages.autosave_saved_minutes_ago.replace("$a", minutes);
+      }
+    }
+    return null;
+  }
+
   return (
-    <Form form={form} onFinish={handleSubmit} onValuesChange={onValuesChange} className="recipe-form">
+    <Form
+      form={form}
+      onFinish={handleSubmit}
+      onValuesChange={onValuesChange}
+      className="recipe-form"
+    >
       <h1 className="recipe-form__title">
         {recipe ? recipe.name : messages.app_form_title}
         <div className="recipe-form__actions">
+          {recipe && getAutoSaveText() && (
+            <span className="recipe-form__autosave">
+              {isAutoSaving ? (
+                <CloudSyncOutlined spin style={{ marginRight: 8 }} />
+              ) : (
+                <CheckCircleOutlined style={{ marginRight: 8, color: "#52c41a" }} />
+              )}
+              {getAutoSaveText()}
+            </span>
+          )}
           {recipe && onPreview && (
             <Button shape="circle" icon={<EyeOutlined />} size="large" onClick={handlePreview} />
           )}{" "}
@@ -97,10 +145,7 @@ function RecipeFormInner({
           )}
         </div>
       </h1>
-      <FormItem
-        name="name"
-        rules={[{ required: true, message: messages.recipe_form_name_error }]}
-      >
+      <FormItem name="name" rules={[{ required: true, message: messages.recipe_form_name_error }]}>
         <Input size="large" placeholder={messages.recipe_form_name} />
       </FormItem>
       <FormItem
@@ -146,6 +191,7 @@ function RecipeFormInner({
         ingredients={ingredientsKeys}
         ingredientList={ingredientList}
         form={form}
+        onRemove={(index) => handleRemoveField("ingredientsKeys", index)}
       />
       <FormItem>
         <Button block size="large" type="dashed" onClick={() => handleAddField("ingredientsKeys")}>
@@ -153,7 +199,11 @@ function RecipeFormInner({
         </Button>
       </FormItem>
       <h3>{messages.recipe_form_title_direction}</h3>
-      <Directions directions={directionsKeys} form={form} />
+      <Directions
+        directions={directionsKeys}
+        form={form}
+        onRemove={(index) => handleRemoveField("directionsKeys", index)}
+      />
       <FormItem>
         <Button block size="large" type="dashed" onClick={() => handleAddField("directionsKeys")}>
           <PlusOutlined /> {messages.recipe_form_add_direction}
@@ -170,6 +220,8 @@ function RecipeFormInner({
 
 RecipeFormInner.propTypes = {
   isLoading: PropTypes.bool,
+  isAutoSaving: PropTypes.bool,
+  lastAutoSaved: PropTypes.instanceOf(Date),
   onSubmit: PropTypes.func.isRequired,
   onPreview: PropTypes.func,
   onValuesChange: PropTypes.func,
@@ -217,14 +269,14 @@ export default function RecipeForm(props) {
     }
   };
 
-  return (
-    <RecipeFormInner {...props} form={form} onValuesChange={handleValuesChange} />
-  );
+  return <RecipeFormInner {...props} form={form} onValuesChange={handleValuesChange} />;
 }
 
 RecipeForm.propTypes = {
   onChange: PropTypes.func,
   isLoading: PropTypes.bool,
+  isAutoSaving: PropTypes.bool,
+  lastAutoSaved: PropTypes.instanceOf(Date),
   onSubmit: PropTypes.func.isRequired,
   onPreview: PropTypes.func,
   recipes: PropTypes.array,

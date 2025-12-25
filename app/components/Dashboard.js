@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import uniqueId from "lodash/uniqueId";
 import differenceWith from "lodash/differenceWith";
+import debounce from "lodash/debounce";
 import Row from "antd/es/row";
 import Col from "antd/es/col";
 import Button from "antd/es/button";
@@ -57,6 +58,9 @@ export default function Dashboard() {
   const [rawIngredients, setRawIngredients] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [lastAutoSaved, setLastAutoSaved] = useState(null);
+  const pendingChangesRef = useRef(null);
 
   useEffect(() => {
     if (recipeId) {
@@ -135,6 +139,53 @@ export default function Dashboard() {
     }
   }
 
+  // Auto-save function for existing recipes
+  async function performAutoSave(recipeForm, recipeId, currentRecipes) {
+    setIsAutoSaving(true);
+
+    try {
+      // For auto-save, we don't process new images to avoid excessive uploads
+      // We only save the gallery references that already exist
+      const existingGallery = recipeForm.gallery.filter((image) => !image.originFileObj);
+
+      const finalRecipeForm = Object.assign({}, recipeForm, {
+        gallery: existingGallery
+      });
+
+      const recipe = await updateRecipe(recipeId, finalRecipeForm);
+      const updatedRecipes = currentRecipes.map((item) => (item.id === recipe.id ? recipe : item));
+
+      setCurrentRecipe(recipe);
+      setRecipes(updatedRecipes);
+      setLastAutoSaved(new Date());
+    } catch (err) {
+      console.error("Auto-save failed:", err);
+      // Don't show error message for auto-save failures to avoid interrupting the user
+    } finally {
+      setIsAutoSaving(false);
+    }
+  }
+
+  const debouncedAutoSave = useRef(
+    debounce((recipeForm, recipeId, currentRecipes) => {
+      performAutoSave(recipeForm, recipeId, currentRecipes);
+    }, 1000)
+  ).current;
+
+  // Handle form changes
+  function handleFormChange(recipeForm) {
+    // Only auto-save for existing recipes
+    if (!currentRecipe) {
+      return;
+    }
+
+    // Store pending changes
+    pendingChangesRef.current = recipeForm;
+
+    // Trigger debounced auto-save with current values
+    debouncedAutoSave(recipeForm, currentRecipe.id, recipes);
+  }
+
   async function handleSignOut() {
     try {
       await signOut(auth);
@@ -205,7 +256,10 @@ export default function Dashboard() {
               ingredientList={rawIngredients}
               onSubmit={handleSubmit}
               onPreview={handlePreview}
+              onChange={handleFormChange}
               isLoading={isSaving}
+              isAutoSaving={isAutoSaving}
+              lastAutoSaved={lastAutoSaved}
             />
           </Col>
           <Col xs={24} sm={10}>
@@ -232,4 +286,3 @@ export default function Dashboard() {
     </div>
   );
 }
-

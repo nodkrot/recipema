@@ -16,14 +16,20 @@ Directions.propTypes = {
   form: PropTypes.shape({
     setFieldsValue: PropTypes.func.isRequired,
     getFieldValue: PropTypes.func.isRequired
-  })
+  }),
+  onRemove: PropTypes.func.isRequired
 };
 
-export default function Directions({ directions, form: { setFieldsValue, getFieldValue } }) {
+export default function Directions({
+  directions,
+  form: { setFieldsValue, getFieldValue },
+  onRemove
+}) {
   function handleRemove(k) {
-    const keys = getFieldValue("directionsKeys");
+    const currentDirections = getFieldValue("directions") || directions;
 
-    setFieldsValue({ directionsKeys: keys.filter((_, i) => i !== k) });
+    setFieldsValue({ directions: currentDirections.filter((_, i) => i !== k) });
+    onRemove(k);
   }
 
   return (
