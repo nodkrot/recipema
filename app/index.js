@@ -10,8 +10,3 @@ root.render(
     <App />
   </Store>
 );
-
-// Hot Module Replacement
-if (module.hot) {
-  module.hot.accept();
-}

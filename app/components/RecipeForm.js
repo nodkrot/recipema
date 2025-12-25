@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { PlusOutlined, EyeOutlined, SaveOutlined } from "@ant-design/icons";
 import Form from "antd/es/form";
@@ -27,15 +27,26 @@ function RecipeFormInner({
   onPreview,
   ingredientList,
   isLoading,
-  form
+  form,
+  onValuesChange
 }) {
-  const { getFieldValue, setFieldsValue, validateFields } = form;
+  const { setFieldsValue, validateFields } = form;
+
+  // Use local state for managing dynamic field keys
+  const [ingredientsKeys, setIngredientsKeys] = useState(get(recipe, "ingredients", [{}]));
+  const [directionsKeys, setDirectionsKeys] = useState(get(recipe, "directions", [{}]));
 
   // Initialize form fields
   useEffect(() => {
+    const ingredients = get(recipe, "ingredients", [{}]);
+    const directions = get(recipe, "directions", [{}]);
+
+    setIngredientsKeys(ingredients);
+    setDirectionsKeys(directions);
+
     form.setFieldsValue({
-      ingredientsKeys: get(recipe, "ingredients", [{}]),
-      directionsKeys: get(recipe, "directions", [{}]),
+      ingredients: ingredients,
+      directions: directions,
       name: get(recipe, "name"),
       description: get(recipe, "description", ""),
       pairings: get(recipe, "pairings", []),
@@ -43,12 +54,12 @@ function RecipeFormInner({
     });
   }, [recipe, form]);
 
-  const ingredientsKeys = getFieldValue("ingredientsKeys") || [{}];
-  const directionsKeys = getFieldValue("directionsKeys") || [{}];
-
   function handleAddField(field) {
-    const keys = getFieldValue(field) || [];
-    setFieldsValue({ [field]: keys.concat(keys.length) });
+    if (field === "ingredientsKeys") {
+      setIngredientsKeys([...ingredientsKeys, {}]);
+    } else if (field === "directionsKeys") {
+      setDirectionsKeys([...directionsKeys, {}]);
+    }
   }
 
   function handlePreview() {
@@ -67,7 +78,7 @@ function RecipeFormInner({
   }
 
   return (
-    <Form form={form} onFinish={handleSubmit} className="recipe-form">
+    <Form form={form} onFinish={handleSubmit} onValuesChange={onValuesChange} className="recipe-form">
       <h1 className="recipe-form__title">
         {recipe ? recipe.name : messages.app_form_title}
         <div className="recipe-form__actions">
@@ -161,6 +172,7 @@ RecipeFormInner.propTypes = {
   isLoading: PropTypes.bool,
   onSubmit: PropTypes.func.isRequired,
   onPreview: PropTypes.func,
+  onValuesChange: PropTypes.func,
   form: PropTypes.object.isRequired,
   recipes: PropTypes.array,
   ingredientList: PropTypes.arrayOf(PropTypes.string),
@@ -206,9 +218,7 @@ export default function RecipeForm(props) {
   };
 
   return (
-    <Form form={form} onValuesChange={handleValuesChange}>
-      <RecipeFormInner {...props} form={form} />
-    </Form>
+    <RecipeFormInner {...props} form={form} onValuesChange={handleValuesChange} />
   );
 }
 
