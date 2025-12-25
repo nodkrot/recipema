@@ -8,5 +8,6 @@
 .header .header__logo {
   font-family: 'Rochester', cursive;
   text-decoration: none;
+  color: inherit;
   font-size: 36px;
 }
