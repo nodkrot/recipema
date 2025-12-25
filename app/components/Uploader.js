@@ -76,7 +76,7 @@ export default function Uploader({ gallery }) {
         width="82%"
         footer={null}
         open={previewVisible}
-        bodyStyle={{ textAlign: "center" }}
+        styles={{ body: { textAlign: "center" } }}
         onCancel={handleCancel}
       >
         <img alt="example" style={{ maxWidth: "100%" }} src={previewImage} />

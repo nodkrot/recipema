@@ -27,7 +27,7 @@ const units = [
   "taste"
 ];
 const filterInput = (input, option) =>
-  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+  option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 
 Ingredients.propTypes = {
   ingredients: PropTypes.array.isRequired,
@@ -100,7 +100,7 @@ export default function Ingredients({
               size="large"
               placeholder={messages.recipe_form_ingredient_name}
               filterOption={filterInput}
-              dataSource={ingredientList}
+              options={ingredientList.map((item) => ({ value: item }))}
             />
           </FormItem>
           {i > 0 && (
