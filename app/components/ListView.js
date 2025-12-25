@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Button from "antd/es/button";
+import { EditOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import useSearchRecipes from "../utilities/useSearchRecipes";
 import Header from "./Header.js";
@@ -42,7 +43,7 @@ export default function ListView() {
     <div className="list-view">
       <div className="list-view__container">
         <Header>
-          <Button shape="circle" icon="edit" size="large" onClick={handleEdit} />
+          <Button shape="circle" icon={<EditOutlined />} size="large" onClick={handleEdit} />
         </Header>
         <h1 className="list-view__title">{messages.app_list_title}</h1>
         <input

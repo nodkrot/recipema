@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/es/button";
+import { EditOutlined } from "@ant-design/icons";
 import PageHeader from "antd/es/page-header";
 import Carousel from "antd/es/carousel";
 import Header from "./Header.js";
@@ -58,7 +59,7 @@ export default function SingleView({ match, location: { state = {} } }) {
     <div className="single-view">
       <div className="single-view__container">
         <Header>
-          <Button shape="circle" icon="edit" size="large" onClick={handleEdit} />
+          <Button shape="circle" icon={<EditOutlined />} size="large" onClick={handleEdit} />
         </Header>
         <PageHeader onBack={() => history.goBack()} title={recipe.name} />
       </div>

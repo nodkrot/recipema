@@ -5,6 +5,7 @@
   "license": "MIT",
   "repository": "https://github.com/nodkrot/recipema",
   "author": "Vyacheslav Alayev",
+  "type": "module",
   "scripts": {
     "start": "parcel ./app/index.html",
     "build": "parcel build app/index.html --no-source-maps --no-cache",
@@ -18,16 +19,18 @@
     "trailingComma": "none"
   },
   "dependencies": {
-    "antd": "^3.26.20",
+    "@ant-design/icons": "^6.1.0",
+    "antd": "^4.24.16",
+    "axios": "^1.9.0",
     "browser-image-compression": "^1.0.14",
-    "firebase": "^11.6.1",
+    "firebase": "^12.7.0",
+    "firestore-export-import": "^1.6.0",
     "fuse.js": "^6.4.6",
     "history": "^4.10.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-firebaseui": "^6.0.0",
-    "react-router-cache-route": "^1.11.0",
-    "react-router-dom": "^5.2.0"
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "react-router": "^5.3.4",
+    "react-router-dom": "^5.3.4"
   },
   "devDependencies": {
     "@babel/core": "^7.14.0",

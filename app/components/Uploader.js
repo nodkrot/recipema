@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import Icon from "antd/es/icon";
+import { UploadOutlined } from "@ant-design/icons";
 import Form from "antd/es/form";
 import Upload from "antd/es/upload";
 import Button from "antd/es/button";
@@ -35,12 +35,10 @@ function sanitizeFiles({ file, fileList }) {
 
 Uploader.propTypes = {
   gallery: PropTypes.array.isRequired,
-  form: PropTypes.shape({
-    getFieldDecorator: PropTypes.func.isRequired
-  })
+  form: PropTypes.object
 };
 
-export default function Uploader({ gallery, form: { getFieldDecorator } }) {
+export default function Uploader({ gallery }) {
   const [previewImage, setPreviewImage] = useState(null);
   const [previewVisible, setPreviewVisible] = useState(false);
 
@@ -57,28 +55,27 @@ export default function Uploader({ gallery, form: { getFieldDecorator } }) {
 
   return (
     <div className="uploader">
-      <FormItem>
-        {getFieldDecorator("gallery", {
-          valuePropName: "fileList",
-          initialValue: gallery,
-          getValueFromEvent: sanitizeFiles
-        })(
-          <Upload listType="picture" onPreview={handlePreview} beforeUpload={() => false} multiple>
-            <Button size="large">
-              <Icon type="upload" /> {messages.upload_button}
-            </Button>
-          </Upload>
-        )}
-        <Modal
-          width="82%"
-          footer={null}
-          visible={previewVisible}
-          bodyStyle={{ textAlign: "center" }}
-          onCancel={handleCancel}
-        >
-          <img alt="example" style={{ maxWidth: "100%" }} src={previewImage} />
-        </Modal>
+      <FormItem
+        name="gallery"
+        valuePropName="fileList"
+        initialValue={gallery}
+        getValueFromEvent={sanitizeFiles}
+      >
+        <Upload listType="picture" onPreview={handlePreview} beforeUpload={() => false} multiple>
+          <Button size="large">
+            <UploadOutlined /> {messages.upload_button}
+          </Button>
+        </Upload>
       </FormItem>
+      <Modal
+        width="82%"
+        footer={null}
+        visible={previewVisible}
+        bodyStyle={{ textAlign: "center" }}
+        onCancel={handleCancel}
+      >
+        <img alt="example" style={{ maxWidth: "100%" }} src={previewImage} />
+      </Modal>
     </div>
   );
 }

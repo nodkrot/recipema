@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import {
   getFirestore,
   doc,
@@ -10,7 +10,7 @@ import {
   getDocs,
   orderBy,
   deleteDoc,
-  query,
+  query
 } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
@@ -23,36 +23,49 @@ const firebaseConfig = {
   messagingSenderId: process.env.FB_MESSAGEING_SENDER_ID
 };
 
-firebase.apps.length ? firebase.app() : firebase.initializeApp(config);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
+// Initialize services
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+
+// User functions
 export async function getUser(id) {
-  const doc = await db.collection("users").doc(id).get();
+  const userDocRef = doc(db, "users", id);
+  const userDoc = await getDoc(userDocRef);
 
-  if (doc.exists) {
-    return doc.data();
+  if (userDoc.exists()) {
+    return userDoc.data();
   }
 
   return null;
 }
 
 export async function upsertUser(user) {
-  await db.collection("users").doc(user.uid).set(user, { merge: true });
+  const userDocRef = doc(db, "users", user.uid);
+  await setDoc(userDocRef, user, { merge: true });
 
   return user;
 }
 
+// Recipe functions
 export async function getRecipeById(id) {
-  const doc = await db.collection("recipes").doc(id).get();
+  const recipeDocRef = doc(db, "recipes", id);
+  const recipeDoc = await getDoc(recipeDocRef);
 
-  if (doc.exists) {
-    return Object.assign({ id: doc.id }, doc.data());
+  if (recipeDoc.exists()) {
+    return Object.assign({ id: recipeDoc.id }, recipeDoc.data());
   }
 
   return null;
 }
 
 export async function getRecipes() {
-  const querySnapshot = await db.collection("recipes").orderBy("createdAt", "desc").get();
+  const recipesRef = collection(db, "recipes");
+  const q = query(recipesRef, orderBy("createdAt", "desc"));
+  const querySnapshot = await getDocs(q);
   const recipes = [];
 
   querySnapshot.forEach((recipeDoc) => {
@@ -65,51 +78,53 @@ export async function getRecipes() {
 export async function createRecipe(recipe) {
   const newRecipe = Object.assign({}, recipe, {
     createdAt: new Date().toISOString(),
-    authorId: firebase.auth().currentUser.uid
+    authorId: auth.currentUser.uid
   });
-  const recipeRef = await db.collection("recipes").add(newRecipe);
+  const recipesRef = collection(db, "recipes");
+  const recipeRef = await addDoc(recipesRef, newRecipe);
 
   return Object.assign({ id: recipeRef.id }, newRecipe);
 }
 
 export async function updateRecipe(id, recipe) {
-  await db
-    .collection("recipes")
-    .doc(id)
-    .set(
-      Object.assign({}, recipe, {
-        updatedAt: new Date().toISOString()
-      }),
-      { merge: true }
-    );
+  const recipeDocRef = doc(db, "recipes", id);
+  await setDoc(
+    recipeDocRef,
+    Object.assign({}, recipe, {
+      updatedAt: new Date().toISOString()
+    }),
+    { merge: true }
+  );
 
   return Object.assign({ id }, recipe);
 }
 
 export function deleteRecipe(id) {
-  return db.collection("recipes").doc(id).delete();
+  const recipeDocRef = doc(db, "recipes", id);
+  return deleteDoc(recipeDocRef);
 }
 
+// Image functions
 export async function createImage(image) {
   const fileName = `${image.uid}.${image.name.split(".").pop()}`;
-  const snapshot = await store
-    .ref(`images/${fileName}`)
-    .put(image.originFileObj, { cacheControl: "public,max-age=720" });
-  const downloadURL = await snapshot.ref.getDownloadURL();
+  const storageRef = ref(storage, `images/${fileName}`);
+
+  const snapshot = await uploadBytes(storageRef, image.originFileObj, {
+    cacheControl: "public,max-age=720"
+  });
+
+  const downloadURL = await getDownloadURL(snapshot.ref);
 
   return {
     uid: image.uid,
-    name: snapshot.metadata.name,
+    name: fileName,
     url: downloadURL
   };
 }
 
 export function deleteImage(image) {
-  return store.ref(`images/${image.name}`).delete();
+  const imageRef = ref(storage, `images/${image.name}`);
+  return deleteObject(imageRef);
 }
 
-export const auth = firebase.auth();
-export const db = firebase.firestore();
-export const store = firebase.storage();
-
-export default firebase;
+export default app;

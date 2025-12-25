@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Route, Redirect } from "react-router-dom";
+import { Route, Redirect } from "react-router";
 import { UserRoles } from "../utilities/constants.js";
 
 export default function PrivateRoute({ component: Component, user, roles, ...rest }) {
