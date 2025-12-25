@@ -1,4 +1,18 @@
 /* Global styles */
+*,
+*:after,
+*:before {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
 /* Revert outline from ant design */
 :focus {
   outline: 1px solid #8ac7ff;
