@@ -233,8 +233,8 @@ export default function Dashboard() {
     }
   }
 
-  function handlePreview(recipe) {
-    navigate(`/recipe/${recipe.id}`);
+  function handlePreview() {
+    navigate(`/recipe/${currentRecipe.id}`);
   }
 
   function handleHome() {

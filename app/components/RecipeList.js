@@ -54,7 +54,7 @@ export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
     }
 
     return (
-      <List.Item actions={items}>
+      <List.Item actions={items} onClick={() => onEdit(recipe)}>
         <List.Item.Meta title={recipe.name} description={trimString(recipe.description)} />
       </List.Item>
     );
