@@ -247,7 +247,7 @@ export default function Dashboard() {
     <div className="dashboard">
       <Header path="/dashboard">
         <Flex align="center" justify="end" gap={12}>
-          <Button shape="circle" icon={<EyeOutlined />} size="large" onClick={handlePreview} />
+          {currentRecipe && <Button shape="circle" icon={<EyeOutlined />} size="large" onClick={handlePreview} />}
           <Button shape="circle" icon={<HomeOutlined />} size="large" onClick={handleHome} />
           <Button shape="circle" icon={<LogoutOutlined />} size="large" onClick={handleSignOut} />
         </Flex>
