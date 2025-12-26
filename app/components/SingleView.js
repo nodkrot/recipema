@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import Button from "antd/es/button";
 import { EditOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import Carousel from "antd/es/carousel";
@@ -16,23 +17,32 @@ export default function SingleView() {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state || {};
-  const [recipe, setRecipe] = useState(state.item);
 
-  useEffect(() => {
-    scrollTo(0, 0);
-  }, []);
+  // Fetch recipe using React Query
+  const {
+    data: recipe,
+    isLoading,
+    isError,
+    error
+  } = useQuery({
+    queryKey: ["recipe", recipeId],
+    queryFn: () => getRecipeById(recipeId),
+    initialData: state.item, // Use location state as initial data if available
+    enabled: !!recipeId // Only fetch if recipeId exists
+  });
 
+  // Scroll to top when navigating to a recipe
   useEffect(() => {
-    if (!recipe) {
-      getRecipeById(recipeId)
-        .then((fetchedRecipe) => setRecipe(fetchedRecipe))
-        .catch((err) => console.log("Unable to fetch recipe with id", err));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    window.scrollTo(0, 0);
   }, [recipeId]);
 
   function handleEdit() {
     navigate(`/dashboard/${recipeId}`);
+  }
+
+  // Handle error state
+  if (isError) {
+    console.error("Unable to fetch recipe with id", error);
   }
 
   // function handleNavClick(item) {
@@ -55,7 +65,9 @@ export default function SingleView() {
   //   );
   // }
 
-  if (!recipe) return null;
+  if (isLoading || !recipe) {
+    return null;
+  }
 
   return (
     <div className="single-view">
@@ -109,4 +121,3 @@ export default function SingleView() {
     </div>
   );
 }
-

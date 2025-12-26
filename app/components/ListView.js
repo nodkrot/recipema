@@ -1,10 +1,14 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import Button from "antd/es/button";
+import Spin from "antd/es/spin";
 import { EditOutlined } from "@ant-design/icons";
 import useSearchRecipes from "../utilities/useSearchRecipes";
+import useScrollRestoration from "../utilities/useScrollRestoration";
 import Header from "./Header.js";
 import Footer from "./Footer.js";
+import CachedImage from "./CachedImage.js";
 import Messages from "../messages.json";
 import { getRecipes } from "../utilities/firebase.js";
 import "./ListView.css";
@@ -14,10 +18,11 @@ const messages = Messages["ru_RU"];
 function getItemImage(item) {
   if (item.gallery && item.gallery.length) {
     return (
-      <img
+      <CachedImage
         className="list-view__card-img"
         alt={item.name}
         src={item.gallery[item.gallery.length - 1].url}
+        placeholder={<div className="list-view-card-placeholder">{item.name}</div>}
       />
     );
   }
@@ -29,14 +34,38 @@ export default function ListView() {
   const navigate = useNavigate();
   const [results, handleSearchRecipes, setSearchRecipes] = useSearchRecipes([]);
 
+  // Fetch recipes using React Query
+  const {
+    data: recipes,
+    isLoading,
+    isError,
+    error
+  } = useQuery({
+    queryKey: ["recipes"],
+    queryFn: getRecipes
+  });
+
+  // Update search recipes when data is fetched
   useEffect(() => {
-    getRecipes()
-      .then((recipes) => setSearchRecipes(recipes))
-      .catch((err) => console.log("Cannot fetch recipes", err));
-  }, []);
+    if (recipes) {
+      setSearchRecipes(recipes);
+    }
+  }, [recipes]);
+
+  // Use scroll restoration hook
+  useScrollRestoration(
+    'listview-scroll-position',
+    !isLoading && results.length > 0,
+    [results]
+  );
 
   function handleEdit() {
     navigate("/dashboard");
+  }
+
+  // Handle error state
+  if (isError) {
+    console.error("Cannot fetch recipes", error);
   }
 
   return (
@@ -52,18 +81,21 @@ export default function ListView() {
           placeholder={messages.search_recipe_input}
           onChange={handleSearchRecipes}
           autoComplete="off"
+          disabled={isLoading}
         />
       </div>
       <div className="list-view__cards list-view__container">
-        {results.length ? (
+        {isLoading ? (
+          <div style={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
+            <Spin size="large" />
+          </div>
+        ) : results.length ? (
           results.map((item) => (
             <Link
               key={item.id}
               className="list-view__card"
-              to={{
-                pathname: `/recipe/${item.id}`,
-                state: { item }
-              }}
+              to={`/recipe/${item.id}`}
+              state={{ item }}
             >
               {getItemImage(item)}
               <div className="list-view__card-caption">
