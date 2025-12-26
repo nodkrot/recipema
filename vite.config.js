@@ -43,7 +43,11 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
+        // In dev mode, skip precaching (Vite serves files directly)
+        // In production, precache all static assets
+        globPatterns: mode === 'production'
+          ? ['**/*.{js,css,html,ico,png,svg,webmanifest}']
+          : [],
         runtimeCaching: [
           {
             // Cache Firebase Storage images with a cache-first strategy
