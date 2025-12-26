@@ -15,7 +15,11 @@ self.addEventListener("install", (event) => {
         "/",
         "/index.html",
         "/manifest.webmanifest"
-      ]);
+      ]).then(() => {
+        console.log("Service Worker: Caches opened");
+      }).catch((error) => {
+        console.error("Service Worker: Error opening caches:", error);
+      });
     })
   );
   self.skipWaiting();
