@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import {
-  PlusOutlined,
-  SaveOutlined,
-  CloudSyncOutlined,
-  CheckCircleOutlined
-} from "@ant-design/icons";
+import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import Form from "antd/es/form";
 import Input from "antd/es/input";
 import Button from "antd/es/button";
@@ -33,10 +28,9 @@ function RecipeFormInner({
   isLoading,
   isAutoSaving,
   lastAutoSaved,
-  form,
-  onValuesChange
+  form
 }) {
-  const { setFieldsValue, validateFields } = form;
+  const { validateFields } = form;
 
   // Use local state for managing dynamic field keys
   const [ingredientsKeys, setIngredientsKeys] = useState(get(recipe, "ingredients", [{}]));
@@ -110,7 +104,6 @@ function RecipeFormInner({
     <Form
       form={form}
       onFinish={handleSubmit}
-      onValuesChange={onValuesChange}
       className="recipe-form"
     >
       <h1 className="recipe-form__title">
@@ -214,7 +207,6 @@ RecipeFormInner.propTypes = {
   isAutoSaving: PropTypes.bool,
   lastAutoSaved: PropTypes.instanceOf(Date),
   onSubmit: PropTypes.func.isRequired,
-  onValuesChange: PropTypes.func,
   form: PropTypes.object.isRequired,
   recipes: PropTypes.array,
   ingredientList: PropTypes.arrayOf(PropTypes.string),
@@ -252,14 +244,17 @@ RecipeFormInner.propTypes = {
 // Wrapper component to create form instance and handle onValuesChange
 export default function RecipeForm(props) {
   const [form] = Form.useForm();
+  const values = Form.useWatch([], form);
 
-  const handleValuesChange = (changedValues, allValues) => {
-    if (props.onChange) {
-      props.onChange(omit(allValues, ["ingredientsKeys", "directionsKeys"]));
-    }
-  };
+  useEffect(() => {
+    console.log("values", values);
+    form
+      .validateFields({ validateOnly: true })
+      .then(() => props.onChange(omit(values, ["ingredientsKeys", "directionsKeys"]), true))
+      .catch(() => props.onChange(omit(values, ["ingredientsKeys", "directionsKeys"]), false));
+  }, [form, values]);
 
-  return <RecipeFormInner {...props} form={form} onValuesChange={handleValuesChange} />;
+  return <RecipeFormInner {...props} form={form} />;
 }
 
 RecipeForm.propTypes = {

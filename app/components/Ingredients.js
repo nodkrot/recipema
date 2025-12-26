@@ -8,6 +8,7 @@ import Select from "antd/es/select";
 import AutoComplete from "antd/es/auto-complete";
 import { CloseOutlined } from "@ant-design/icons";
 import Messages from "../messages.json";
+import { Flex } from "antd";
 
 const messages = Messages["ru_RU"];
 const FormItem = Form.Item;
@@ -54,7 +55,7 @@ export default function Ingredients({
   return (
     <>
       {ingredients.map((val, i) => (
-        <div key={i} style={{ display: "flex" }}>
+        <Flex key={i} align="baseline" gap={8}>
           <FormItem
             name={["ingredients", i, "amount", "value"]}
             initialValue={get(val, "amount.value")}
@@ -64,13 +65,13 @@ export default function Ingredients({
                 message: messages.recipe_form_ingredient_qty_error
               }
             ]}
-            style={{ marginRight: 8 }}
           >
             <Input
               size="large"
               type="number"
               placeholder={messages.recipe_form_ingredient_qty}
-              style={{ minWidth: 44 }}
+              style={{ width: 80 }}
+              onClick={(e) => e.target.select()}
             />
           </FormItem>
           <FormItem
@@ -82,7 +83,6 @@ export default function Ingredients({
                 message: messages.recipe_form_ingredient_unit_error
               }
             ]}
-            style={{ width: 140, marginRight: 8 }}
           >
             <Select size="large" placeholder={messages.recipe_form_ingredient_unit}>
               {units.map((u, i) => (
@@ -101,25 +101,24 @@ export default function Ingredients({
                 message: messages.recipe_form_ingredient_name_error
               }
             ]}
-            style={{ flex: "auto" }}
+            style={{
+              width: "100%",
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              whiteSpace: "nowrap"
+            }}
           >
             <AutoComplete
               size="large"
               placeholder={messages.recipe_form_ingredient_name}
               filterOption={filterInput}
               options={ingredientList.map((item) => ({ value: item }))}
-              style={{ minWidth: "144px" }}
             />
           </FormItem>
           {i > 0 && (
-            <Button
-              shape="circle"
-              icon={<CloseOutlined />}
-              className="recipe-form__action"
-              onClick={() => handleRemove(i)}
-            />
+            <Button shape="circle" icon={<CloseOutlined />} onClick={() => handleRemove(i)} />
           )}
-        </div>
+        </Flex>
       ))}
     </>
   );

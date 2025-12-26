@@ -174,7 +174,7 @@ export default function Dashboard() {
   ).current;
 
   // Handle form changes
-  function handleFormChange(recipeForm) {
+  function handleFormChange(recipeForm, isValid) {
     // Only auto-save for existing recipes
     if (!currentRecipe) {
       return;
@@ -183,8 +183,10 @@ export default function Dashboard() {
     // Store pending changes
     pendingChangesRef.current = recipeForm;
 
-    // Trigger debounced auto-save with current values
-    debouncedAutoSave(recipeForm, currentRecipe.id, recipes);
+    // Only trigger auto-save if form is valid
+    if (isValid) {
+      debouncedAutoSave(recipeForm, currentRecipe.id, recipes);
+    }
   }
 
   async function handleSignOut() {
