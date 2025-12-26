@@ -1,6 +1,7 @@
 /**
  * Cache Manager Utility
  * Provides functions to interact with the Service Worker cache
+ * Works with vite-plugin-pwa and Workbox-generated caches
  */
 
 /**
@@ -8,27 +9,35 @@
  * @returns {Promise<boolean>} Success status
  */
 export async function clearAllCaches() {
-  if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
-    return new Promise((resolve) => {
-      const messageChannel = new MessageChannel();
+  if ("caches" in window) {
+    try {
+      const cacheNames = await caches.keys();
+      console.log("Found caches:", cacheNames);
 
-      messageChannel.port1.onmessage = (event) => {
-        if (event.data.success) {
-          console.log("All caches cleared successfully");
-          resolve(true);
-        } else {
-          console.error("Failed to clear caches");
-          resolve(false);
-        }
-      };
-
-      navigator.serviceWorker.controller.postMessage(
-        { type: "CLEAR_CACHE" },
-        [messageChannel.port2]
+      // Delete all caches
+      await Promise.all(
+        cacheNames.map((cacheName) => {
+          console.log("Deleting cache:", cacheName);
+          return caches.delete(cacheName);
+        })
       );
-    });
+
+      console.log("All caches cleared successfully");
+
+      // Unregister service worker to force re-registration on reload
+      if ("serviceWorker" in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((reg) => reg.unregister()));
+        console.log("Service worker unregistered");
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Failed to clear caches:", error);
+      return false;
+    }
   } else {
-    console.warn("Service Worker not available");
+    console.warn("Cache API not available");
     return false;
   }
 }
