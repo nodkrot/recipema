@@ -247,7 +247,6 @@ export default function RecipeForm(props) {
   const values = Form.useWatch([], form);
 
   useEffect(() => {
-    console.log("values", values);
     form
       .validateFields({ validateOnly: true })
       .then(() => props.onChange(omit(values, ["ingredientsKeys", "directionsKeys"]), true))

@@ -24,7 +24,6 @@ export default function SingleView() {
 
   useEffect(() => {
     if (!recipe) {
-      console.log("Fetching new recipe with id", recipeId);
       getRecipeById(recipeId)
         .then((fetchedRecipe) => setRecipe(fetchedRecipe))
         .catch((err) => console.log("Unable to fetch recipe with id", err));

@@ -154,10 +154,9 @@ export default function Dashboard() {
       });
 
       const recipe = await updateRecipe(recipeId, finalRecipeForm);
-      const updatedRecipes = currentRecipes.map((item) => (item.id === recipe.id ? recipe : item));
 
       setCurrentRecipe(recipe);
-      setRecipes(updatedRecipes);
+      setRecipes((prevRecipes) => (prevRecipes.map((item) => (item.id === recipe.id ? recipe : item))));
       setLastAutoSaved(new Date());
     } catch (err) {
       console.error("Auto-save failed:", err);
