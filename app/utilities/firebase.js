@@ -24,9 +24,6 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FB_APP_ID
 };
 
-// Debug: Check if env vars are loaded
-console.log('Firebase config:', import.meta.env);
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
