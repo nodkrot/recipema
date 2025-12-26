@@ -8,7 +8,7 @@ import Col from "antd/es/col";
 import Button from "antd/es/button";
 import Modal from "antd/es/modal";
 import message from "antd/es/message";
-import { HomeOutlined, LogoutOutlined, PlusOutlined } from "@ant-design/icons";
+import { HomeOutlined, LogoutOutlined, PlusOutlined, EyeOutlined } from "@ant-design/icons";
 import imageCompression from "browser-image-compression";
 import { signOut } from "firebase/auth";
 import Header from "./Header.js";
@@ -28,6 +28,7 @@ import {
 import { Context } from "../utilities/store.js";
 import Messages from "../messages.json";
 import "./Dashboard.css";
+import { Flex } from "antd";
 
 const messages = Messages["ru_RU"];
 
@@ -243,8 +244,11 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
       <Header path="/dashboard">
-        <Button shape="circle" icon={<HomeOutlined />} size="large" onClick={handleHome} />{" "}
-        <Button shape="circle" icon={<LogoutOutlined />} size="large" onClick={handleSignOut} />
+        <Flex align="center" justify="end" gap={12}>
+          <Button shape="circle" icon={<EyeOutlined />} size="large" onClick={handlePreview} />
+          <Button shape="circle" icon={<HomeOutlined />} size="large" onClick={handleHome} />
+          <Button shape="circle" icon={<LogoutOutlined />} size="large" onClick={handleSignOut} />
+        </Flex>
       </Header>
       <div className="dashboard__content">
         <Row justify="center" gutter={16}>
@@ -255,7 +259,6 @@ export default function Dashboard() {
               recipes={recipes}
               ingredientList={rawIngredients}
               onSubmit={handleSubmit}
-              onPreview={handlePreview}
               onChange={handleFormChange}
               isLoading={isSaving}
               isAutoSaving={isAutoSaving}

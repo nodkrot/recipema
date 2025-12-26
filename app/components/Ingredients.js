@@ -64,9 +64,14 @@ export default function Ingredients({
                 message: messages.recipe_form_ingredient_qty_error
               }
             ]}
-            style={{ width: 88, marginRight: 8 }}
+            style={{ marginRight: 8 }}
           >
-            <Input size="large" type="number" placeholder={messages.recipe_form_ingredient_qty} />
+            <Input
+              size="large"
+              type="number"
+              placeholder={messages.recipe_form_ingredient_qty}
+              style={{ minWidth: 44 }}
+            />
           </FormItem>
           <FormItem
             name={["ingredients", i, "amount", "unit"]}
@@ -103,6 +108,7 @@ export default function Ingredients({
               placeholder={messages.recipe_form_ingredient_name}
               filterOption={filterInput}
               options={ingredientList.map((item) => ({ value: item }))}
+              style={{ minWidth: "144px" }}
             />
           </FormItem>
           {i > 0 && (

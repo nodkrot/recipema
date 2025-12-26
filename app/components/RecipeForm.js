@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import {
   PlusOutlined,
-  EyeOutlined,
   SaveOutlined,
   CloudSyncOutlined,
   CheckCircleOutlined
@@ -30,7 +29,6 @@ function RecipeFormInner({
   recipe,
   recipes,
   onSubmit,
-  onPreview,
   ingredientList,
   isLoading,
   isAutoSaving,
@@ -78,10 +76,6 @@ function RecipeFormInner({
     }
   }
 
-  function handlePreview() {
-    onPreview(recipe);
-  }
-
   function handleSubmit() {
     validateFields()
       .then((data) => {
@@ -110,6 +104,8 @@ function RecipeFormInner({
     return null;
   }
 
+  const isSaving = isLoading || isAutoSaving;
+
   return (
     <Form
       form={form}
@@ -118,33 +114,28 @@ function RecipeFormInner({
       className="recipe-form"
     >
       <h1 className="recipe-form__title">
-        {recipe ? recipe.name : messages.app_form_title}
-        <div className="recipe-form__actions">
-          {recipe && getAutoSaveText() && (
-            <span className="recipe-form__autosave">
-              {isAutoSaving ? (
-                <CloudSyncOutlined spin style={{ marginRight: 8 }} />
-              ) : (
-                <CheckCircleOutlined style={{ marginRight: 8, color: "#52c41a" }} />
-              )}
-              {getAutoSaveText()}
-            </span>
-          )}
-          {recipe && onPreview && (
-            <Button shape="circle" icon={<EyeOutlined />} size="large" onClick={handlePreview} />
-          )}{" "}
-          {recipe && (
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<SaveOutlined />}
-              size="large"
-              loading={isLoading}
-              onClick={handleSubmit}
-            />
-          )}
-        </div>
+        {recipe ? recipe.name : messages.app_form_title}{" "}
+        {recipe && (
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<SaveOutlined />}
+            size="large"
+            loading={isSaving}
+            onClick={handleSubmit}
+          />
+        )}
       </h1>
+      {/* {recipe && getAutoSaveText() && (
+        <p className="recipe-form__autosave">
+          {isAutoSaving ? (
+            <CloudSyncOutlined spin style={{ marginRight: 8 }} />
+          ) : (
+            <CheckCircleOutlined style={{ marginRight: 8, color: "#52c41a" }} />
+          )}
+          {getAutoSaveText()}
+        </p>
+      )} */}
       <FormItem name="name" rules={[{ required: true, message: messages.recipe_form_name_error }]}>
         <Input size="large" placeholder={messages.recipe_form_name} />
       </FormItem>
@@ -210,7 +201,7 @@ function RecipeFormInner({
         </Button>
       </FormItem>
       <FormItem>
-        <Button block size="large" type="primary" loading={isLoading} onClick={handleSubmit}>
+        <Button block size="large" type="primary" loading={isSaving} onClick={handleSubmit}>
           {messages.recipe_form_submit}
         </Button>
       </FormItem>
@@ -223,7 +214,6 @@ RecipeFormInner.propTypes = {
   isAutoSaving: PropTypes.bool,
   lastAutoSaved: PropTypes.instanceOf(Date),
   onSubmit: PropTypes.func.isRequired,
-  onPreview: PropTypes.func,
   onValuesChange: PropTypes.func,
   form: PropTypes.object.isRequired,
   recipes: PropTypes.array,
@@ -278,7 +268,6 @@ RecipeForm.propTypes = {
   isAutoSaving: PropTypes.bool,
   lastAutoSaved: PropTypes.instanceOf(Date),
   onSubmit: PropTypes.func.isRequired,
-  onPreview: PropTypes.func,
   recipes: PropTypes.array,
   ingredientList: PropTypes.arrayOf(PropTypes.string),
   recipe: PropTypes.object
