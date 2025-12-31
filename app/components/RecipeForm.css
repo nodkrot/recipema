@@ -1,7 +1,31 @@
+.recipe-form {
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  border-top: 3px solid #ff6b6b;
+}
+
+.recipe-form:hover {
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
 .recipe-form .recipe-form__title {
   margin-top: 0;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  font-size: 22px;
+  font-weight: 600;
+  color: #2c3e50;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f5f5f5;
+  margin-bottom: 24px;
 }
 
 .recipe-form__actions {
@@ -9,26 +33,96 @@
   align-items: flex-end;
   justify-content: flex-end;
   gap: 12px;
+  padding-top: 24px;
+  border-top: 2px solid #f5f5f5;
+  margin-top: 24px;
+}
+
+.recipe-form__actions button[type="submit"] {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  border: none;
+  height: 44px;
+  padding: 0 32px;
+  font-size: 16px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  transition: all 0.3s ease;
+}
+
+.recipe-form__actions button[type="submit"]:hover {
+  background: linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
 }
 
 .recipe-form__autosave {
-  font-size: 14px;
-  color: #666;
+  font-size: 13px;
+  color: #52c41a;
   display: flex;
   align-items: center;
   white-space: nowrap;
+  padding: 8px 16px;
+  background: rgba(82, 196, 26, 0.08);
+  border-radius: 8px;
+  font-weight: 500;
 }
 
 .recipe-form .recipe-form__step-count {
-  font-size: 16px;
-  padding: 4px 8px 0 0;
+  font-size: 15px;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  font-weight: 500;
+  color: #666;
 }
 
 .recipe-form .recipe-form__action {
   margin-left: 8px;
   flex: 0 0 32px;
+  transition: all 0.3s ease;
+}
+
+.recipe-form .recipe-form__action:hover {
+  transform: scale(1.1);
 }
 
 .recipe-form .ant-select-auto-complete.ant-select .ant-select-selection--single {
   height: 40px;
+}
+
+.recipe-form .ant-input,
+.recipe-form .ant-input-number,
+.recipe-form .ant-select-selector {
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.recipe-form .ant-input:focus,
+.recipe-form .ant-input-number:focus,
+.recipe-form .ant-select-selector:focus {
+  border-color: #ff6b6b;
+  box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.1);
+}
+
+.recipe-form .ant-form-item-label > label {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+@media only screen and (max-width: 768px) {
+  .recipe-form {
+    padding: 24px 20px;
+  }
+
+  .recipe-form .recipe-form__title {
+    font-size: 20px;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+  }
+
+  .recipe-form__actions {
+    padding-top: 20px;
+    margin-top: 20px;
+  }
 }

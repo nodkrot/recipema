@@ -1,20 +1,144 @@
 .dashboard {
-  padding: 0 44px;
+  padding: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fdfbfb 0%, #f8f4f0 100%);
+  position: relative;
+}
+
+.dashboard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 50%, #f06595 100%);
+  opacity: 0.05;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .dashboard__content {
-  padding: 28px 0;
+  padding: 40px 60px;
+  max-width: 1600px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .dashboard__title {
   display: flex;
   justify-content: space-between;
-  margin-top: 0;
+  align-items: center;
+  margin: 0 0 24px 0;
+  padding: 20px 28px;
+  background: white;
+  border-radius: 16px;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.06);
+  font-size: 24px;
+  font-weight: 600;
+  color: #2c3e50;
+  border-left: 4px solid #ff6b6b;
+  transition: all 0.3s ease;
 }
 
+.dashboard__title button {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  border: none;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  transition: all 0.3s ease;
+}
 
-@media only screen and (max-width : 768px) {
-  .dashboard {
-    padding: 0 20px;
+.dashboard__title button:hover {
+  background: linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%);
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+}
+
+/* Style the recipe form column */
+.dashboard .ant-col:first-child {
+  padding-right: 16px;
+}
+
+.dashboard .ant-col:last-child {
+  padding-left: 16px;
+}
+
+/* Add subtle animation for content */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dashboard__content > .ant-row {
+  animation: fadeInUp 0.6s ease;
+}
+
+/* Enhanced header buttons */
+.dashboard header button {
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard header button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Responsive adjustments */
+@media only screen and (max-width: 992px) {
+  .dashboard__content {
+    padding: 32px 40px;
+  }
+
+  .dashboard .ant-col:first-child,
+  .dashboard .ant-col:last-child {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .dashboard__title {
+    font-size: 22px;
+    padding: 18px 24px;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .dashboard__content {
+    padding: 24px 20px;
+  }
+
+  .dashboard .ant-col:first-child {
+    padding-right: 0;
+    margin-bottom: 24px;
+  }
+
+  .dashboard .ant-col:last-child {
+    padding-left: 0;
+  }
+
+  .dashboard__title {
+    font-size: 20px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+}
+
+@media only screen and (max-width: 576px) {
+  .dashboard__content {
+    padding: 20px 16px;
+  }
+
+  .dashboard__title {
+    font-size: 18px;
+    padding: 14px 18px;
   }
 }

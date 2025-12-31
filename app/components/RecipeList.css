@@ -1,7 +1,78 @@
+.recipe-list {
+  background: white;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.06);
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+  transition: all 0.3s ease;
+}
+
 .recipe-list__search {
-  margin-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.recipe-list__search input {
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+  padding: 12px 16px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.recipe-list__search input:focus {
+  border-color: #ff6b6b;
 }
 
 .recipe-list .ant-input-affix-wrapper .ant-input {
   min-height: auto;
+}
+
+.recipe-list .ant-list {
+  border: none;
+}
+
+.recipe-list .ant-list-item {
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  background: #fafafa;
+  cursor: default;
+}
+
+.recipe-list .ant-list-item:hover {
+  background: white;
+  border-color: #ff6b6b;
+}
+
+.recipe-list .ant-list-item-meta-title {
+  color: #2c3e50;
+  font-weight: 500;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+.recipe-list .ant-list-item:hover .ant-list-item-meta-title {
+  color: #ff6b6b;
+}
+
+.recipe-list .ant-list-empty-text {
+  padding: 40px 20px;
+  color: #999;
+  font-size: 15px;
+}
+
+@media only screen and (max-width: 768px) {
+  .recipe-list {
+    padding: 20px;
+    max-height: 500px;
+  }
+
+  .recipe-list__search {
+    margin-bottom: 16px;
+  }
 }

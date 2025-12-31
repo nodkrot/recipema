@@ -70,10 +70,10 @@ export default function ListView() {
 
   return (
     <div className="list-view">
+      <Header>
+        <Button shape="circle" icon={<EditOutlined />} size="large" onClick={handleEdit} />
+      </Header>
       <div className="list-view__container">
-        <Header>
-          <Button shape="circle" icon={<EditOutlined />} size="large" onClick={handleEdit} />
-        </Header>
         <h1 className="list-view__title">{messages.app_list_title}</h1>
         <input
           className="list-view__search"
@@ -108,9 +108,7 @@ export default function ListView() {
           <p className="list-view__no-results">{messages.recipe_list_no_data}</p>
         )}
       </div>
-      <div className="list-view__container">
-        <Footer />
-      </div>
+      <Footer />
     </div>
   );
 }

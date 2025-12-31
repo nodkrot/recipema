@@ -1,4 +1,32 @@
 .footer {
   text-align: center;
-  padding: 20px 0;
+  padding: 32px 0;
+  background: white;
+  margin-top: 60px;
+  border-top: 1px solid #f0f0f0;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04);
+  color: #666;
+  font-size: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 50%, #f06595 100%);
+  border-radius: 0 0 3px 3px;
+}
+
+@media only screen and (max-width: 768px) {
+  .footer {
+    padding: 24px 0;
+    margin-top: 40px;
+    font-size: 13px;
+  }
 }

@@ -71,10 +71,10 @@ export default function SingleView() {
 
   return (
     <div className="single-view">
+      <Header>
+        <Button shape="circle" icon={<EditOutlined />} size="large" onClick={handleEdit} />
+      </Header>
       <div className="single-view__container">
-        <Header>
-          <Button shape="circle" icon={<EditOutlined />} size="large" onClick={handleEdit} />
-        </Header>
         <div className="single-view__page-header">
           <Button
             type="text"
@@ -116,8 +116,8 @@ export default function SingleView() {
             </li>
           ))}
         </ol>
-        <Footer />
       </div>
+      <Footer />
     </div>
   );
 }

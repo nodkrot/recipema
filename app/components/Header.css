@@ -2,12 +2,49 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 54px;
+  height: 80px;
+  padding: 0 60px;
+  background: white;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
 .header .header__logo {
   font-family: 'Rochester', cursive;
   text-decoration: none;
-  color: inherit;
-  font-size: 36px;
+  color: #2c3e50;
+  font-size: 38px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 50%, #f06595 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+@media only screen and (max-width: 992px) {
+  .header {
+    padding: 0 40px;
+    height: 70px;
+  }
+
+  .header .header__logo {
+    font-size: 34px;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .header {
+    padding: 0 20px;
+    height: 64px;
+  }
+
+  .header .header__logo {
+    font-size: 30px;
+  }
 }
