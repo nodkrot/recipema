@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import Form from "antd/es/form";
@@ -35,23 +35,32 @@ function RecipeFormInner({
   // Use local state for managing dynamic field keys
   const [ingredientsKeys, setIngredientsKeys] = useState(get(recipe, "ingredients", [{}]));
   const [directionsKeys, setDirectionsKeys] = useState(get(recipe, "directions", [{}]));
+  const prevRecipeIdRef = useRef(undefined);
 
-  // Initialize form fields
+  // Initialize form fields when recipe changes (load or switch). Do not overwrite gallery
+  // when the same recipe is re-rendered so that newly selected files (originFileObj) are preserved.
   useEffect(() => {
+    const recipeId = recipe?.id ?? null;
+    const recipeChanged = prevRecipeIdRef.current !== recipeId;
+    prevRecipeIdRef.current = recipeId;
+
     const ingredients = get(recipe, "ingredients", [{}]);
     const directions = get(recipe, "directions", [{}]);
 
     setIngredientsKeys(ingredients);
     setDirectionsKeys(directions);
 
-    form.setFieldsValue({
-      ingredients: ingredients,
-      directions: directions,
+    const baseValues = {
+      ingredients,
+      directions,
       name: get(recipe, "name"),
       description: get(recipe, "description", ""),
-      pairings: get(recipe, "pairings", []),
-      gallery: get(recipe, "gallery", [])
-    });
+      pairings: get(recipe, "pairings", [])
+    };
+    if (recipeChanged) {
+      baseValues.gallery = get(recipe, "gallery", []);
+    }
+    form.setFieldsValue(baseValues);
   }, [recipe, form]);
 
   function handleAddField(field) {
@@ -72,12 +81,9 @@ function RecipeFormInner({
 
   function handleSubmit() {
     validateFields()
-      .then((data) => {
-        // Cleanup and construct recipeForm
-        onSubmit(omit(data, ["ingredientsKeys", "directionsKeys"]));
-      })
-      .catch((err) => {
-        console.log("Validation error:", err);
+      .then((data) => onSubmit(omit(data, ["ingredientsKeys", "directionsKeys"])))
+      .catch(() => {
+        // Validation failed; Ant Design shows field errors
       });
   }
 
@@ -119,16 +125,6 @@ function RecipeFormInner({
           />
         )}
       </h1>
-      {/* {recipe && getAutoSaveText() && (
-        <p className="recipe-form__autosave">
-          {isAutoSaving ? (
-            <CloudSyncOutlined spin style={{ marginRight: 8 }} />
-          ) : (
-            <CheckCircleOutlined style={{ marginRight: 8, color: "#52c41a" }} />
-          )}
-          {getAutoSaveText()}
-        </p>
-      )} */}
       <FormItem name="name" rules={[{ required: true, message: messages.recipe_form_name_error }]}>
         <Input size="large" placeholder={messages.recipe_form_name} />
       </FormItem>
@@ -161,15 +157,15 @@ function RecipeFormInner({
           placeholder={messages.recipe_form_pairings}
           filterOption={filterInput}
         >
-          {recipes.map((item, i) => (
-            <Option key={i} value={item.id}>
+          {recipes.map((item) => (
+            <Option key={item.id} value={item.id}>
               {item.name}
             </Option>
           ))}
         </Select>
       </FormItem>
       <h3>{messages.recipe_form_title_gallery}</h3>
-      <Uploader gallery={get(recipe, "gallery", [])} form={form} />
+      <Uploader gallery={get(recipe, "gallery", [])} />
       <h3>{messages.recipe_form_title_ingredient}</h3>
       <Ingredients
         ingredients={ingredientsKeys}

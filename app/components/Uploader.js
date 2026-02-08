@@ -39,8 +39,7 @@ function sanitizeFiles(e) {
 }
 
 Uploader.propTypes = {
-  gallery: PropTypes.array.isRequired,
-  form: PropTypes.object
+  gallery: PropTypes.array.isRequired
 };
 
 export default function Uploader({ gallery }) {

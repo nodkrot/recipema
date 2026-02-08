@@ -34,8 +34,9 @@ const messages = Messages["ru_RU"];
 
 function extractRawIngredients(recipes) {
   const set = new Set();
-  recipes.forEach((recipe) => recipe.ingredients.forEach((a) => set.add(a.name)));
-
+  recipes.forEach((recipe) =>
+    recipe.ingredients?.forEach((a) => set.add(a.name))
+  );
   return [...set];
 }
 
@@ -201,14 +202,17 @@ export default function Dashboard() {
 
   async function handleRemove(recipe) {
     try {
-      await Promise.all((recipe.gallery || []).map(deleteImage).concat(deleteRecipe(recipe.id)));
+      await Promise.all([
+        ...(recipe.gallery || []).map(deleteImage),
+        deleteRecipe(recipe.id)
+      ]);
       const updatedRecipes = recipes.filter((item) => item.id !== recipe.id);
 
       goToDashboard();
       setRecipes(updatedRecipes);
       message.success(messages.notification_successfully_deleted);
     } catch (err) {
-      message.error(message.notification_failure);
+      message.error(messages.notification_failure);
     }
   }
 
