@@ -65,15 +65,7 @@ export default function App() {
               element: <Login />
             },
             {
-              path: "/dashboard/:recipeId",
-              element: (
-                <PrivateRoute user={user} roles={[UserRoles.ADMIN]}>
-                  <Dashboard />
-                </PrivateRoute>
-              )
-            },
-            {
-              path: "/dashboard",
+              path: "/dashboard/:recipeId?",
               element: (
                 <PrivateRoute user={user} roles={[UserRoles.ADMIN]}>
                   <Dashboard />

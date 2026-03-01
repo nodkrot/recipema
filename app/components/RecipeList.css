@@ -5,3 +5,12 @@
 .recipe-list .ant-input-affix-wrapper .ant-input {
   min-height: auto;
 }
+
+.recipe-list .ant-list-item {
+  cursor: default;
+  transition: background-color 0.15s ease;
+}
+
+.recipe-list .ant-list-item:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}

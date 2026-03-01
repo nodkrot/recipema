@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Fuse from "fuse.js";
 
 const options = {
@@ -26,22 +26,27 @@ const options = {
 export default function useSearchRecipes(initRecipes) {
   const [recipes, setRecipes] = useState(initRecipes);
   const [results, setResults] = useState(initRecipes);
-  const fuse = new Fuse(recipes, options);
-  let searchTimeout = null;
+  const searchQueryRef = useRef("");
+  const searchTimeoutRef = useRef(null);
 
   function setSearchRecipes(newRecipes) {
     setRecipes(newRecipes);
-    setResults(newRecipes);
+    const query = searchQueryRef.current;
+    if (query) {
+      setResults(new Fuse(newRecipes, options).search(query).map(({ item }) => item));
+    } else {
+      setResults(newRecipes);
+    }
   }
 
   function handleSearch(e) {
     const value = e.target.value.trim();
+    searchQueryRef.current = value;
 
-    clearTimeout(searchTimeout);
-
-    searchTimeout = setTimeout(() => {
+    clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => {
       if (value.length) {
-        setResults(fuse.search(value).map(({ item }) => item));
+        setResults(new Fuse(recipes, options).search(value).map(({ item }) => item));
       } else {
         setResults(recipes);
       }

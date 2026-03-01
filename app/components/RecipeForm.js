@@ -28,6 +28,7 @@ function RecipeFormInner({
   isLoading,
   isAutoSaving,
   lastAutoSaved,
+  onValuesChange,
   form
 }) {
   const { validateFields } = form;
@@ -110,6 +111,7 @@ function RecipeFormInner({
     <Form
       form={form}
       onFinish={handleSubmit}
+      onValuesChange={onValuesChange}
       className="recipe-form"
     >
       <h1 className="recipe-form__title">
@@ -241,15 +243,25 @@ RecipeFormInner.propTypes = {
 export default function RecipeForm(props) {
   const [form] = Form.useForm();
   const values = Form.useWatch([], form);
+  const isUserDirtyRef = useRef(false);
 
   useEffect(() => {
+    isUserDirtyRef.current = false;
+  }, [props.recipe]);
+
+  useEffect(() => {
+    if (!isUserDirtyRef.current) return;
     form
       .validateFields({ validateOnly: true })
       .then(() => props.onChange(omit(values, ["ingredientsKeys", "directionsKeys"]), true))
       .catch(() => props.onChange(omit(values, ["ingredientsKeys", "directionsKeys"]), false));
   }, [form, values]);
 
-  return <RecipeFormInner {...props} form={form} />;
+  function handleUserChange() {
+    isUserDirtyRef.current = true;
+  }
+
+  return <RecipeFormInner {...props} form={form} onValuesChange={handleUserChange} />;
 }
 
 RecipeForm.propTypes = {
