@@ -87,7 +87,7 @@ export default function SingleView() {
       </div>
       {!!(recipe.gallery && recipe.gallery.length) && (
         <div className="single-view__gallery">
-          <Carousel autoplay>
+          <Carousel autoplay arrows>
             {recipe.gallery.map((image, i) => (
               <img key={i} src={image.url} />
             ))}
