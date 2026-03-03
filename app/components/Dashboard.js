@@ -34,9 +34,7 @@ const messages = Messages["ru_RU"];
 
 function extractRawIngredients(recipes) {
   const set = new Set();
-  recipes.forEach((recipe) =>
-    recipe.ingredients?.forEach((a) => set.add(a.name))
-  );
+  recipes.forEach((recipe) => recipe.ingredients?.forEach((a) => set.add(a.name)));
   return [...set];
 }
 
@@ -157,7 +155,9 @@ export default function Dashboard() {
       const recipe = await updateRecipe(recipeId, finalRecipeForm);
 
       setCurrentRecipe(recipe);
-      setRecipes((prevRecipes) => (prevRecipes.map((item) => (item.id === recipe.id ? recipe : item))));
+      setRecipes((prevRecipes) =>
+        prevRecipes.map((item) => (item.id === recipe.id ? recipe : item))
+      );
       setLastAutoSaved(new Date());
     } catch (err) {
       console.error("Auto-save failed:", err);
@@ -189,23 +189,25 @@ export default function Dashboard() {
     }
   }
 
-  async function handleSignOut() {
-    try {
-      await signOut(auth);
-      localStorage.removeItem("userId");
-      dispatch({ type: "SET_GUEST_USER" });
-      navigate("/login");
-    } catch (err) {
-      message.error(messages.notification_failure);
-    }
+  function handleSignOut() {
+    Modal.confirm({
+      title: messages.modal_logout_title,
+      onOk: async () => {
+        try {
+          await signOut(auth);
+          localStorage.removeItem("userId");
+          dispatch({ type: "SET_GUEST_USER" });
+          navigate("/login");
+        } catch (err) {
+          message.error(messages.notification_failure);
+        }
+      }
+    });
   }
 
   async function handleRemove(recipe) {
     try {
-      await Promise.all([
-        ...(recipe.gallery || []).map(deleteImage),
-        deleteRecipe(recipe.id)
-      ]);
+      await Promise.all([...(recipe.gallery || []).map(deleteImage), deleteRecipe(recipe.id)]);
       const updatedRecipes = recipes.filter((item) => item.id !== recipe.id);
 
       goToDashboard();
@@ -250,9 +252,17 @@ export default function Dashboard() {
     <div className="dashboard">
       <Header path="/dashboard">
         <Flex align="center" justify="end" gap={12}>
-          {currentRecipe && <Button shape="circle" icon={<EyeOutlined />} size="large" onClick={handlePreview} />}
+          {currentRecipe && (
+            <Button shape="circle" icon={<EyeOutlined />} size="large" onClick={handlePreview} />
+          )}
           <Button shape="circle" icon={<HomeOutlined />} size="large" onClick={handleHome} />
-          <Button shape="circle" icon={<LogoutOutlined />} size="large" onClick={handleSignOut} />
+          <Button
+            shape="circle"
+            danger
+            icon={<LogoutOutlined />}
+            size="large"
+            onClick={handleSignOut}
+          />
         </Flex>
       </Header>
       <div className="dashboard__content">
@@ -271,22 +281,25 @@ export default function Dashboard() {
             />
           </Col>
           <Col xs={24} sm={10}>
-            <h1 className="dashboard__title">
-              {messages.app_list_title}
-              <Button
-                type="primary"
-                shape="circle"
-                icon={<PlusOutlined />}
-                size="large"
-                onClick={handleNew}
+            <div className="dashboard__list-panel">
+              <h1 className="dashboard__title">
+                {messages.app_list_title}
+                <Button
+                  type="primary"
+                  shape="circle"
+                  icon={<PlusOutlined />}
+                  size="large"
+                  onClick={handleNew}
+                />
+              </h1>
+              <RecipeList
+                recipes={recipes}
+                isLoading={isFetching}
+                selectedId={currentRecipe?.id}
+                onEdit={handleEdit}
+                onRemove={handleRemove}
               />
-            </h1>
-            <RecipeList
-              recipes={recipes}
-              isLoading={isFetching}
-              onEdit={handleEdit}
-              onRemove={handleRemove}
-            />
+            </div>
           </Col>
         </Row>
       </div>

@@ -17,3 +17,14 @@ body {
 :focus {
   outline: 1px solid #8ac7ff;
 }
+
+input,
+select,
+textarea,
+.ant-input,
+.ant-input-number-input,
+.ant-select-selection-search-input,
+.ant-select-selection-item,
+.ant-select-selection-placeholder {
+  font-size: 16px !important;
+}

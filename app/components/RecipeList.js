@@ -4,7 +4,7 @@ import List from "antd/es/list";
 import Button from "antd/es/button";
 import Modal from "antd/es/modal";
 import Input from "antd/es/input";
-import { EditOutlined, DeleteOutlined, UploadOutlined, SearchOutlined } from "@ant-design/icons";
+import { DeleteOutlined, SearchOutlined, FileImageOutlined } from "@ant-design/icons";
 import useSearchRecipes from "../utilities/useSearchRecipes";
 import Messages from "../messages.json";
 import "./RecipeList.css";
@@ -15,7 +15,7 @@ function trimString(str, length = 60) {
   return str.length > length ? str.substring(0, length) + "..." : str;
 }
 
-export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
+export default function RecipeList({ isLoading, recipes, selectedId, onEdit, onRemove }) {
   const [results, handleSearchRecipes, setSearchRecipe] = useSearchRecipes(recipes);
 
   useEffect(() => {
@@ -32,13 +32,6 @@ export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
   function renderItems(recipe) {
     const items = [
       <Button
-        key="1"
-        shape="circle"
-        icon={<EditOutlined />}
-        size="large"
-        onClick={() => onEdit(recipe)}
-      />,
-      <Button
         key="2"
         shape="circle"
         icon={<DeleteOutlined />}
@@ -48,13 +41,15 @@ export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
     ];
 
     if (recipe.gallery && recipe.gallery.length) {
-      items.unshift(
-        <UploadOutlined key="0" />
-      );
+      items.unshift(<FileImageOutlined key="0" />);
     }
 
     return (
-      <List.Item actions={items} onClick={() => onEdit(recipe)}>
+      <List.Item
+        actions={items}
+        onClick={() => onEdit(recipe)}
+        className={recipe.id === selectedId ? "recipe-list__item--selected" : ""}
+      >
         <List.Item.Meta title={recipe.name} description={trimString(recipe.description)} />
       </List.Item>
     );
@@ -72,15 +67,16 @@ export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
           allowClear
         />
       </div>
-      <List
-        bordered
-        loading={isLoading}
-        itemLayout="horizontal"
-        dataSource={results}
-        locale={{ emptyText: messages.recipe_list_no_data }}
-        renderItem={renderItems}
-      />
-      <small style={{ float: "right" }}>Total items: {recipes.length}</small>
+      <div className="recipe-list__items">
+        <List
+          loading={isLoading}
+          itemLayout="horizontal"
+          dataSource={results}
+          locale={{ emptyText: messages.recipe_list_no_data }}
+          renderItem={renderItems}
+        />
+      </div>
+      <small style={{ float: "right", marginTop: 12 }}>Total items: {recipes.length}</small>
     </div>
   );
 }
@@ -88,6 +84,7 @@ export default function RecipeList({ isLoading, recipes, onEdit, onRemove }) {
 RecipeList.propTypes = {
   recipes: PropTypes.array.isRequired,
   isLoading: PropTypes.bool,
+  selectedId: PropTypes.string,
   onEdit: PropTypes.func.isRequired,
   onRemove: PropTypes.func.isRequired
 };

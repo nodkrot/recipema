@@ -9,12 +9,24 @@
 .dashboard__title {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-top: 0;
+  margin-bottom: 12px;
 }
 
+
+.dashboard__list-panel {
+  position: sticky;
+  top: 12px;
+  align-self: flex-start;
+}
 
 @media only screen and (max-width : 768px) {
   .dashboard {
     padding: 0 20px;
+  }
+
+  .dashboard__list-panel {
+    position: static;
   }
 }

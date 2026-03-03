@@ -9,8 +9,24 @@
 .recipe-list .ant-list-item {
   cursor: default;
   transition: background-color 0.15s ease;
+  padding-left: 12px;
 }
 
 .recipe-list .ant-list-item:hover {
   background-color: rgba(0, 0, 0, 0.02);
+}
+
+.recipe-list__items {
+  overflow-y: auto;
+  max-height: calc(100vh - 220px);
+}
+
+.recipe-list .ant-list-item.recipe-list__item--selected {
+  background-color: #e6f4ff;
+  border-left: 2px solid #1677ff;
+  padding-left: 10px;
+}
+
+.recipe-list .ant-list-item.recipe-list__item--selected:hover {
+  background-color: #e6f4ff;
 }

@@ -1,5 +1,6 @@
 {
   "ru_RU": {
+    "modal_logout_title": "Вы уверены, что хотите выйти?",
     "modal_new_recipe_title": "Убедитесь, что все данные сохранены. Продолжить?",
     "modal_remove_title": "Вы уверены вы хотите удалить $a?",
     "app_form_title": "Новый рецепт",
@@ -47,6 +48,7 @@
     "autosave_saved_minutes_ago": "Сохранено $a мин. назад"
   },
   "en_US": {
+    "modal_logout_title": "Are you sure you want to log out?",
     "modal_new_recipe_title": "Make sure all data is saved. Continue?",
     "modal_remove_title": "Are you sure you want to delete $a?",
     "app_form_title": "New Recipe",

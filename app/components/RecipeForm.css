@@ -1,7 +1,9 @@
 .recipe-form .recipe-form__title {
   margin-top: 0;
+  margin-bottom: 12px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .recipe-form__actions {

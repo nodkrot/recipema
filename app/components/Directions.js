@@ -49,7 +49,7 @@ export default function Directions({
             style={{ flex: "auto" }}
           >
             <TextArea
-              autoSize={{ minRows: 2, maxRows: 4 }}
+              autoSize={{ minRows: 2, maxRows: 12 }}
               placeholder={messages.recipe_form_direction_text}
             />
           </FormItem>
