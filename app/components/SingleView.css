@@ -1,60 +1,230 @@
-.single-view__page-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 0;
-}
-
-.single-view__page-title {
-  font-weight: 300;
-  margin: 0;
-  font-size: 24px;
-}
-
-.single-view__subtitle {
-  font-weight: 300;
+/* Base layout – wide container */
+.single-view {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #fafafa 0%, #fff 120px);
+  padding-bottom: 32px;
 }
 
 .single-view__container {
-  padding: 0 20px;
-  max-width: 768px;
+  padding: 0 24px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-.single-view__ingredients-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 20px;
+.single-view__main-wrap {
+  padding-top: 8px;
 }
 
-.single-view__amount {
-  font-weight: 200;
-  font-size: 20px;
-  margin-right: 8px;
+/* Page header – back button only, title moves below gallery */
+.single-view__page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0 16px;
 }
 
-.single-view__directions-list {
-  padding: 0 0 0 20px;
-  margin: 0 0 20px;
-}
-
-.single-view__list-item {
-  font-size: 15px;
-  letter-spacing: 0.3px;
-}
-
-.single-view__directions-list .single-view__list-item {
-  margin-bottom: 8px;
+/* Full-width gallery at top of content */
+.single-view__gallery-wrap {
+  max-width: 1200px;
+  margin: 0 auto 24px;
+  padding: 0 24px;
+  overflow: visible;
 }
 
 .single-view__gallery {
-  max-width: 1024px;
-  height: 500px;
-  margin: 12px auto 12px;
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+}
+
+@media (max-width: 768px) {
+  .single-view__gallery-wrap {
+    padding: 0;
+  }
+
+  .single-view__gallery {
+    height: 280px;
+    border-radius: 0;
+  }
 }
 
 .single-view__gallery img {
   width: 100%;
-  height: 500px;
+  height: 100%;
   object-fit: cover;
+}
+
+/* Title below gallery */
+.single-view__title {
+  font-weight: 400;
+  margin: 0 0 24px;
+  font-size: 1.75rem;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: #1a1a1a;
+}
+
+/* Two-column layout: 70% content, 30% sidebar */
+.single-view__two-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  min-width: 0; /* allow grid to shrink inside container */
+}
+
+@media (min-width: 900px) {
+  .single-view__two-col {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 3fr); /* 70/30, shrinkable */
+    gap: 48px;
+    align-items: start;
+  }
+}
+
+.single-view__content,
+.single-view__sidebar {
+  min-width: 0; /* prevent overflow from long content */
+}
+
+/* Desktop: show sidebar ingredients, hide mobile ingredients */
+.single-view__ingredients--mobile {
+  display: block;
+}
+
+.single-view__ingredients--desktop {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .single-view__ingredients--mobile {
+    display: none;
+  }
+
+  .single-view__ingredients--desktop {
+    display: block;
+  }
+}
+
+/* Sidebar sticky on desktop */
+@media (min-width: 900px) {
+  .single-view__sidebar {
+    position: sticky;
+    top: 24px;
+  }
+}
+
+/* Description */
+.single-view__description {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #4a4a4a;
+  margin: 0 0 32px;
+  max-width: 60ch;
+}
+
+/* Section titles */
+.single-view__subtitle {
+  font-weight: 500;
+  font-size: 1.125rem;
+  letter-spacing: 0.02em;
+  color: #1a1a1a;
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Section blocks */
+.single-view__section {
+  margin-bottom: 40px;
+}
+
+.single-view__section:last-of-type {
+  margin-bottom: 24px;
+}
+
+/* Shared list layout */
+.single-view__ingredients-list,
+.single-view__directions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.single-view__list-item {
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+}
+
+.single-view__list-item--with-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  cursor: default;
+}
+
+.single-view__checkbox-wrap {
+  flex-shrink: 0;
+  display: inline-flex;
+  margin-right: 12px;
+  margin-top: 2px;
+}
+
+.single-view__list-item--with-checkbox:hover {
+  background: #fafafa;
+  border-color: #e8e8e8;
+}
+
+.single-view__list-item--with-checkbox:last-child {
+  margin-bottom: 0;
+}
+
+.single-view__checkbox {
+  flex-shrink: 0;
+}
+
+.single-view__step-num {
+  flex-shrink: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #666;
+  min-width: 1.5em;
+  margin-right: 8px;
+  line-height: 1.5;
+}
+
+.single-view__list-item-content {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.55;
+  color: #2a2a2a;
+}
+
+.single-view__list-item--checked .single-view__list-item-content {
+  text-decoration: line-through;
+  color: var(--ant-color-text-tertiary, #999);
+}
+
+.single-view__ingredient-name--checked {
+  text-decoration: line-through;
+  color: var(--ant-color-text-tertiary, #999);
+}
+
+.single-view__amount {
+  font-weight: 400;
+  font-size: 0.95rem;
+  color: #666;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+.single-view__ingredient-name {
+  color: #2a2a2a;
 }
