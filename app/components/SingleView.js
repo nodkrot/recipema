@@ -159,7 +159,9 @@ export default function SingleView() {
         <h1 className="single-view__title">{recipe.name}</h1>
         <div className="single-view__two-col">
           <div className="single-view__content">
-            <p className="single-view__description">{recipe.description}</p>
+            {recipe.description && (
+              <p className="single-view__description">{recipe.description}</p>
+            )}
             {/* Mobile: ingredients between description and directions */}
             <section className="single-view__section single-view__ingredients--mobile">
               <h2 className="single-view__subtitle">{messages.recipe_form_title_ingredient}</h2>
