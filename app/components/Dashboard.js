@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import uniqueId from "lodash/uniqueId";
 import differenceWith from "lodash/differenceWith";
 import debounce from "lodash/debounce";
@@ -38,6 +39,12 @@ function extractRawIngredients(recipes) {
   return [...set];
 }
 
+function extractAllTags(recipes) {
+  const set = new Set();
+  recipes.forEach((recipe) => (recipe.tags || []).forEach((tag) => set.add(tag)));
+  return [...set];
+}
+
 async function compressImage(image) {
   const imageFile = image.originFileObj;
   const compressedFile = await imageCompression(imageFile, {
@@ -51,6 +58,7 @@ async function compressImage(image) {
 export default function Dashboard() {
   const { recipeId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [, dispatch] = useContext(Context);
   const [currentRecipe, setCurrentRecipe] = useState(null);
   const [newRecipeId, setNewRecipeId] = useState(uniqueId());
@@ -132,6 +140,8 @@ export default function Dashboard() {
       goToDashboard(recipe.id);
       setCurrentRecipe(recipe);
       setRecipes(updatedRecipes);
+      queryClient.invalidateQueries({ queryKey: ["recipe", recipe.id] });
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
     } catch (err) {
       message.error(messages.notification_failure);
     } finally {
@@ -159,6 +169,8 @@ export default function Dashboard() {
         prevRecipes.map((item) => (item.id === recipe.id ? recipe : item))
       );
       setLastAutoSaved(new Date());
+      queryClient.invalidateQueries({ queryKey: ["recipe", recipe.id] });
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
     } catch (err) {
       console.error("Auto-save failed:", err);
       // Don't show error message for auto-save failures to avoid interrupting the user
@@ -273,6 +285,7 @@ export default function Dashboard() {
               recipe={currentRecipe}
               recipes={recipes}
               ingredientList={rawIngredients}
+              tagList={extractAllTags(recipes)}
               onSubmit={handleSubmit}
               onChange={handleFormChange}
               isLoading={isSaving}

@@ -25,17 +25,19 @@ function RecipeFormInner({
   recipes,
   onSubmit,
   ingredientList,
+  tagList = [],
   isLoading,
   isAutoSaving,
   lastAutoSaved,
   onValuesChange,
   form
 }) {
-  const { validateFields } = form;
+  const { validateFields, getFieldValue } = form;
 
   // Use local state for managing dynamic field keys
   const [ingredientsKeys, setIngredientsKeys] = useState(get(recipe, "ingredients", [{}]));
   const [directionsKeys, setDirectionsKeys] = useState(get(recipe, "directions", [{}]));
+  const [tagSearchTerm, setTagSearchTerm] = useState("");
   const prevRecipeIdRef = useRef(undefined);
 
   // Initialize form fields when recipe changes (load or switch). Do not overwrite gallery
@@ -56,7 +58,8 @@ function RecipeFormInner({
       directions,
       name: get(recipe, "name"),
       description: get(recipe, "description", ""),
-      pairings: get(recipe, "pairings", [])
+      pairings: get(recipe, "pairings", []),
+      tags: get(recipe, "tags", [])
     };
     if (recipeChanged) {
       baseValues.gallery = get(recipe, "gallery", []);
@@ -166,6 +169,40 @@ function RecipeFormInner({
           ))}
         </Select>
       </FormItem>
+      <FormItem
+        name="tags"
+        rules={[
+          {
+            required: false,
+            message: messages.recipe_form_description_error
+          }
+        ]}
+      >
+        <Select
+          size="large"
+          mode="multiple"
+          showSearch
+          placeholder={messages.recipe_form_tags}
+          filterOption={false}
+          onSearch={setTagSearchTerm}
+          optionFilterProp="children"
+        >
+          {(tagList || [])
+            .filter((tag) => tag.toLowerCase().indexOf(tagSearchTerm.toLowerCase()) >= 0)
+            .map((tag) => (
+              <Option key={tag} value={tag}>
+                {tag}
+              </Option>
+            ))}
+          {tagSearchTerm &&
+            !(tagList || []).includes(tagSearchTerm) &&
+            !(getFieldValue("tags") || []).includes(tagSearchTerm) && (
+              <Option key={`create-${tagSearchTerm}`} value={tagSearchTerm}>
+                {messages.recipe_form_tags_create} "{tagSearchTerm}"
+              </Option>
+            )}
+        </Select>
+      </FormItem>
       <h3>{messages.recipe_form_title_gallery}</h3>
       <Uploader gallery={get(recipe, "gallery", [])} />
       <h3>{messages.recipe_form_title_ingredient}</h3>
@@ -208,6 +245,7 @@ RecipeFormInner.propTypes = {
   form: PropTypes.object.isRequired,
   recipes: PropTypes.array,
   ingredientList: PropTypes.arrayOf(PropTypes.string),
+  tagList: PropTypes.arrayOf(PropTypes.string),
   recipe: PropTypes.shape({
     id: PropTypes.string,
     name: PropTypes.string,
@@ -272,5 +310,6 @@ RecipeForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   recipes: PropTypes.array,
   ingredientList: PropTypes.arrayOf(PropTypes.string),
+  tagList: PropTypes.arrayOf(PropTypes.string),
   recipe: PropTypes.object
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Button from "antd/es/button";
 import Checkbox from "antd/es/checkbox";
@@ -7,7 +7,7 @@ import { EditOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import Carousel from "antd/es/carousel";
 import Header from "./Header.js";
 import Footer from "./Footer.js";
-import { getRecipeById } from "../utilities/firebase.js";
+import { getRecipeById, getRecipes } from "../utilities/firebase.js";
 import Messages from "../messages.json";
 import "./SingleView.css";
 
@@ -31,6 +31,17 @@ export default function SingleView() {
     initialData: state.item, // Use location state as initial data if available
     enabled: !!recipeId // Only fetch if recipeId exists
   });
+
+  // Fetch all recipes when this recipe has pairings (to resolve IDs to names)
+  const { data: recipes = [] } = useQuery({
+    queryKey: ["recipes"],
+    queryFn: getRecipes,
+    enabled: !!(recipe && recipe.pairings && recipe.pairings.length > 0)
+  });
+
+  const pairingIdToName = recipes.length
+    ? Object.fromEntries(recipes.map((r) => [r.id, r.name]))
+    : {};
 
   // Local state for progress (no persistence): checked ingredients and directions
   const [checkedIngredients, setCheckedIngredients] = useState([]);
@@ -162,6 +173,32 @@ export default function SingleView() {
             {recipe.description && (
               <p className="single-view__description">{recipe.description}</p>
             )}
+            {recipe.pairings?.length > 0 && (
+              <ul className="single-view__pairings single-view__pairings--under-description">
+                {recipe.pairings.map((id) => (
+                  <li key={id} className="single-view__pairing">
+                    <Link to={`/recipe/${id}`} className="single-view__pairing-link">
+                      {pairingIdToName[id] ?? id}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {/* Mobile: tags above ingredients */}
+            {recipe.tags?.length > 0 && (
+              <section className="single-view__section single-view__meta single-view__meta--mobile">
+                <div className="single-view__meta-block">
+                  <h2 className="single-view__subtitle">{messages.recipe_form_tags}</h2>
+                  <div className="single-view__tags">
+                    {recipe.tags.map((tag) => (
+                      <span key={tag} className="single-view__tag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
             {/* Mobile: ingredients between description and directions */}
             <section className="single-view__section single-view__ingredients--mobile">
               <h2 className="single-view__subtitle">{messages.recipe_form_title_ingredient}</h2>
@@ -202,6 +239,21 @@ export default function SingleView() {
             </section>
           </div>
           <aside className="single-view__sidebar">
+            {/* Desktop: tags on top of ingredients */}
+            {recipe.tags?.length > 0 && (
+              <section className="single-view__section single-view__meta single-view__meta--desktop">
+                <div className="single-view__meta-block">
+                  <h2 className="single-view__subtitle">{messages.recipe_form_tags}</h2>
+                  <div className="single-view__tags">
+                    {recipe.tags.map((tag) => (
+                      <span key={tag} className="single-view__tag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
             <section className="single-view__section single-view__ingredients--desktop">
               <h2 className="single-view__subtitle">{messages.recipe_form_title_ingredient}</h2>
               <ul className="single-view__ingredients-list">{renderIngredients()}</ul>
