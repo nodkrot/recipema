@@ -45,6 +45,8 @@
     "notification_failure": "Произошла ошибка!",
     "upload_button": "Загрузить",
     "search_recipe_input": "Поиск рецептов",
+    "list_view_filter_all": "Все",
+    "list_view_filter_by_tag": "По тегу",
     "autosave_saving": "Сохранение...",
     "autosave_saved_just_now": "Сохранено только что",
     "autosave_saved_minutes_ago": "Сохранено $a мин. назад"
@@ -95,6 +97,8 @@
     "notification_failure": "An error occurred!",
     "upload_button": "Upload",
     "search_recipe_input": "Search recipes",
+    "list_view_filter_all": "All",
+    "list_view_filter_by_tag": "Filter by tag",
     "autosave_saving": "Saving...",
     "autosave_saved_just_now": "Saved just now",
     "autosave_saved_minutes_ago": "Saved $a min. ago"

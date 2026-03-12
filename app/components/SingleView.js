@@ -13,13 +13,62 @@ import "./SingleView.css";
 
 const messages = Messages["ru_RU"];
 
+function toggleIndex(prev, index) {
+  return prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index];
+}
+
+function CheckableListItem({ checked, onToggle, children }) {
+  return (
+    <li
+      className={[
+        "single-view__list-item",
+        "single-view__list-item--with-checkbox",
+        checked && "single-view__list-item--checked",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      onClick={onToggle}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onToggle();
+        }
+      }}
+    >
+      <span className="single-view__checkbox-wrap" onClick={(e) => e.stopPropagation()}>
+        <Checkbox checked={checked} onChange={onToggle} className="single-view__checkbox" />
+      </span>
+      {children}
+    </li>
+  );
+}
+
+function TagsSection({ tags, className = "" }) {
+  if (!tags?.length) return null;
+  return (
+    <section className={`single-view__meta ${className}`}>
+      <div className="single-view__meta-block">
+        {/* <h2 className="single-view__subtitle">{messages.recipe_form_tags}</h2> */}
+        <div className="single-view__tags">
+          {tags.map((tag) => (
+            <span key={tag} className="single-view__tag">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function SingleView() {
   const { recipeId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state || {};
 
-  // Fetch recipe using React Query
   const {
     data: recipe,
     isLoading,
@@ -28,11 +77,10 @@ export default function SingleView() {
   } = useQuery({
     queryKey: ["recipe", recipeId],
     queryFn: () => getRecipeById(recipeId),
-    initialData: state.item, // Use location state as initial data if available
-    enabled: !!recipeId // Only fetch if recipeId exists
+    initialData: state.item,
+    enabled: !!recipeId
   });
 
-  // Fetch all recipes when this recipe has pairings (to resolve IDs to names)
   const { data: recipes = [] } = useQuery({
     queryKey: ["recipes"],
     queryFn: getRecipes,
@@ -43,55 +91,25 @@ export default function SingleView() {
     ? Object.fromEntries(recipes.map((r) => [r.id, r.name]))
     : {};
 
-  // Local state for progress (no persistence): checked ingredients and directions
   const [checkedIngredients, setCheckedIngredients] = useState([]);
   const [checkedDirections, setCheckedDirections] = useState([]);
 
-  const toggleIngredient = useCallback((index) => {
-    setCheckedIngredients((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
-    );
-  }, []);
+  const toggleIngredient = useCallback(
+    (index) => setCheckedIngredients((prev) => toggleIndex(prev, index)),
+    []
+  );
+  const toggleDirection = useCallback(
+    (index) => setCheckedDirections((prev) => toggleIndex(prev, index)),
+    []
+  );
 
-  const toggleDirection = useCallback((index) => {
-    setCheckedDirections((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
-    );
-  }, []);
-
-  // Scroll to top when navigating to a recipe
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [recipeId]);
 
-  function handleEdit() {
-    navigate(`/dashboard/${recipeId}`);
-  }
-
-  // Handle error state
   if (isError) {
     console.error("Unable to fetch recipe with id", error);
   }
-
-  // function handleNavClick(item) {
-  //   history.push(`/recipe/${item.id}`);
-  // }
-
-  // if (state.prev) {
-  //   navButtons.push(
-  //     <Button key="0" onClick={() => handleNavClick(state.prev)}>
-  //       Previous
-  //     </Button>
-  //   );
-  // }
-
-  // if (state.next) {
-  //   navButtons.push(
-  //     <Button key="1" onClick={() => handleNavClick(state.next)}>
-  //       Next
-  //     </Button>
-  //   );
-  // }
 
   if (isLoading || !recipe) {
     return null;
@@ -101,42 +119,24 @@ export default function SingleView() {
     recipe.ingredients.map((ingredient, i) => {
       const checked = checkedIngredients.includes(i);
       return (
-        <li
-          key={i}
-          className="single-view__list-item single-view__list-item--with-checkbox"
-          onClick={() => toggleIngredient(i)}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              toggleIngredient(i);
-            }
-          }}
-        >
-          <span className="single-view__checkbox-wrap" onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={checked}
-              onChange={() => toggleIngredient(i)}
-              className="single-view__checkbox"
-            />
-          </span>
+        <CheckableListItem key={i} checked={checked} onToggle={() => toggleIngredient(i)}>
           <span className="single-view__list-item-content">
             <span className="single-view__amount">
               {ingredient.amount.value !== "0" ? ingredient.amount.value : null}{" "}
               {messages[`unit_${ingredient.amount.unit}`]}
             </span>
             <span
-              className={
-                checked
-                  ? "single-view__ingredient-name single-view__ingredient-name--checked"
-                  : "single-view__ingredient-name"
-              }
+              className={[
+                "single-view__ingredient-name",
+                checked && "single-view__ingredient-name--checked",
+              ]
+                .filter(Boolean)
+                .join(" ")}
             >
               {ingredient.name.toLowerCase()}
             </span>
           </span>
-        </li>
+        </CheckableListItem>
       );
     });
 
@@ -144,7 +144,12 @@ export default function SingleView() {
     <div className="single-view">
       <div className="single-view__container single-view__header-block">
         <Header>
-          <Button shape="circle" icon={<EditOutlined />} size="large" onClick={handleEdit} />
+          <Button
+            shape="circle"
+            icon={<EditOutlined />}
+            size="large"
+            onClick={() => navigate(`/dashboard/${recipeId}`)}
+          />
         </Header>
         <div className="single-view__page-header">
           <Button
@@ -184,22 +189,7 @@ export default function SingleView() {
                 ))}
               </ul>
             )}
-            {/* Mobile: tags above ingredients */}
-            {recipe.tags?.length > 0 && (
-              <section className="single-view__section single-view__meta single-view__meta--mobile">
-                <div className="single-view__meta-block">
-                  <h2 className="single-view__subtitle">{messages.recipe_form_tags}</h2>
-                  <div className="single-view__tags">
-                    {recipe.tags.map((tag) => (
-                      <span key={tag} className="single-view__tag">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            )}
-            {/* Mobile: ingredients between description and directions */}
+            <TagsSection tags={recipe.tags} className="single-view__meta--mobile" />
             <section className="single-view__section single-view__ingredients--mobile">
               <h2 className="single-view__subtitle">{messages.recipe_form_title_ingredient}</h2>
               <ul className="single-view__ingredients-list">{renderIngredients()}</ul>
@@ -210,50 +200,17 @@ export default function SingleView() {
                 {recipe.directions.map((direction, i) => {
                   const checked = checkedDirections.includes(i);
                   return (
-                    <li
-                      key={i}
-                      className={`single-view__list-item single-view__list-item--with-checkbox ${checked ? "single-view__list-item--checked" : ""}`}
-                      onClick={() => toggleDirection(i)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          toggleDirection(i);
-                        }
-                      }}
-                    >
-                      <span className="single-view__checkbox-wrap" onClick={(e) => e.stopPropagation()}>
-                        <Checkbox
-                          checked={checked}
-                          onChange={() => toggleDirection(i)}
-                          className="single-view__checkbox"
-                        />
-                      </span>
+                    <CheckableListItem key={i} checked={checked} onToggle={() => toggleDirection(i)}>
                       <span className="single-view__step-num">{i + 1}.</span>
                       <span className="single-view__list-item-content">{direction.text}</span>
-                    </li>
+                    </CheckableListItem>
                   );
                 })}
               </ol>
             </section>
           </div>
           <aside className="single-view__sidebar">
-            {/* Desktop: tags on top of ingredients */}
-            {recipe.tags?.length > 0 && (
-              <section className="single-view__section single-view__meta single-view__meta--desktop">
-                <div className="single-view__meta-block">
-                  <h2 className="single-view__subtitle">{messages.recipe_form_tags}</h2>
-                  <div className="single-view__tags">
-                    {recipe.tags.map((tag) => (
-                      <span key={tag} className="single-view__tag">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            )}
+            <TagsSection tags={recipe.tags} className="single-view__meta--desktop" />
             <section className="single-view__section single-view__ingredients--desktop">
               <h2 className="single-view__subtitle">{messages.recipe_form_title_ingredient}</h2>
               <ul className="single-view__ingredients-list">{renderIngredients()}</ul>

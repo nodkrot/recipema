@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Button from "antd/es/button";
@@ -12,6 +12,12 @@ import CachedImage from "./CachedImage.js";
 import Messages from "../messages.json";
 import { getRecipes } from "../utilities/firebase.js";
 import "./ListView.css";
+
+function extractAllTags(recipes) {
+  const set = new Set();
+  (recipes || []).forEach((recipe) => (recipe.tags || []).forEach((tag) => set.add(tag)));
+  return Array.from(set).sort();
+}
 
 const messages = Messages["ru_RU"];
 
@@ -33,6 +39,7 @@ function getItemImage(item) {
 export default function ListView() {
   const navigate = useNavigate();
   const [results, handleSearchRecipes, setSearchRecipes] = useSearchRecipes([]);
+  const [selectedTags, setSelectedTags] = useState([]);
 
   // Fetch recipes using React Query
   const {
@@ -52,12 +59,26 @@ export default function ListView() {
     }
   }, [recipes]);
 
+  const allTags = useMemo(() => extractAllTags(recipes), [recipes]);
+  const filteredResults =
+    selectedTags.length === 0
+      ? results
+      : results.filter((item) => (item.tags || []).some((tag) => selectedTags.includes(tag)));
+
   // Use scroll restoration hook
-  useScrollRestoration(
-    'listview-scroll-position',
-    !isLoading && results.length > 0,
-    [results]
-  );
+  useScrollRestoration("listview-scroll-position", !isLoading && filteredResults.length > 0, [
+    filteredResults
+  ]);
+
+  function toggleTag(tag) {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  }
+
+  function clearTagFilter() {
+    setSelectedTags([]);
+  }
 
   function handleEdit() {
     navigate("/dashboard");
@@ -83,14 +104,39 @@ export default function ListView() {
           autoComplete="off"
           disabled={isLoading}
         />
+        {allTags.length > 0 && (
+          <div
+            className="list-view__tags"
+            role="group"
+            aria-label={messages.list_view_filter_by_tag}
+          >
+            <button
+              type="button"
+              className={`list-view__tag ${selectedTags.length === 0 ? "list-view__tag--active" : ""}`}
+              onClick={clearTagFilter}
+            >
+              {messages.list_view_filter_all}
+            </button>
+            {allTags.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                className={`list-view__tag ${selectedTags.includes(tag) ? "list-view__tag--active" : ""}`}
+                onClick={() => toggleTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <div className="list-view__cards list-view__container">
         {isLoading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
             <Spin size="large" />
           </div>
-        ) : results.length ? (
-          results.map((item) => (
+        ) : filteredResults.length ? (
+          filteredResults.map((item) => (
             <Link
               key={item.id}
               className="list-view__card"
