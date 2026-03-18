@@ -23,6 +23,12 @@
   padding: 20px 0 16px;
 }
 
+.single-view__page-header-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+}
+
 /* Full-width gallery at top of content */
 .single-view__gallery-wrap {
   max-width: 1200px;

@@ -49,7 +49,10 @@
     "list_view_filter_by_tag": "По тегу",
     "autosave_saving": "Сохранение...",
     "autosave_saved_just_now": "Сохранено только что",
-    "autosave_saved_minutes_ago": "Сохранено $a мин. назад"
+    "autosave_saved_minutes_ago": "Сохранено $a мин. назад",
+    "share_copy_link": "Скопировать ссылку",
+    "share_link_copied": "Ссылка скопирована!",
+    "share_link_copy_failed": "Не удалось скопировать ссылку"
   },
   "en_US": {
     "modal_logout_title": "Are you sure you want to log out?",
@@ -101,6 +104,9 @@
     "list_view_filter_by_tag": "Filter by tag",
     "autosave_saving": "Saving...",
     "autosave_saved_just_now": "Saved just now",
-    "autosave_saved_minutes_ago": "Saved $a min. ago"
+    "autosave_saved_minutes_ago": "Saved $a min. ago",
+    "share_copy_link": "Copy link",
+    "share_link_copied": "Link copied!",
+    "share_link_copy_failed": "Failed to copy link"
   }
 }

@@ -3,7 +3,8 @@ import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Button from "antd/es/button";
 import Checkbox from "antd/es/checkbox";
-import { EditOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import message from "antd/es/message";
+import { EditOutlined, ArrowLeftOutlined, LinkOutlined } from "@ant-design/icons";
 import Carousel from "antd/es/carousel";
 import Header from "./Header.js";
 import Footer from "./Footer.js";
@@ -107,6 +108,34 @@ export default function SingleView() {
     window.scrollTo(0, 0);
   }, [recipeId]);
 
+  const shareUrl =
+    typeof window === "undefined"
+      ? ""
+      : `${window.location.origin}${location.pathname}${location.search ?? ""}${location.hash ?? ""}`;
+
+  const copyShareUrlToClipboard = useCallback(async () => {
+    if (!shareUrl) return;
+
+    try {
+      const canUseClipboardApi =
+        typeof navigator !== "undefined" &&
+        typeof window !== "undefined" &&
+        !!navigator.clipboard?.writeText &&
+        window.isSecureContext;
+
+      if (!canUseClipboardApi) {
+        throw new Error("Clipboard API is not available");
+      }
+
+      await navigator.clipboard.writeText(shareUrl);
+
+      message.success(messages.share_link_copied);
+    } catch (copyError) {
+      console.error("Failed to copy share URL", copyError);
+      message.error(messages.share_link_copy_failed);
+    }
+  }, [shareUrl]);
+
   if (isError) {
     console.error("Unable to fetch recipe with id", error);
   }
@@ -158,6 +187,16 @@ export default function SingleView() {
             onClick={() => navigate(-1)}
             size="large"
           />
+          <div className="single-view__page-header-actions">
+            <Button
+              type="text"
+              icon={<LinkOutlined />}
+              onClick={copyShareUrlToClipboard}
+              size="large"
+              aria-label={messages.share_copy_link}
+              title={messages.share_copy_link}
+            />
+          </div>
         </div>
       </div>
       {!!(recipe.gallery && recipe.gallery.length) && (
