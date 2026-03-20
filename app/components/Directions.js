@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Form from "antd/es/form";
 import Input from "antd/es/input";
 import Button from "antd/es/button";
-import { CloseOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import get from "lodash/get";
 import Messages from "../messages.json";
 
@@ -42,7 +42,7 @@ export default function Directions({
             initialValue={get(val, "text")}
             rules={[
               {
-                required: true,
+                required: false,
                 message: messages.recipe_form_direction_text_error
               }
             ]}
@@ -56,7 +56,7 @@ export default function Directions({
           {i > 0 && (
             <Button
               shape="circle"
-              icon={<CloseOutlined />}
+              icon={<DeleteOutlined />}
               className="recipe-form__action"
               onClick={() => handleRemove(i)}
             />

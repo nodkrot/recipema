@@ -9,7 +9,7 @@ import Col from "antd/es/col";
 import Button from "antd/es/button";
 import Modal from "antd/es/modal";
 import message from "antd/es/message";
-import { HomeOutlined, LogoutOutlined, PlusOutlined, EyeOutlined } from "@ant-design/icons";
+import { HomeOutlined, LogoutOutlined, EyeOutlined } from "@ant-design/icons";
 import imageCompression from "browser-image-compression";
 import { signOut } from "firebase/auth";
 import Header from "./Header.js";
@@ -143,6 +143,7 @@ export default function Dashboard() {
       queryClient.invalidateQueries({ queryKey: ["recipe", recipe.id] });
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
     } catch (err) {
+      console.error("Error submitting recipe:", err);
       message.error(messages.notification_failure);
     } finally {
       setIsSaving(false);
@@ -299,11 +300,11 @@ export default function Dashboard() {
                 {messages.app_list_title}
                 <Button
                   type="primary"
-                  shape="circle"
-                  icon={<PlusOutlined />}
                   size="large"
                   onClick={handleNew}
-                />
+                >
+                  {messages.app_new_recipe_button}
+                </Button>
               </h1>
               <RecipeList
                 recipes={recipes}

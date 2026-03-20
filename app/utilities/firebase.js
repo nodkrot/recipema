@@ -13,6 +13,7 @@ import {
   query
 } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import { sanitizeRecipe } from "./recipeSanitizer.js";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FB_API_KEY,
@@ -77,7 +78,7 @@ export async function getRecipes() {
 }
 
 export async function createRecipe(recipe) {
-  const newRecipe = Object.assign({}, recipe, {
+  const newRecipe = Object.assign({}, sanitizeRecipe(recipe), {
     createdAt: new Date().toISOString(),
     authorId: auth.currentUser.uid
   });
@@ -91,7 +92,7 @@ export async function updateRecipe(id, recipe) {
   const recipeDocRef = doc(db, "recipes", id);
   await setDoc(
     recipeDocRef,
-    Object.assign({}, recipe, {
+    Object.assign({}, sanitizeRecipe(recipe), {
       updatedAt: new Date().toISOString()
     }),
     { merge: true }

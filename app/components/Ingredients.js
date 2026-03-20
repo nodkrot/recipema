@@ -6,7 +6,7 @@ import Input from "antd/es/input";
 import Button from "antd/es/button";
 import Select from "antd/es/select";
 import AutoComplete from "antd/es/auto-complete";
-import { CloseOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import Messages from "../messages.json";
 import { Flex } from "antd";
 
@@ -61,7 +61,7 @@ export default function Ingredients({
             initialValue={get(val, "amount.value")}
             rules={[
               {
-                required: true,
+                required: false,
                 message: messages.recipe_form_ingredient_qty_error
               }
             ]}
@@ -79,7 +79,7 @@ export default function Ingredients({
             initialValue={get(val, "amount.unit")}
             rules={[
               {
-                required: true,
+                required: false,
                 message: messages.recipe_form_ingredient_unit_error
               }
             ]}
@@ -97,7 +97,7 @@ export default function Ingredients({
             initialValue={get(val, "name")}
             rules={[
               {
-                required: true,
+                required: false,
                 message: messages.recipe_form_ingredient_name_error
               }
             ]}
@@ -116,7 +116,7 @@ export default function Ingredients({
             />
           </FormItem>
           {i > 0 && (
-            <Button shape="circle" icon={<CloseOutlined />} onClick={() => handleRemove(i)} />
+            <Button shape="circle" icon={<DeleteOutlined />} onClick={() => handleRemove(i)} />
           )}
         </Flex>
       ))}

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
-import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import Form from "antd/es/form";
 import Input from "antd/es/input";
 import Button from "antd/es/button";
@@ -91,23 +91,6 @@ function RecipeFormInner({
       });
   }
 
-  function getAutoSaveText() {
-    if (isAutoSaving) {
-      return messages.autosave_saving;
-    }
-    if (lastAutoSaved) {
-      const now = new Date();
-      const diff = Math.floor((now - lastAutoSaved) / 1000);
-      if (diff < 60) {
-        return messages.autosave_saved_just_now;
-      } else if (diff < 3600) {
-        const minutes = Math.floor(diff / 60);
-        return messages.autosave_saved_minutes_ago.replace("$a", minutes);
-      }
-    }
-    return null;
-  }
-
   const isSaving = isLoading || isAutoSaving;
 
   return (
@@ -119,16 +102,14 @@ function RecipeFormInner({
     >
       <h1 className="recipe-form__title">
         {recipe ? recipe.name : messages.app_form_title}{" "}
-        {recipe && (
-          <Button
-            type="primary"
-            shape="circle"
-            icon={<SaveOutlined />}
-            size="large"
-            loading={isSaving}
-            onClick={handleSubmit}
-          />
-        )}
+        <Button
+          type="primary"
+          size="large"
+          loading={isSaving}
+          onClick={handleSubmit}
+        >
+          {messages.recipe_form_submit}
+        </Button>
       </h1>
       <FormItem name="name" rules={[{ required: true, message: messages.recipe_form_name_error }]}>
         <Input size="large" placeholder={messages.recipe_form_name} />
