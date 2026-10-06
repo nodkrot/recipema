@@ -1,0 +1,35 @@
+rules_version = '2';
+
+// Who may change what is decided by users/{uid}.role, so no emails live in this public repo.
+// To give someone edit access: they sign in to the portal once, then set their role to "admin"
+// in the Firebase console. storage.rules uses the same check.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /users/{userId} {
+      allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
+      // The portal creates a user's own doc on first sign-in (app/components/Login.js), as a customer.
+      allow create: if signedIn() && request.auth.uid == userId && request.resource.data.role == 'customer';
+      // Users may update their own doc (loggedInAt) but never their role.
+      allow update: if isAdmin()
+        || (signedIn() && request.auth.uid == userId && request.resource.data.role == resource.data.role);
+      allow delete: if isAdmin();
+    }
+
+    // Recipes are public so share links work; the Telegram bot writes through the Admin SDK.
+    match /recipes/{recipeId} {
+      allow read;
+      allow write: if isAdmin();
+    }
+
+    // Everything else (the bot's botDrafts, botChats, processedUpdates, recipes/*/history) is
+    // server-only: no rule matches it, so clients can't read or write it.
+  }
+}
