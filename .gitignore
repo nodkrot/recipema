@@ -19,3 +19,10 @@ fix-images.js
 
 recipe-export.json
 recipema-*.json
+
+# Telegram bot (Cloud Functions)
+!functions/.env
+functions/lib/
+functions/.secret.local
+.firebase/
+firebase-debug.log
