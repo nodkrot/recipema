@@ -5,6 +5,7 @@
 //   images/{uid}.{ext} (Storage)  gallery photos, same place the portal uploads to
 //   recipes/{id}/history/{autoId} fields as they were before a bot edit, so it can be undone
 //   botDrafts/{autoId}            a new recipe, edit, or photo the bot proposed, waiting for "Сохранить" (TTL on expireAt)
+//   botUsers/{telegramUserId}     people given access from the bot (/adduser), on top of ALLOWED_USER_IDS
 //   botChats/{chatId}             per-chat state: the recipe last shown, for "this recipe"
 //   processedUpdates/{updateId}   de-duplication of Telegram retries (TTL on expireAt)
 
@@ -313,6 +314,52 @@ export async function undoEdit(recipeId: string, historyId: string): Promise<"ok
   if (result === "missing" || result === "changed") return result;
   await deletePhotos(result.added).catch(() => undefined);
   return result.status;
+}
+
+export interface BotUser {
+  id: number;
+  name: string;
+  addedBy: string;
+}
+
+// Read on every message, so kept briefly per instance; changes made here clear it right away.
+let usersCache: { at: number; users: Promise<BotUser[]> } | null = null;
+
+/** People given access from the bot. */
+export function botUsers(): Promise<BotUser[]> {
+  if (!usersCache || Date.now() - usersCache.at > CACHE_MS) {
+    const users = db()
+      .collection("botUsers")
+      .get()
+      .then((snap) =>
+        snap.docs.map((d) => ({ id: Number(d.id), name: String(d.get("name") ?? ""), addedBy: String(d.get("addedBy") ?? "") })),
+      );
+    users.catch(() => (usersCache = null));
+    usersCache = { at: Date.now(), users };
+  }
+  return usersCache.users;
+}
+
+/** Gives a Telegram user access; returns false if they already had it. */
+export async function addBotUser(id: number, name: string, addedBy: string, addedById: number): Promise<boolean> {
+  try {
+    await db().collection("botUsers").doc(String(id)).create({ name, addedBy, addedById, addedAt: FieldValue.serverTimestamp() });
+    return true;
+  } catch (err) {
+    if ((err as { code?: number }).code === 6) return false; // ALREADY_EXISTS
+    throw err;
+  } finally {
+    usersCache = null;
+  }
+}
+
+/** Takes access away; returns false if they weren't in the list. */
+export async function removeBotUser(id: number): Promise<boolean> {
+  const ref = db().collection("botUsers").doc(String(id));
+  const existed = (await ref.get()).exists;
+  if (existed) await ref.delete();
+  usersCache = null;
+  return existed;
 }
 
 /** Remembers the recipe last shown in a chat, so "этот рецепт" can refer to it. */

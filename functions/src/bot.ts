@@ -8,6 +8,7 @@ import { EDITABLE_FIELDS, UNITS, type Draft, type Recipe, type RecipeChanges } f
 
 export interface BotConfig {
   botToken: string;
+  /** Owners from config (ALLOWED_USER_IDS): always allowed, can't be removed from the bot. */
   allowedUserIds: Set<number>;
   llm: LlmConfig;
   /** Portal address without a trailing slash, e.g. https://recipema.appletreelabs.com */
@@ -41,6 +42,7 @@ const HELP = `Я бот семейной книги рецептов.
 /list – все рецепты
 /tags – рецепты по тегам
 /random – случайный рецепт
+/users – у кого есть доступ (/adduser, /removeuser)
 
 В группе: упомяните меня или ответьте на моё сообщение.`;
 
@@ -54,9 +56,13 @@ export async function handleUpdate(update: TgUpdate, cfg: BotConfig): Promise<vo
   if (!msg) return;
 
   const userId = msg.from?.id;
-  if (!userId || !cfg.allowedUserIds.has(userId)) {
+  if (!userId || !(await isAllowed(cfg, userId))) {
     if (msg.chat.type === "private") {
-      await tg.sendMessage(msg.chat.id, `Это закрытый бот. (Ваш Telegram ID: ${userId}.)`);
+      await tg.sendMessage(
+        msg.chat.id,
+        `Это закрытый бот семейной книги рецептов. Ваш Telegram ID: ${userId}.\n\n` +
+          `Чтобы получить доступ, попросите кого-нибудь из семьи отправить мне:\n/adduser ${userId} ${msg.from?.first_name ?? ""}`.trim(),
+      );
     }
     return;
   }
@@ -80,6 +86,10 @@ export async function handleUpdate(update: TgUpdate, cfg: BotConfig): Promise<vo
     logger.error("Failed to handle update", err);
     await tg.sendMessage(msg.chat.id, "Что-то пошло не так. Попробуйте ещё раз.", msg.message_id);
   }
+}
+
+async function isAllowed(cfg: BotConfig, userId: number): Promise<boolean> {
+  return cfg.allowedUserIds.has(userId) || (await recipes.botUsers()).some((u) => u.id === userId);
 }
 
 /** In groups, plain text is only answered when it mentions the bot or replies to one of its messages. */
@@ -209,7 +219,10 @@ async function createFromMessage(tg: Telegram, cfg: BotConfig, msg: TgMessage): 
     await tg.sendMessage(
       msg.chat.id,
       "Не нашёл здесь рецепта. Пришлите текст с ингредиентами или шагами, фото страницы с рецептом, " +
-        "а фото готового блюда – ответом на карточку рецепта.",
+        "а фото готового блюда – ответом на карточку рецепта." +
+        (msg.forward_origin?.type === "user"
+          ? "\n\nЧтобы дать этому человеку доступ к боту, ответьте на пересланное сообщение: /adduser"
+          : ""),
       replyTo,
     );
     return;
@@ -353,7 +366,7 @@ function formatChanges(changes: RecipeChanges): string {
 }
 
 async function handleCallback(tg: Telegram, cfg: BotConfig, updateId: number, cq: TgCallbackQuery): Promise<void> {
-  if (!cfg.allowedUserIds.has(cq.from.id)) {
+  if (!(await isAllowed(cfg, cq.from.id))) {
     await tg.answerCallbackQuery(cq.id, "Это закрытый бот.");
     return;
   }
@@ -512,6 +525,64 @@ async function handleCommand(tg: Telegram, cfg: BotConfig, msg: TgMessage, text:
       const rows: TgKeyboard = [];
       for (let i = 0; i < buttons.length; i += 2) rows.push(buttons.slice(i, i + 2));
       await tg.sendMessage(chatId, "Теги:\n" + tags.map(([t, n]) => `#${hashtag(t)} – ${n}`).join("\n"), undefined, rows);
+      return;
+    }
+
+    case "/users": {
+      const added = await recipes.botUsers();
+      const lines = [
+        ...[...cfg.allowedUserIds].map((id) => `• ${id} – владелец`),
+        ...added
+          .filter((u) => !cfg.allowedUserIds.has(u.id))
+          .map((u) => `• ${u.name ? `${u.name} (${u.id})` : u.id}${u.addedBy ? ` – добавил(а) ${u.addedBy}` : ""}`),
+      ];
+      await tg.sendMessage(
+        chatId,
+        `Доступ к боту:\n${lines.join("\n")}\n\nДобавить: /adduser <ID> [имя]\nУбрать: /removeuser <ID>`,
+      );
+      return;
+    }
+
+    case "/adduser": {
+      // Either "/adduser 123 Мама", or a reply to a message forwarded from that person.
+      const origin = msg.reply_to_message?.forward_origin;
+      const [rawId, ...nameParts] = arg.split(/\s+/);
+      let id = Number(rawId);
+      let name = nameParts.join(" ");
+      if (!rawId && origin?.type === "user") {
+        id = origin.sender_user.id;
+        name = [origin.sender_user.first_name, origin.sender_user.last_name].filter(Boolean).join(" ");
+      }
+      if (!Number.isSafeInteger(id) || id <= 0) {
+        await tg.sendMessage(
+          chatId,
+          "Как добавить человека:\n" +
+            "• /adduser <ID> [имя] – ID бот показывает тем, у кого нет доступа\n" +
+            "• или перешлите сюда сообщение этого человека и ответьте на него: /adduser" +
+            (origin && origin.type !== "user" ? "\n\n(У этого сообщения отправитель скрыт настройками приватности – нужен ID.)" : ""),
+        );
+        return;
+      }
+      if (cfg.allowedUserIds.has(id) || !(await recipes.addBotUser(id, name, senderName(msg), msg.from!.id))) {
+        await tg.sendMessage(chatId, `У ${name || id} уже есть доступ.`);
+        return;
+      }
+      await tg.sendMessage(chatId, `Готово: ${name ? `${name} (${id})` : id} теперь может пользоваться ботом.`);
+      return;
+    }
+
+    case "/removeuser": {
+      const id = Number(arg.split(/\s+/)[0]);
+      if (!Number.isSafeInteger(id) || id <= 0) {
+        await tg.sendMessage(chatId, "Напишите ID: /removeuser <ID>. Список – /users");
+        return;
+      }
+      if (cfg.allowedUserIds.has(id)) {
+        await tg.sendMessage(chatId, "Это владелец, его можно убрать только в настройках бота.");
+        return;
+      }
+      const removed = await recipes.removeBotUser(id);
+      await tg.sendMessage(chatId, removed ? `Готово: у ${id} больше нет доступа.` : `${id} нет в списке. Список – /users`);
       return;
     }
 

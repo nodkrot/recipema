@@ -55,13 +55,16 @@ Telegram ──webhook──▶ Cloud Function (recipeBot) ──▶ Gemini API
 - Reply to a recipe card with a photo → adds it to that recipe's gallery
 - Reply to a recipe card (or send its portal link) with a change ("разбей приготовление на шаги")
   → preview → "Сохранить" writes it; the old values go to `recipes/{id}/history` and "Вернуть как было" undoes it
+- `/users` who has access · `/adduser <id> [имя]` (or reply `/adduser` to a forwarded message
+  from that person) · `/removeuser <id>`; anyone with access can do this. People added here are
+  stored in `botUsers`; the owners in `ALLOWED_USER_IDS` can't be removed from the bot
 - `/find <слово>` keyword search · `/list` all recipes · `/tags` by tag · `/random`
 
 Configuration: `functions/.env` (`GEMINI_MODEL`, `PORTAL_URL`), the gitignored
 `functions/.env.<project id>` for private settings (`ALLOWED_USER_IDS`, `AUTHOR_IDS`; see the
 comments in `functions/.env`), and secrets in Secret Manager (`TELEGRAM_BOT_TOKEN`,
-`TELEGRAM_WEBHOOK_SECRET`, `GEMINI_API_KEY`), set with `firebase functions:secrets:set <NAME>`. Unknown users get a reply with their Telegram ID
-to add to `ALLOWED_USER_IDS`.
+`TELEGRAM_WEBHOOK_SECRET`, `GEMINI_API_KEY`), set with `firebase functions:secrets:set <NAME>`. Unknown users get a reply with their Telegram ID and
+the `/adduser` command a family member can send.
 
 ```
 firebase deploy --only functions   # builds and deploys the bot
