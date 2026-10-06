@@ -26,3 +26,7 @@ functions/lib/
 functions/.secret.local
 .firebase/
 firebase-debug.log
+
+# Editor settings
+.vscode/
+.cursor/
