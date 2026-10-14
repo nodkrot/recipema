@@ -34,8 +34,10 @@ export interface TgMessage {
   forward_origin?: TgMessageOrigin;
   photo?: TgPhotoSize[];
   video?: unknown;
-  voice?: unknown;
-  audio?: unknown;
+  /** A voice message recorded in Telegram (OGG/Opus). */
+  voice?: TgFile & { duration: number };
+  /** An audio file sent as music (MP3, M4A, …). */
+  audio?: TgFile & { duration: number; file_name?: string };
   sticker?: { emoji?: string };
   document?: { file_id: string; file_unique_id: string; file_name?: string; mime_type?: string; file_size?: number };
   location?: { latitude: number; longitude: number };
@@ -45,6 +47,13 @@ export interface TgMessage {
   reply_markup?: { inline_keyboard?: TgKeyboard };
   /** Sent in a group when Telegram upgrades it to a supergroup, which gets a new chat ID. */
   migrate_to_chat_id?: number;
+}
+
+export interface TgFile {
+  file_id: string;
+  file_unique_id: string;
+  mime_type?: string;
+  file_size?: number;
 }
 
 export interface TgPhotoSize {
@@ -219,6 +228,31 @@ export function extractImage(msg: TgMessage): TgImage | null {
       uniqueId: msg.document.file_unique_id,
       mediaType: mime as TgImage["mediaType"],
     };
+  }
+  return null;
+}
+
+export interface TgAudio {
+  fileId: string;
+  mediaType: string;
+  /** Seconds, if Telegram knows it. */
+  duration: number | null;
+  size: number | null;
+}
+
+/** The audio in a message, if any: a voice message, an audio file, or audio sent as a document. */
+export function extractAudio(msg: TgMessage): TgAudio | null {
+  if (msg.voice) {
+    const v = msg.voice;
+    return { fileId: v.file_id, mediaType: v.mime_type ?? "audio/ogg", duration: v.duration, size: v.file_size ?? null };
+  }
+  if (msg.audio) {
+    const a = msg.audio;
+    return { fileId: a.file_id, mediaType: a.mime_type ?? "audio/mpeg", duration: a.duration, size: a.file_size ?? null };
+  }
+  const d = msg.document;
+  if (d?.mime_type?.startsWith("audio/")) {
+    return { fileId: d.file_id, mediaType: d.mime_type, duration: null, size: d.file_size ?? null };
   }
   return null;
 }

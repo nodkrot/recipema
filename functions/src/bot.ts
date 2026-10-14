@@ -1,8 +1,8 @@
 // Update routing: auth, de-duplication, commands, button taps, free-form requests.
 
 import { logger } from "firebase-functions";
-import { Telegram, TgCallbackQuery, TgKeyboard, TgMessage, TgUpdate, extractContent, extractImage } from "./telegram";
-import { ImageInput, LlmConfig, editRecipe, extractRecipe, understand } from "./llm";
+import { Telegram, TgCallbackQuery, TgKeyboard, TgMessage, TgUpdate, extractAudio, extractContent, extractImage } from "./telegram";
+import { ImageInput, LlmConfig, editRecipe, extractRecipe, geminiAudioType, transcribe, understand } from "./llm";
 import * as recipes from "./recipes";
 import { EDITABLE_FIELDS, UNITS, type Draft, type Recipe, type RecipeChanges } from "./recipes";
 
@@ -25,6 +25,8 @@ const HELP = `Я бот семейной книги рецептов.
 или сфотографируйте страницу из книги или карточку.
 
 Чтобы добавить фото блюда, ответьте фотографией на карточку рецепта.
+
+Можно и голосом: запишите голосовое сообщение – я его расшифрую.
 
 Найти рецепт – просто напишите, что ищете:
 • «что приготовить из фарша?»
@@ -52,7 +54,7 @@ export async function handleUpdate(update: TgUpdate, cfg: BotConfig): Promise<vo
     await handleCallback(tg, cfg, update.update_id, update.callback_query);
     return;
   }
-  const msg = update.message;
+  let msg = update.message;
   if (!msg) return;
 
   const userId = msg.from?.id;
@@ -77,6 +79,13 @@ export async function handleUpdate(update: TgUpdate, cfg: BotConfig): Promise<vo
     if (text.startsWith("/")) {
       await handleCommand(tg, cfg, msg, text);
     } else if (msg.chat.type === "private" || (await isAddressedToBot(tg, msg))) {
+      const audio = extractAudio(msg);
+      if (audio) {
+        const heard = await transcribeMessage(tg, cfg, msg, audio);
+        if (!heard) return;
+        // From here on the voice message is handled as if the transcript had been typed.
+        msg = { ...msg, text: heard, caption: undefined, voice: undefined, audio: undefined, document: undefined };
+      }
       const draftId = draftIdOf(msg.reply_to_message);
       if (draftId && msg.text) await reviseDraft(tg, cfg, msg, draftId);
       else if (extractImage(msg) || msg.forward_origin) await handleMedia(tg, cfg, msg);
@@ -90,6 +99,42 @@ export async function handleUpdate(update: TgUpdate, cfg: BotConfig): Promise<vo
 
 async function isAllowed(cfg: BotConfig, userId: number): Promise<boolean> {
   return cfg.allowedUserIds.has(userId) || (await recipes.botUsers()).some((u) => u.id === userId);
+}
+
+// Telegram lets bots download files up to 20 MB; Gemini takes up to about 20 MB inline.
+const MAX_AUDIO_BYTES = 15 * 1024 * 1024;
+const MAX_AUDIO_SECONDS = 10 * 60;
+
+/**
+ * Turns a voice message or audio file into text, and shows what was heard so a misheard word is
+ * easy to spot. Returns null (after telling the user) if it can't be used.
+ */
+async function transcribeMessage(
+  tg: Telegram,
+  cfg: BotConfig,
+  msg: TgMessage,
+  audio: NonNullable<ReturnType<typeof extractAudio>>,
+): Promise<string | null> {
+  const mediaType = geminiAudioType(audio.mediaType);
+  if (!mediaType) {
+    await tg.sendMessage(msg.chat.id, "Этот формат аудио я не понимаю. Запишите голосовое сообщение или пришлите MP3/M4A.", msg.message_id);
+    return null;
+  }
+  if ((audio.size ?? 0) > MAX_AUDIO_BYTES || (audio.duration ?? 0) > MAX_AUDIO_SECONDS) {
+    await tg.sendMessage(msg.chat.id, "Слишком длинная запись: я понимаю до 10 минут.", msg.message_id);
+    return null;
+  }
+  await tg.sendTyping(msg.chat.id);
+  const bytes = await tg.downloadFile(audio.fileId);
+  const transcript = await transcribe(cfg.llm, { mediaType, base64: bytes.toString("base64") });
+  const caption = (msg.caption ?? "").trim();
+  const heard = [caption, transcript].filter(Boolean).join("\n");
+  if (!heard) {
+    await tg.sendMessage(msg.chat.id, "Не расслышал. Попробуйте ещё раз.", msg.message_id);
+    return null;
+  }
+  if (transcript) await tg.sendMessage(msg.chat.id, `🎤 ${transcript}`, msg.message_id);
+  return heard;
 }
 
 /** In groups, plain text is only answered when it mentions the bot or replies to one of its messages. */

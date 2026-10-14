@@ -19,6 +19,7 @@ export type Intent =
   | { kind: "edit"; recipeId: string; request: string }
   | { kind: "create" };
 
+/** A file sent inline to Gemini: an image, or audio for transcribe(). */
 export interface ImageInput {
   mediaType: string;
   base64: string;
@@ -339,6 +340,46 @@ export async function extractRecipe(
   const fields = parseFields(args);
   if (args.is_recipe === false || !fields.name?.trim()) return { isRecipe: false };
   return { isRecipe: true, recipe: { ...fields, name: fields.name }, photoShowsDish: !!image && args.photo_shows_dish === true };
+}
+
+// Gemini takes these audio types; Telegram reports M4A files as audio/mp4 or audio/x-m4a (AAC inside).
+const AUDIO_TYPES: Record<string, string> = {
+  "audio/ogg": "audio/ogg",
+  "audio/opus": "audio/ogg",
+  "audio/mpeg": "audio/mp3",
+  "audio/mp3": "audio/mp3",
+  "audio/wav": "audio/wav",
+  "audio/x-wav": "audio/wav",
+  "audio/aac": "audio/aac",
+  "audio/mp4": "audio/aac",
+  "audio/x-m4a": "audio/aac",
+  "audio/m4a": "audio/aac",
+  "audio/flac": "audio/flac",
+  "audio/aiff": "audio/aiff",
+};
+
+/** The audio type to send Gemini, or null if it can't take this one. */
+export function geminiAudioType(mediaType: string): string | null {
+  return AUDIO_TYPES[mediaType.toLowerCase()] ?? null;
+}
+
+const TRANSCRIBE_PROMPT = `Transcribe this voice message from a family member to their recipe bot, word for word, in the
+language spoken (usually Russian). Write numbers and units as digits and abbreviations when they're
+amounts ("двести грамм муки" -> "200 г муки"). Reply with the transcript only; if there's no speech, reply
+with nothing.`;
+
+/** Speech to text. Returns "" if nothing was said. */
+export async function transcribe(cfg: LlmConfig, audio: ImageInput): Promise<string> {
+  const res = await client(cfg).models.generateContent({
+    model: cfg.model,
+    contents: [
+      {
+        role: "user",
+        parts: [{ inlineData: { mimeType: audio.mediaType, data: audio.base64 } }, { text: TRANSCRIBE_PROMPT }],
+      },
+    ],
+  });
+  return (res.text ?? "").trim();
 }
 
 function client(cfg: LlmConfig): GoogleGenAI {

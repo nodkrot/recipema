@@ -53,6 +53,8 @@ Telegram ──webhook──▶ Cloud Function (recipeBot) ──▶ Gemini API
 - Send a recipe as text, a forward, or a photo of a cookbook page → preview → "Сохранить" adds it
   (a dish photo goes into the gallery); reply to a preview to correct it before saving
 - Reply to a recipe card with a photo → adds it to that recipe's gallery
+- Voice messages and audio files (OGG, MP3, M4A, WAV, up to 10 minutes) are transcribed by Gemini,
+  echoed back ("🎤 …"), and then handled like typed text: search, questions, edits, new recipes
 - Reply to a recipe card (or send its portal link) with a change ("разбей приготовление на шаги")
   → preview → "Сохранить" writes it; the old values go to `recipes/{id}/history` and "Вернуть как было" undoes it
 - `/users` who has access · `/adduser <id> [имя]` (or reply `/adduser` to a forwarded message
