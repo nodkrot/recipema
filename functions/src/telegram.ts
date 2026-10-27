@@ -99,11 +99,15 @@ export class Telegram {
     return data.result;
   }
 
-  /** Sends plain text (no parse_mode, so user content can't break formatting). Splits long text. */
-  async sendMessage(chatId: number, text: string, replyTo?: number, keyboard?: TgKeyboard): Promise<void> {
+  /**
+   * Sends plain text (no parse_mode, so user content can't break formatting). Splits long text.
+   * Returns the ID of the last message sent (the one with the buttons).
+   */
+  async sendMessage(chatId: number, text: string, replyTo?: number, keyboard?: TgKeyboard): Promise<number> {
     const chunks = splitText(text || "(empty)", MAX_MESSAGE_LENGTH);
+    let messageId = 0;
     for (let i = 0; i < chunks.length; i++) {
-      await this.call("sendMessage", {
+      const sent = await this.call<{ message_id: number }>("sendMessage", {
         chat_id: chatId,
         text: chunks[i],
         ...(i === 0 && replyTo
@@ -112,7 +116,18 @@ export class Telegram {
         // Buttons go under the last chunk.
         ...(i === chunks.length - 1 && keyboard ? { reply_markup: { inline_keyboard: keyboard } } : {}),
       });
+      messageId = sent.message_id;
     }
+    return messageId;
+  }
+
+  /** Replaces a message's buttons; with no keyboard, removes them. */
+  async editMessageReplyMarkup(chatId: number, messageId: number, keyboard?: TgKeyboard): Promise<void> {
+    await this.call("editMessageReplyMarkup", {
+      chat_id: chatId,
+      message_id: messageId,
+      reply_markup: { inline_keyboard: keyboard ?? [] },
+    });
   }
 
   async editMessageText(chatId: number, messageId: number, text: string, keyboard?: TgKeyboard): Promise<void> {

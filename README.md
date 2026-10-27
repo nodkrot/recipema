@@ -57,6 +57,9 @@ Telegram ──webhook──▶ Cloud Function (recipeBot) ──▶ Gemini API
   echoed back ("🎤 …"), and then handled like typed text: search, questions, edits, new recipes
 - Reply to a recipe card (or send its portal link) with a change ("разбей приготовление на шаги")
   → preview → "Сохранить" writes it; the old values go to `recipes/{id}/history` and "Вернуть как было" undoes it
+- Follow-ups work: the bot keeps the last 5 exchanges per chat (`botChats/{chatId}.history`) and
+  gives them to Gemini, so "покажи супы" → "во втором убери чеснок", or a correction right after a
+  preview, or "теперь добавь тег" right after saving, refer to the right recipe
 - `/users` who has access · `/adduser <id> [имя]` (or reply `/adduser` to a forwarded message
   from that person) · `/removeuser <id>`; anyone with access can do this. People added here are
   stored in `botUsers`; the owners in `ALLOWED_USER_IDS` can't be removed from the bot

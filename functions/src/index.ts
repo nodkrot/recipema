@@ -4,10 +4,13 @@ import { onRequest } from "firebase-functions/v2/https";
 import { defineSecret, defineString } from "firebase-functions/params";
 import { logger } from "firebase-functions";
 import { initializeApp } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
 import { handleUpdate } from "./bot";
 import type { TgUpdate } from "./telegram";
 
 initializeApp();
+// Optional fields (e.g. a chat turn without recipes) are left out instead of failing the write.
+getFirestore().settings({ ignoreUndefinedProperties: true });
 
 const TELEGRAM_BOT_TOKEN = defineSecret("TELEGRAM_BOT_TOKEN");
 const TELEGRAM_WEBHOOK_SECRET = defineSecret("TELEGRAM_WEBHOOK_SECRET");

@@ -4,7 +4,7 @@ import { logger } from "firebase-functions";
 import { Telegram, TgCallbackQuery, TgKeyboard, TgMessage, TgUpdate, extractAudio, extractContent, extractImage } from "./telegram";
 import { ImageInput, LlmConfig, editRecipe, extractRecipe, geminiAudioType, transcribe, understand } from "./llm";
 import * as recipes from "./recipes";
-import { EDITABLE_FIELDS, UNITS, type Draft, type Recipe, type RecipeChanges } from "./recipes";
+import { EDITABLE_FIELDS, UNITS, type ChatState, type Draft, type Recipe, type RecipeChanges, type Turn } from "./recipes";
 
 export interface BotConfig {
   botToken: string;
@@ -18,6 +18,28 @@ export interface BotConfig {
 }
 
 const PAGE_SIZE = 10;
+
+/**
+ * What one update knows about its chat (recent conversation, the recipe last shown) and what it
+ * adds to it; saved in one write when the update is done.
+ */
+interface Ctx {
+  chatId: number;
+  state: ChatState;
+  turns: Turn[];
+  lastRecipeId?: string;
+}
+
+/** Notes what the bot just showed or did, for the conversation history. */
+function said(ctx: Ctx, text: string, extra: Omit<Turn, "role" | "text"> = {}): void {
+  ctx.turns.push({ role: "bot", text: text.slice(0, 300), ...extra });
+}
+
+const asRefs = (list: Recipe[]) => list.map((r) => ({ id: r.id, name: r.name }));
+
+async function saveTurns(ctx: Ctx): Promise<void> {
+  await recipes.recordTurns(ctx.chatId, ctx.turns, ctx.lastRecipeId).catch((err) => logger.warn("recordTurns failed", err));
+}
 
 const HELP = `Я бот семейной книги рецептов.
 
@@ -38,6 +60,9 @@ const HELP = `Я бот семейной книги рецептов.
 • «муки нужно 350 г»
 • «добавь тег выпечка»
 Я покажу, что получится, и сохраню только после «Сохранить».
+
+Я помню последние сообщения, так что можно продолжать разговор:
+«покажи супы» → «во втором убери чеснок».
 
 Команды:
 /find <слово> – поиск по названию, ингредиентам и тегам
@@ -74,27 +99,44 @@ export async function handleUpdate(update: TgUpdate, cfg: BotConfig): Promise<vo
     return;
   }
 
+  const text = (msg.text ?? "").trim();
+  const isCommand = text.startsWith("/");
+  if (!isCommand && msg.chat.type !== "private" && !(await isAddressedToBot(tg, msg))) return;
+
+  const ctx: Ctx = { chatId: msg.chat.id, state: await recipes.getChatState(msg.chat.id), turns: [] };
   try {
-    const text = (msg.text ?? "").trim();
-    if (text.startsWith("/")) {
-      await handleCommand(tg, cfg, msg, text);
-    } else if (msg.chat.type === "private" || (await isAddressedToBot(tg, msg))) {
-      const audio = extractAudio(msg);
-      if (audio) {
-        const heard = await transcribeMessage(tg, cfg, msg, audio);
-        if (!heard) return;
-        // From here on the voice message is handled as if the transcript had been typed.
-        msg = { ...msg, text: heard, caption: undefined, voice: undefined, audio: undefined, document: undefined };
-      }
-      const draftId = draftIdOf(msg.reply_to_message);
-      if (draftId && msg.text) await reviseDraft(tg, cfg, msg, draftId);
-      else if (extractImage(msg) || msg.forward_origin) await handleMedia(tg, cfg, msg);
-      else await handleRequest(tg, cfg, msg);
+    if (isCommand) {
+      ctx.turns.push(userTurn(msg, text));
+      await handleCommand(tg, cfg, msg, text, ctx);
+      // Commands that showed no recipes (/help, /users…) aren't worth remembering.
+      if (ctx.turns.length === 1) ctx.turns = [];
+      return;
     }
+    const audio = extractAudio(msg);
+    if (audio) {
+      const heard = await transcribeMessage(tg, cfg, msg, audio);
+      if (!heard) return;
+      // From here on the voice message is handled as if the transcript had been typed.
+      msg = { ...msg, text: heard, caption: undefined, voice: undefined, audio: undefined, document: undefined };
+    }
+    ctx.turns.push(userTurn(msg, extractContent(msg)));
+    const draftId = draftIdOf(msg.reply_to_message);
+    if (draftId && msg.text) await reviseDraft(tg, cfg, msg, ctx, draftId, msg.text, msg.reply_to_message!.message_id);
+    else if (extractImage(msg) || msg.forward_origin) await handleMedia(tg, cfg, msg, ctx);
+    else await handleRequest(tg, cfg, msg, ctx);
   } catch (err) {
     logger.error("Failed to handle update", err);
     await tg.sendMessage(msg.chat.id, "Что-то пошло не так. Попробуйте ещё раз.", msg.message_id);
+  } finally {
+    await saveTurns(ctx);
   }
+}
+
+/** The user's message for the history; in a group, with who said it. */
+function userTurn(msg: TgMessage, content: string): Turn {
+  const from = msg.forward_origin ? "[переслано] " : "";
+  const who = msg.chat.type === "private" ? "" : `${senderName(msg)}: `;
+  return { role: "user", text: `${who}${from}${content}`.slice(0, 500) };
 }
 
 async function isAllowed(cfg: BotConfig, userId: number): Promise<boolean> {
@@ -154,8 +196,8 @@ function recipeIdInText(text: string): string | null {
  * The recipe a message is about: a portal link in it, else the card it replies to, else the
  * recipe last shown in this chat.
  */
-async function currentRecipeId(msg: TgMessage, content: string): Promise<string | null> {
-  return recipeIdInText(content) ?? cardRecipeId(msg.reply_to_message) ?? (await recipes.getLastRecipe(msg.chat.id));
+function currentRecipeId(msg: TgMessage, content: string, ctx: Ctx): string | null {
+  return recipeIdInText(content) ?? cardRecipeId(msg.reply_to_message) ?? ctx.state.lastRecipeId;
 }
 
 /** The recipe of a card the bot sent: its "Открыть на сайте" button links to it. */
@@ -184,18 +226,26 @@ function senderName(msg: TgMessage): string {
 }
 
 /** Free-form messages: Gemini finds recipes and answers about them, or proposes an edit to one. */
-async function handleRequest(tg: Telegram, cfg: BotConfig, msg: TgMessage): Promise<void> {
+async function handleRequest(tg: Telegram, cfg: BotConfig, msg: TgMessage, ctx: Ctx): Promise<void> {
   const content = extractContent(msg);
   if (!content) return;
   const replyTo = msg.chat.type === "private" ? undefined : msg.message_id;
   await tg.sendTyping(msg.chat.id);
-  const [all, currentId] = await Promise.all([recipes.allRecipes(), currentRecipeId(msg, content)]);
+  const all = await recipes.allRecipes();
   const byId = new Map(all.map((r) => [r.id, r]));
+  const currentId = currentRecipeId(msg, content, ctx);
   const current = currentId ? (byId.get(currentId) ?? null) : null;
-  const intent = await understand(cfg.llm, all, current, content);
+  // The history is what came before this message, which Gemini gets on its own.
+  const intent = await understand(cfg.llm, all, current, ctx.state.history, content);
 
   if (intent.kind === "create") {
-    await createFromMessage(tg, cfg, msg);
+    await createFromMessage(tg, cfg, msg, ctx);
+    return;
+  }
+
+  if (intent.kind === "revise") {
+    const previewId = [...ctx.state.history].reverse().find((t) => t.draft?.id === intent.draftId)?.draft?.messageId;
+    await reviseDraft(tg, cfg, msg, ctx, intent.draftId, intent.request, previewId);
     return;
   }
 
@@ -203,6 +253,7 @@ async function handleRequest(tg: Telegram, cfg: BotConfig, msg: TgMessage): Prom
     const found = intent.recipeIds.map((id) => byId.get(id)!);
     const reply = intent.text || (found.length ? "Вот что нашлось:" : "Ничего не нашлось.");
     await tg.sendMessage(msg.chat.id, reply, replyTo, recipeButtons(found));
+    said(ctx, reply, found.length ? { recipes: asRefs(found) } : {});
     return;
   }
 
@@ -217,6 +268,7 @@ async function handleRequest(tg: Telegram, cfg: BotConfig, msg: TgMessage): Prom
   const changes = withoutUnchanged(recipe, recipes.sanitizeChanges(raw));
   if (!Object.keys(changes).length) {
     await tg.sendMessage(msg.chat.id, `В «${recipe.name}» нечего менять по этой просьбе.`, replyTo);
+    said(ctx, `В «${recipe.name}» нечего менять по этой просьбе.`, { recipes: asRefs([recipe]) });
     return;
   }
   const draft: Draft = {
@@ -228,11 +280,12 @@ async function handleRequest(tg: Telegram, cfg: BotConfig, msg: TgMessage): Prom
     by: senderName(msg),
   };
   const draftId = await recipes.saveDraft(draft);
-  await sendPreview(tg, msg.chat.id, replyTo, draftId, draft, { name: recipe.name, summary });
+  const messageId = await sendPreview(tg, msg.chat.id, replyTo, draftId, draft, { name: recipe.name, summary });
+  said(ctx, `Предложил изменить «${recipe.name}»: ${summary}`, { recipes: asRefs([recipe]), draft: { id: draftId, messageId } });
 }
 
 /** Photos and forwards: a dish photo replying to a recipe card goes to its gallery, anything else is a new recipe. */
-async function handleMedia(tg: Telegram, cfg: BotConfig, msg: TgMessage): Promise<void> {
+async function handleMedia(tg: Telegram, cfg: BotConfig, msg: TgMessage, ctx: Ctx): Promise<void> {
   const image = extractImage(msg);
   const cardId = cardRecipeId(msg.reply_to_message);
   if (image && cardId) {
@@ -243,14 +296,15 @@ async function handleMedia(tg: Telegram, cfg: BotConfig, msg: TgMessage): Promis
     }
     const draft: Draft = { kind: "photo", recipeId: recipe.id, photoFileId: image.fileId, userId: msg.from!.id, by: senderName(msg) };
     const draftId = await recipes.saveDraft(draft);
-    await sendPreview(tg, msg.chat.id, msg.message_id, draftId, draft, { name: recipe.name });
+    const messageId = await sendPreview(tg, msg.chat.id, msg.message_id, draftId, draft, { name: recipe.name });
+    said(ctx, `Предложил добавить фото в «${recipe.name}»`, { recipes: asRefs([recipe]), draft: { id: draftId, messageId } });
     return;
   }
-  await createFromMessage(tg, cfg, msg);
+  await createFromMessage(tg, cfg, msg, ctx);
 }
 
 /** Pulls a recipe out of the message (text, forward, or photo) and shows it for confirmation. */
-async function createFromMessage(tg: Telegram, cfg: BotConfig, msg: TgMessage): Promise<void> {
+async function createFromMessage(tg: Telegram, cfg: BotConfig, msg: TgMessage, ctx: Ctx): Promise<void> {
   const replyTo = msg.message_id;
   const image = extractImage(msg);
   const text = (msg.text ?? msg.caption ?? "").trim();
@@ -270,6 +324,7 @@ async function createFromMessage(tg: Telegram, cfg: BotConfig, msg: TgMessage): 
           : ""),
       replyTo,
     );
+    said(ctx, "Не нашёл в сообщении рецепта.");
     return;
   }
   const recipe = recipes.sanitizeNewRecipe(extraction.recipe);
@@ -281,14 +336,31 @@ async function createFromMessage(tg: Telegram, cfg: BotConfig, msg: TgMessage): 
     by: senderName(msg),
   };
   const draftId = await recipes.saveDraft(draft);
-  await sendPreview(tg, msg.chat.id, replyTo, draftId, draft, { similar: similarRecipes(all, recipe.name) });
+  const similar = similarRecipes(all, recipe.name);
+  const messageId = await sendPreview(tg, msg.chat.id, replyTo, draftId, draft, { similar });
+  said(ctx, `Предложил новый рецепт «${recipe.name}»${similar.length ? " (похожие уже есть)" : ""}`, {
+    ...(similar.length ? { recipes: asRefs(similar) } : {}),
+    draft: { id: draftId, messageId },
+  });
 }
 
-/** A reply to a preview: apply the corrections to the draft and show it again. */
-async function reviseDraft(tg: Telegram, cfg: BotConfig, msg: TgMessage, draftId: string): Promise<void> {
+/**
+ * A correction to a preview (a reply to it, or a follow-up message): apply it to the draft and show
+ * the draft again. `previewId` is the old preview, which loses its buttons.
+ */
+async function reviseDraft(
+  tg: Telegram,
+  cfg: BotConfig,
+  msg: TgMessage,
+  ctx: Ctx,
+  draftId: string,
+  request: string,
+  previewId: number | undefined,
+): Promise<void> {
   const draft = await recipes.getDraft(draftId);
   if (!draft || draft.kind === "photo") {
     await tg.sendMessage(msg.chat.id, draft ? "Здесь нечего поправлять: нажмите «Сохранить» или «Отмена»." : "Это уже сохранено или отменено.", msg.message_id);
+    said(ctx, draft ? "Фото можно только сохранить или отменить." : "Этот черновик уже сохранён или отменён.");
     return;
   }
   await tg.sendTyping(msg.chat.id);
@@ -301,13 +373,13 @@ async function reviseDraft(tg: Telegram, cfg: BotConfig, msg: TgMessage, draftId
       await tg.sendMessage(msg.chat.id, "Этого рецепта больше нет.", msg.message_id);
       return;
     }
-    const edit = await editRecipe(cfg.llm, { ...original, ...draft.changes }, msg.text!);
+    const edit = await editRecipe(cfg.llm, { ...original, ...draft.changes }, request);
     const changes = withoutUnchanged(original, { ...draft.changes, ...recipes.sanitizeChanges(edit.changes) });
     revised = { ...draft, changes };
     name = original.name;
     summary = edit.summary;
   } else {
-    const edit = await editRecipe(cfg.llm, { id: "new", ...draft.recipe }, msg.text!);
+    const edit = await editRecipe(cfg.llm, { id: "new", ...draft.recipe }, request);
     const recipe = recipes.sanitizeNewRecipe({ ...draft.recipe, ...edit.changes });
     revised = { ...draft, recipe };
     name = recipe.name;
@@ -315,8 +387,12 @@ async function reviseDraft(tg: Telegram, cfg: BotConfig, msg: TgMessage, draftId
   }
   await recipes.replaceDraft(draftId, revised);
   // The old preview loses its buttons, so only the latest version can be saved.
-  await tg.editMessageText(msg.chat.id, msg.reply_to_message!.message_id, `${msg.reply_to_message!.text ?? ""}\n\n⤵️ Исправлено ниже`).catch(() => undefined);
-  await sendPreview(tg, msg.chat.id, msg.message_id, draftId, revised, { name, summary });
+  if (previewId) await tg.editMessageReplyMarkup(msg.chat.id, previewId).catch(() => undefined);
+  const messageId = await sendPreview(tg, msg.chat.id, msg.message_id, draftId, revised, { name, summary });
+  said(ctx, `Исправил черновик «${name}»: ${summary}`, {
+    ...(revised.kind === "edit" ? { recipes: [{ id: revised.recipeId, name }] } : {}),
+    draft: { id: draftId, messageId },
+  });
 }
 
 /** Shows a draft with Save / Cancel buttons. */
@@ -327,7 +403,7 @@ async function sendPreview(
   draftId: string,
   draft: Draft,
   info: { name?: string; summary?: string; similar?: Recipe[] },
-): Promise<void> {
+): Promise<number> {
   const hint = "Чтобы что-то поправить, ответьте на это сообщение.";
   let text: string;
   if (draft.kind === "photo") {
@@ -352,7 +428,7 @@ async function sendPreview(
     ],
     ...(info.similar ?? []).slice(0, 3).map((r) => [{ text: `👀 ${r.name}`, callback_data: `r:${r.id}` }]),
   ];
-  await tg.sendMessage(chatId, text, replyTo, keyboard);
+  return tg.sendMessage(chatId, text, replyTo, keyboard);
 }
 
 const STOP_WORDS = new Set(["для", "из", "по", "на", "с", "со", "и", "в", "без", "домашнему", "рецепт"]);
@@ -423,43 +499,55 @@ async function handleCallback(tg: Telegram, cfg: BotConfig, updateId: number, cq
   await tg.answerCallbackQuery(cq.id);
   if (!chatId || sep < 0) return;
 
+  // Button taps only add the bot's side (what it showed or saved); the history is read in the write.
+  const ctx: Ctx = { chatId, state: { lastRecipeId: null, history: [] }, turns: [] };
   try {
     switch (action) {
       case "r": {
         const recipe = await recipes.getRecipe(arg);
-        if (recipe) await sendRecipe(tg, cfg, chatId, recipe);
+        if (recipe) await sendRecipe(tg, cfg, chatId, recipe, ctx);
         else await tg.sendMessage(chatId, "Этого рецепта больше нет.");
         return;
       }
       case "p":
-        await editListPage(tg, chatId, cq.message!.message_id, Number(arg));
+        await editListPage(tg, chatId, cq.message!.message_id, Number(arg), ctx);
         return;
       case "t":
-        await sendTag(tg, chatId, arg);
+        await sendTag(tg, chatId, arg, ctx);
         return;
       case "s":
-        await saveDraft(tg, cfg, chatId, cq.message!.message_id, arg);
+        await saveDraft(tg, cfg, chatId, cq.message!.message_id, arg, ctx);
         return;
       case "x":
         await recipes.deleteDraft(arg);
         await tg.editMessageText(chatId, cq.message!.message_id, `${cq.message!.text ?? ""}\n\n✖️ Отменено`);
+        said(ctx, "Черновик отменён.");
         return;
       case "u": {
         const [recipeId, historyId] = arg.split(":");
-        await undo(tg, chatId, cq.message!, recipeId, historyId);
+        await undo(tg, chatId, cq.message!, recipeId, historyId, ctx);
         return;
       }
       case "d":
-        await undoCreate(tg, chatId, cq.message!, arg);
+        await undoCreate(tg, chatId, cq.message!, arg, ctx);
         return;
     }
   } catch (err) {
     logger.error("Failed to handle button", err);
     await tg.sendMessage(chatId, "Что-то пошло не так. Попробуйте ещё раз.");
+  } finally {
+    await saveTurns(ctx);
   }
 }
 
-async function saveDraft(tg: Telegram, cfg: BotConfig, chatId: number, messageId: number, draftId: string): Promise<void> {
+async function saveDraft(
+  tg: Telegram,
+  cfg: BotConfig,
+  chatId: number,
+  messageId: number,
+  draftId: string,
+  ctx: Ctx,
+): Promise<void> {
   const draft = await recipes.getDraft(draftId);
   if (!draft) {
     await tg.sendMessage(chatId, "Это уже сохранено или отменено.");
@@ -487,6 +575,9 @@ async function saveDraft(tg: Telegram, cfg: BotConfig, chatId: number, messageId
       ? { text: "↩️ Отменить добавление", callback_data: `d:${result.recipeId}` }
       : { text: "↩️ Вернуть как было", callback_data: `u:${result.recipeId}:${result.historyId}` };
   const what = { create: "✅ Добавлено", edit: "✅ Сохранено", photo: "✅ Фото добавлено" }[draft.kind];
+  // "Теперь добавь тег…" right after saving refers to this recipe.
+  said(ctx, `${what}: ${recipe?.name ?? ""}`, { recipes: [{ id: result.recipeId, name: recipe?.name ?? "" }] });
+  ctx.lastRecipeId = result.recipeId;
   await tg.editMessageText(chatId, messageId, `${what}: ${recipe?.name ?? ""}`, [
     [undoButton],
     [
@@ -504,8 +595,9 @@ function imageType(bytes: Buffer): string {
   return "image/jpeg";
 }
 
-async function undoCreate(tg: Telegram, chatId: number, msg: TgMessage, recipeId: string): Promise<void> {
+async function undoCreate(tg: Telegram, chatId: number, msg: TgMessage, recipeId: string, ctx: Ctx): Promise<void> {
   const result = await recipes.undoCreate(recipeId);
+  if (result === "ok") said(ctx, "Удалил только что добавленный рецепт.");
   if (result === "ok") {
     await tg.editMessageText(chatId, msg.message_id, `${msg.text ?? ""}\n\n↩️ Удалено`);
   } else if (result === "changed") {
@@ -515,8 +607,19 @@ async function undoCreate(tg: Telegram, chatId: number, msg: TgMessage, recipeId
   }
 }
 
-async function undo(tg: Telegram, chatId: number, msg: TgMessage, recipeId: string, historyId: string): Promise<void> {
+async function undo(
+  tg: Telegram,
+  chatId: number,
+  msg: TgMessage,
+  recipeId: string,
+  historyId: string,
+  ctx: Ctx,
+): Promise<void> {
   const result = await recipes.undoEdit(recipeId, historyId);
+  if (result === "ok") {
+    said(ctx, "Вернул рецепт как было.");
+    ctx.lastRecipeId = recipeId;
+  }
   if (result === "ok") {
     await tg.editMessageText(chatId, msg.message_id, `${msg.text ?? ""}\n\n↩️ Возвращено как было`);
   } else if (result === "changed") {
@@ -526,7 +629,7 @@ async function undo(tg: Telegram, chatId: number, msg: TgMessage, recipeId: stri
   }
 }
 
-async function handleCommand(tg: Telegram, cfg: BotConfig, msg: TgMessage, text: string): Promise<void> {
+async function handleCommand(tg: Telegram, cfg: BotConfig, msg: TgMessage, text: string, ctx: Ctx): Promise<void> {
   const [rawCmd] = text.split(/\s+/);
   const cmd = rawCmd.split("@")[0].toLowerCase(); // handles /cmd@YourBot in groups
   const arg = text.slice(rawCmd.length).trim();
@@ -546,16 +649,20 @@ async function handleCommand(tg: Telegram, cfg: BotConfig, msg: TgMessage, text:
       const found = recipes.searchRecipes(await recipes.allRecipes(), arg).slice(0, PAGE_SIZE);
       if (found.length) {
         await tg.sendMessage(chatId, `Найдено по «${arg}»:`, undefined, recipeButtons(found));
+        said(ctx, `Найдено по «${arg}»:`, { recipes: asRefs(found) });
       } else {
         // No keyword match: let Gemini try by meaning ("сладкое", "из курицы").
-        await handleRequest(tg, cfg, { ...msg, text: arg });
+        await handleRequest(tg, cfg, { ...msg, text: arg }, ctx);
       }
       return;
     }
 
-    case "/list":
-      await tg.sendMessage(chatId, ...(await listPage(0)));
+    case "/list": {
+      const [text, , keyboard, shown] = await listPage(0);
+      await tg.sendMessage(chatId, text, undefined, keyboard);
+      said(ctx, text, { recipes: asRefs(shown) });
       return;
+    }
 
     case "/tags": {
       const tags = recipes.tagCounts(await recipes.allRecipes());
@@ -637,7 +744,7 @@ async function handleCommand(tg: Telegram, cfg: BotConfig, msg: TgMessage, text:
         await tg.sendMessage(chatId, "Рецептов пока нет.");
         return;
       }
-      await sendRecipe(tg, cfg, chatId, all[Math.floor(Math.random() * all.length)]);
+      await sendRecipe(tg, cfg, chatId, all[Math.floor(Math.random() * all.length)], ctx);
       return;
     }
 
@@ -652,7 +759,7 @@ function recipeButtons(list: Recipe[]): TgKeyboard {
 }
 
 /** A page of all recipes with ◀ ▶ buttons, as sendMessage arguments after chatId. */
-async function listPage(page: number): Promise<[string, undefined, TgKeyboard]> {
+async function listPage(page: number): Promise<[string, undefined, TgKeyboard, Recipe[]]> {
   const all = await recipes.allRecipes();
   const pages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
   const p = Math.min(Math.max(0, page), pages - 1);
@@ -660,26 +767,29 @@ async function listPage(page: number): Promise<[string, undefined, TgKeyboard]> 
     ...(p > 0 ? [{ text: "◀", callback_data: `p:${p - 1}` }] : []),
     ...(p < pages - 1 ? [{ text: "▶", callback_data: `p:${p + 1}` }] : []),
   ];
-  const keyboard = [...recipeButtons(all.slice(p * PAGE_SIZE, (p + 1) * PAGE_SIZE)), ...(nav.length ? [nav] : [])];
-  return [`Все рецепты (${all.length}), стр. ${p + 1} из ${pages}:`, undefined, keyboard];
+  const shown = all.slice(p * PAGE_SIZE, (p + 1) * PAGE_SIZE);
+  const keyboard = [...recipeButtons(shown), ...(nav.length ? [nav] : [])];
+  return [`Все рецепты (${all.length}), стр. ${p + 1} из ${pages}:`, undefined, keyboard, shown];
 }
 
-async function editListPage(tg: Telegram, chatId: number, messageId: number, page: number): Promise<void> {
-  const [text, , keyboard] = await listPage(page);
+async function editListPage(tg: Telegram, chatId: number, messageId: number, page: number, ctx: Ctx): Promise<void> {
+  const [text, , keyboard, shown] = await listPage(page);
   await tg.editMessageText(chatId, messageId, text, keyboard);
+  said(ctx, text, { recipes: asRefs(shown) });
 }
 
-async function sendTag(tg: Telegram, chatId: number, tag: string): Promise<void> {
+async function sendTag(tg: Telegram, chatId: number, tag: string, ctx: Ctx): Promise<void> {
   const list = (await recipes.allRecipes()).filter((r) => r.tags?.includes(tag));
   if (!list.length) {
     await tg.sendMessage(chatId, `С тегом #${hashtag(tag)} рецептов нет.`);
     return;
   }
   await tg.sendMessage(chatId, `#${hashtag(tag)} (${list.length}):`, undefined, recipeButtons(list));
+  said(ctx, `Рецепты с тегом #${hashtag(tag)}:`, { recipes: asRefs(list.slice(0, PAGE_SIZE)) });
 }
 
 /** A recipe in full: photo, ingredients, steps, pairings, and a link to the portal. */
-async function sendRecipe(tg: Telegram, cfg: BotConfig, chatId: number, recipe: Recipe): Promise<void> {
+async function sendRecipe(tg: Telegram, cfg: BotConfig, chatId: number, recipe: Recipe, ctx: Ctx): Promise<void> {
   const photo = recipe.gallery?.find((g) => g.url)?.url;
   if (photo) {
     // A broken image shouldn't stop the recipe itself from being sent.
@@ -694,7 +804,8 @@ async function sendRecipe(tg: Telegram, cfg: BotConfig, chatId: number, recipe: 
     [{ text: "Открыть на сайте", url: `${cfg.portalUrl}/recipe/${recipe.id}` }],
   ];
   await tg.sendMessage(chatId, formatRecipe(recipe, pairings), undefined, keyboard);
-  await recipes.setLastRecipe(chatId, recipe.id);
+  said(ctx, `Показал рецепт «${recipe.name}»`, { recipes: asRefs([recipe]) });
+  ctx.lastRecipeId = recipe.id;
 }
 
 function formatRecipe(r: Recipe, pairings: Recipe[]): string {

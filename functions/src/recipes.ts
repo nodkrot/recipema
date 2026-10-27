@@ -6,7 +6,7 @@
 //   recipes/{id}/history/{autoId} fields as they were before a bot edit, so it can be undone
 //   botDrafts/{autoId}            a new recipe, edit, or photo the bot proposed, waiting for "Сохранить" (TTL on expireAt)
 //   botUsers/{telegramUserId}     people given access from the bot (/adduser), on top of ALLOWED_USER_IDS
-//   botChats/{chatId}             per-chat state: the recipe last shown, for "this recipe"
+//   botChats/{chatId}             per-chat state: the recipe last shown ("этот рецепт") and recent turns
 //   processedUpdates/{updateId}   de-duplication of Telegram retries (TTL on expireAt)
 
 import { randomUUID } from "node:crypto";
@@ -362,14 +362,53 @@ export async function removeBotUser(id: number): Promise<boolean> {
   return existed;
 }
 
-/** Remembers the recipe last shown in a chat, so "этот рецепт" can refer to it. */
-export async function setLastRecipe(chatId: number, recipeId: string): Promise<void> {
-  await db().collection("botChats").doc(String(chatId)).set({ lastRecipeId: recipeId, at: FieldValue.serverTimestamp() }, { merge: true });
+/** One line of a chat's recent conversation with the bot, given to Gemini as context. */
+export interface Turn {
+  role: "user" | "bot";
+  text: string;
+  /** Recipes the bot listed, showed, proposed to change, or saved, in the order shown. */
+  recipes?: { id: string; name: string }[];
+  /** A preview waiting for "Сохранить", and the message it's in. */
+  draft?: { id: string; messageId: number };
 }
 
-export async function getLastRecipe(chatId: number): Promise<string | null> {
-  const doc = await db().collection("botChats").doc(String(chatId)).get();
-  return (doc.get("lastRecipeId") as string | undefined) ?? null;
+/** Exchanges kept per chat: the last 5 messages and the bot's answers to them. */
+const HISTORY_TURNS = 10;
+
+export interface ChatState {
+  lastRecipeId: string | null;
+  history: Turn[];
+}
+
+const chatRef = (chatId: number) => db().collection("botChats").doc(String(chatId));
+
+export async function getChatState(chatId: number): Promise<ChatState> {
+  const doc = await chatRef(chatId).get();
+  return {
+    lastRecipeId: (doc.get("lastRecipeId") as string | undefined) ?? null,
+    history: (doc.get("history") as Turn[] | undefined) ?? [],
+  };
+}
+
+/**
+ * Appends turns to the chat's history (keeping the last HISTORY_TURNS) and, if given, sets the
+ * recipe "этот рецепт" refers to.
+ */
+export async function recordTurns(chatId: number, turns: Turn[], lastRecipeId?: string): Promise<void> {
+  if (!turns.length && !lastRecipeId) return;
+  const ref = chatRef(chatId);
+  await db().runTransaction(async (tx) => {
+    const history = ((await tx.get(ref)).get("history") as Turn[] | undefined) ?? [];
+    tx.set(
+      ref,
+      {
+        history: [...history, ...turns].slice(-HISTORY_TURNS),
+        ...(lastRecipeId ? { lastRecipeId } : {}),
+        at: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+  });
 }
 
 /** Tags in use with how many recipes have each, most used first. */
